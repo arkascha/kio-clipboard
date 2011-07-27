@@ -5,6 +5,7 @@ Author: Christian Reiner, Hamburg, Germany
 Email: kio-clipboard@christian-reiner.info
 Web: -/-
 
+Overview:
 kio-clipboard implements kio-slaves, protocols for KDEs io system. It makes the
 content of clipboards available inside file management. That means you can
 access the clipboards entries using standard file dialogs like 'File open' or
@@ -28,7 +29,8 @@ Future versions might add further clipboard types.
 Future versions might also be able to access remote (non-local) clipboards, the
 current version is limited to the local (current) desktop session.
 
-Details on specific slaves:
+Usage:
+Just enter "clipboard:/" or "klipper:/" in the location bar of for example dolphin or a "File open" dialog.
 * "klipper:/":
 This slave implements access to the standard clipboard utility under KDE4,
 called 'klipper'. Communication with klipper is done via its dbus interface,
