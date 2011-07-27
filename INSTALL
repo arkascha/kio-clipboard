@@ -1,0 +1,25 @@
+OVERVIEW
+The installation is pretty easy. There is no build-time
+dependency on Klipper or any library, as kio-clipboard
+ships its own repesentation of Klipper's DBus
+interface. If it changes, you are screwed, but this
+should not happen, as it is official and other programs
+will rely on it as well.
+
+INSTALLATION FROM BINARY PACKAGE
+If you have a precompiled package matching your system
+(architecture and distribution) installation is handled
+by the standard tool that comes with the distribution.
+
+BUILD AND INSTALL INSTRUCTIONS
+
+# in the sourc directory
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX=`kde4-config --prefix` ..
+make
+sudo make install
+
+That's it.
+You might want to add shortcuts for easier access at a
+fewplaces, for example dolphins 'places' sidebar.

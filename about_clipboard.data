@@ -1,0 +1,10 @@
+#define ABOUT_APP_NAME                    "kio_clipboard"
+#define ABOUT_CATALOG_NAME                "kio_clipboard"
+#define ABOUT_PROGRAM_NAME                "KIO protocol 'clipboard:/'"
+#define ABOUT_VERSION                     "0.1"
+#define ABOUT_DESCRIPTION                 "File based access to clipboard entries"
+#define ABOUT_LICENCE_TYPE                KAboutData::License_LGPL
+#define ABOUT_COPYRIGHT                   "(C) 2011 Christian Reiner, Hamburg, Germany"
+#define ABOUT_INFORMATION                 "Coding experiment :-)"
+#define ABOUT_WEBPAGE                     "http://www.christian-reiner.info"
+#define ABOUT_EMAIL                       "kio-clipboard@christian-reiner.info"

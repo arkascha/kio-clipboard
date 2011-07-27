@@ -1,0 +1,41 @@
+REAMDE file for the kio-clipboard package
+
+License: GPLv2+
+Author: Christian Reiner, Hamburg, Germany
+Email: kio-clipboard@christian-reiner.info
+Web: -/-
+
+kio-clipboard implements kio-slaves, protocols for KDEs io system. It makes the
+content of clipboards available inside file management. That means you can
+access the clipboards entries using standard file dialogs like 'File open' or
+'Save File', you even can use a file browser and access entries. In general
+you can use the slaves wherever you can use an url inside KDE to get access to
+the clipboards content. There are no temporary file generated.
+
+Warranty: 
+This software comes with no warranties. Use it at own risk.
+kio-clipboard was developed and tested under KDE-4.6 running on a GNU/Linux
+(openSUSE) on a x86_64 platform. I hope it works under other platforms and
+environments.
+
+State:
+This is an early and definitely buggy release. Especially There are some issues with actions offered in file managers, "link here" does not work and I cannot suppress it.
+There are currently no clipboards supported besides 'klipper' :-(
+Since this is my very first KDE implementation please don't rip me to pieces :-)
+
+Roadmap: 
+Future versions might add further clipboard types.
+Future versions might also be able to access remote (non-local) clipboards, the
+current version is limited to the local (current) desktop session.
+
+Details on specific slaves:
+* "klipper:/":
+This slave implements access to the standard clipboard utility under KDE4,
+called 'klipper'. Communication with klipper is done via its dbus interface,
+this makes it (relatively) future safe.
+* "clipboard:/":
+This protocol offers something like a "meta slave". It shows a kind of virtual
+folder where all available clipboards are offered. Each clipboard apepars as a
+classical folder, standard file operations are supported as far as they make
+sense. The specific operations that might be available depend on the clipboard
+accessed.
