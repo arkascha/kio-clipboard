@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <KUrl>
 #include <KMimeType>
+#include <kdeversion.h>
 #include <kdebug.h>
 #include "kio_clipboard_protocol.h"
 #include "christian-reiner.info/exception.h"
