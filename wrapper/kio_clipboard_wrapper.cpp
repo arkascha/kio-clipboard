@@ -1,3 +1,11 @@
+/* This file is part of 'kio-clipboard'
+ * Copyright (C) 2011 Christian Reiner <kio-clipboard@christian-reiner.info>
+ *
+ * $HeadURL$
+ * $Author$
+ * $Revision$
+ * $Date$
+ */
 #include <math.h>
 #include <kdebug.h>
 #include <kurl.h>

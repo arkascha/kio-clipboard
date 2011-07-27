@@ -13,12 +13,14 @@ by the standard tool that comes with the distribution.
 
 BUILD AND INSTALL INSTRUCTIONS
 
-# in the sourc directory
+# in the source directory:
 mkdir build
 cd build
 cmake -DCMAKE_INSTALL_PREFIX=`kde4-config --prefix` ..
 make
 sudo make install
+
+[sudo make uninstall]
 
 That's it.
 You might want to add shortcuts for easier access at a

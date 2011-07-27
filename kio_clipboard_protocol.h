@@ -1,3 +1,11 @@
+/* This file is part of 'kio-clipboard'
+ * Copyright (C) 2011 Christian Reiner <kio-clipboard@christian-reiner.info>
+ *
+ * $HeadURL$
+ * $Author$
+ * $Revision$
+ * $Date$
+ */
 #ifndef KIO_CLIPBOARD_PROTOCOL_H
 #define KIO_CLIPBOARD_PROTOCOL_H
 
