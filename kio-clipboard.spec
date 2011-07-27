@@ -24,7 +24,7 @@
 
 Name:           kio-clipboard
 BuildRequires:  cmake libqt4-devel
-BuildRequires:  libkde4-devel>=4.2
+BuildRequires:  libkde4-devel
 License:        GPLv2+
 Group:          Utilities/Desktop
 Summary:        KDE IO Slave for file based access of clipboard entries
