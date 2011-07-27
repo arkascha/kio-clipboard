@@ -36,7 +36,7 @@ KIOKlipperProtocol::KIOKlipperProtocol( const QByteArray &_pool, const QByteArra
   , KIOClipboardWrapperKlipper ( KUrl("klipper:/") )
 {
 //  KDebug::Block myBlock( "<slave setup>" );
-  MY_KDEBUG_BLOCK( "<slave setup>" );
+  MY_KDEBUG_BLOCK ( "<slave setup>" );
   kDebug() << "constructing protocol";
   try
   {
@@ -48,7 +48,7 @@ KIOKlipperProtocol::KIOKlipperProtocol( const QByteArray &_pool, const QByteArra
 
 KIOKlipperProtocol::~KIOKlipperProtocol()
 {
-  KDebug::Block myBlock( "<slave shutdown>" );
+  MY_KDEBUG_BLOCK ( "<slave shutdown>" );
   kDebug() << "destructing protocol";
   try
   {
@@ -66,7 +66,7 @@ const UDSEntry KIOKlipperProtocol::rootUDSEntry ()
   kDebug() << type();
   UDSEntry _entry;
   _entry.clear();
-  _entry.insert( UDSEntry::UDS_NAME,      QString::fromLatin1("."));
+  _entry.insert( UDSEntry::UDS_NAME,      QString::fromLatin1("klipper"));
   _entry.insert( UDSEntry::UDS_FILE_TYPE, S_IFDIR);
   _entry.insert( UDSEntry::UDS_ACCESS,    0744);
   _entry.insert( UDSEntry::UDS_MIME_TYPE, QString::fromLatin1("inode/directory"));
@@ -79,7 +79,7 @@ void KIOKlipperProtocol::del ( const KUrl& url, bool isfile )
 {
   // note: isfile signals if a directory or a file is meant to be deleted
   // this does make little sense for a clipboard, since it is just a string anyway
-  KDebug::Block myBlock( "<del>" );
+  MY_KDEBUG_BLOCK ( "<del>" );
   kDebug() << url.prettyUrl() << isfile;
   try
   {
@@ -92,7 +92,7 @@ void KIOKlipperProtocol::del ( const KUrl& url, bool isfile )
 
 void KIOKlipperProtocol::get ( const KUrl& url )
 {
-  KDebug::Block myBlock( "<get>" );
+  MY_KDEBUG_BLOCK ( "<get>" );
   kDebug() << url.prettyUrl() ;
   KUrl _url;
   try
@@ -131,7 +131,7 @@ void KIOKlipperProtocol::get ( const KUrl& url )
 
 void KIOKlipperProtocol::listDir ( const KUrl& url )
 {
-  KDebug::Block myBlock( "<listDir>" );
+  MY_KDEBUG_BLOCK ( "<listDir>" );
   kDebug() << url.prettyUrl();
   try
   {
@@ -153,7 +153,7 @@ void KIOKlipperProtocol::listDir ( const KUrl& url )
 
 void KIOKlipperProtocol::mimetype ( const KUrl& url )
 {
-  KDebug::Block myBlock( "<mimetype>" );
+  MY_KDEBUG_BLOCK ( "<mimetype>" );
   kDebug() << url.prettyUrl();
   try
   {
@@ -202,7 +202,7 @@ void KIOKlipperProtocol::mkdir ( const KUrl& url, int permissions )
   // all files contained in the directory are copied one by one
   // ToDo: just like in put(): the resulting url is clipboard:/-specific, that makes no sense
   // note: permissions and flags (OVERWRITE) dont make sense for a local clipboard
-  KDebug::Block myBlock( "<mkdir>" );
+  MY_KDEBUG_BLOCK ( "<mkdir>" );
   kDebug() << url.prettyUrl() << permissions;
   try
   {
@@ -217,7 +217,7 @@ void KIOKlipperProtocol::put ( const KUrl& url, int permissions, KIO::JobFlags f
   // ToDo: the resulting url is clipboard:/-specific, that makes no sense
   // ToDo: it has to be source specific instead ! and a full path, not just a file name
   // note: permissions and flags (OVERWRITE) dont make sense for a local clipboard
-  KDebug::Block myBlock( "<put>" );
+  MY_KDEBUG_BLOCK ( "<put>" );
   kDebug() << url.prettyUrl() << permissions << flags;
   try
   {
@@ -241,7 +241,7 @@ void KIOKlipperProtocol::put ( const KUrl& url, int permissions, KIO::JobFlags f
 
 void KIOKlipperProtocol::stat( const KUrl& url )
 {
-  KDebug::Block myBlock( "<stat>" );
+  MY_KDEBUG_BLOCK ( "<stat>" );
   kDebug() << url.prettyUrl();
   try
   {
@@ -291,7 +291,7 @@ void KIOKlipperProtocol::stat( const KUrl& url )
 
 void KIOKlipperProtocol::symlink ( const QString& target, const KUrl& dest, KIO::JobFlags flags )
 {
-  KDebug::Block myBlock( "<symlink>" );
+  MY_KDEBUG_BLOCK ( "<symlink>" );
   kDebug() << target << dest.prettyUrl() << flags;
   try
   {

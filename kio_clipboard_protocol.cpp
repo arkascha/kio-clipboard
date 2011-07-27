@@ -14,13 +14,21 @@
 #include "kio_clipboard_protocol.h"
 #include "christian-reiner.info/exception.h"
 
+// Kdebug::Block is only defined from KDE-4.6.0 on
+// we wrap it cause this appears to be the only requirement for KDE-4.6
+#if KDE_IS_VERSION(4,6,0)
+#define MY_KDEBUG_BLOCK(token) KDebug::Block myBlock(token);
+#else
+#define MY_KDEBUG_BLOCK(token) kDebug()<<token;
+#endif
+
 using namespace KIO;
 using namespace KIO_CLIPBOARD;
 
 KIOClipboardProtocol::KIOClipboardProtocol( const QByteArray &_pool, const QByteArray &_app )
   : ForwardingSlaveBase ( "clipboard", _pool, _app )
 {
-  KDebug::Block myBlock( "<slave setup>" );
+  MY_KDEBUG_BLOCK ( "<slave setup>" );
   kDebug();
   try
   {
@@ -39,7 +47,7 @@ KIOClipboardProtocol::KIOClipboardProtocol( const QByteArray &_pool, const QByte
 
 KIOClipboardProtocol::~KIOClipboardProtocol()
 {
-  KDebug::Block myBlock( "<slave shutdown>" );
+  MY_KDEBUG_BLOCK ( "<slave shutdown>" );
   kDebug();
   try
   {
@@ -67,7 +75,7 @@ const UDSEntry KIOClipboardProtocol::rootUDSEntry ()
   kDebug();
   UDSEntry _entry;
   _entry.clear();
-  _entry.insert( UDSEntry::UDS_NAME,         QString::fromLatin1("."));
+  _entry.insert( UDSEntry::UDS_NAME,         QString::fromLatin1("clipboard"));
   _entry.insert( UDSEntry::UDS_FILE_TYPE,    S_IFDIR);
   _entry.insert( UDSEntry::UDS_ACCESS,       0700);
   _entry.insert( UDSEntry::UDS_MIME_TYPE,    QString::fromLatin1("inode/directory"));
@@ -124,7 +132,7 @@ bool KIOClipboardProtocol::rewriteUrl   ( const KUrl& oldUrl, KUrl& newUrl )
 
 void KIOClipboardProtocol::del (const KUrl &url, bool isfile )
 {
-  KDebug::Block myBlock( "<del>" );
+  MY_KDEBUG_BLOCK ( "<del>" );
   kDebug() << url.url();
   try
   {
@@ -143,7 +151,7 @@ void KIOClipboardProtocol::del (const KUrl &url, bool isfile )
 
 void KIOClipboardProtocol::get ( const KUrl &url )
 {
-  KDebug::Block myBlock( "<get>" );
+  MY_KDEBUG_BLOCK ( "<get>" );
   kDebug() << url.url();
   try
   {
@@ -162,7 +170,7 @@ void KIOClipboardProtocol::get ( const KUrl &url )
 
 void KIOClipboardProtocol::listDir ( const KUrl& url )
 {
-  KDebug::Block myBlock( "<listDir>" );
+  MY_KDEBUG_BLOCK ( "<listDir>" );
   kDebug() << url.url();
   try
   {
@@ -182,7 +190,7 @@ void KIOClipboardProtocol::listDir ( const KUrl& url )
 
 void KIOClipboardProtocol::mimetype ( const KUrl& url )
 {
-  KDebug::Block myBlock( "<mimetype>" );
+  MY_KDEBUG_BLOCK ( "<mimetype>" );
   kDebug() << url.url();
   try
   {
@@ -201,7 +209,7 @@ void KIOClipboardProtocol::mimetype ( const KUrl& url )
 
 void KIOClipboardProtocol::mkdir (const KUrl &url, int permissions )
 {
-  KDebug::Block myBlock( "<mkdir>" );
+  MY_KDEBUG_BLOCK ( "<mkdir>" );
   kDebug() << url.url();
   try
   {
@@ -220,7 +228,7 @@ void KIOClipboardProtocol::mkdir (const KUrl &url, int permissions )
 
 void KIOClipboardProtocol::put (const KUrl &url, int permissions, JobFlags flags )
 {
-  KDebug::Block myBlock( "<put>" );
+  MY_KDEBUG_BLOCK ( "<put>" );
   kDebug() << url.url();
   try
   {
@@ -239,7 +247,7 @@ void KIOClipboardProtocol::put (const KUrl &url, int permissions, JobFlags flags
 
 void KIOClipboardProtocol::stat (const KUrl &url)
 {
-  KDebug::Block myBlock( "<stat>" );
+  MY_KDEBUG_BLOCK ( "<stat>" );
   kDebug() << url.url();
   try
   {
@@ -258,7 +266,7 @@ void KIOClipboardProtocol::stat (const KUrl &url)
 
 void KIOClipboardProtocol::symlink ( const QString& target, const KUrl& dest, JobFlags flags )
 {
-  KDebug::Block myBlock( "<symlink>" );
+  MY_KDEBUG_BLOCK ( "<symlink>" );
   kDebug() << dest.url();
   try
   {
