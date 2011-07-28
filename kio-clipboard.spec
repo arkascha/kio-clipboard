@@ -1,7 +1,6 @@
 #* This file is part of 'kio-clipboard'
 #* Copyright (C) 2011 Christian Reiner <kio-clipboard@christian-reiner.info>
 #*
-#* $HeadURL$
 #* $Author$
 #* $Revision$
 #* $Date$
