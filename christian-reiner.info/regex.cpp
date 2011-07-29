@@ -18,7 +18,7 @@ CRI::regExPool CRI::loadRegExPool()
   _pool["user"]     = QRegExp("[^@]+@{1}");
   _pool["domain"]   = QRegExp("([-a-z0-9]+.)+[a-z]{2,6}");
   _pool["port"]     = QRegExp("[0-9]+");
-  _pool["path"]     = QRegExp("(/[^/]+)*/?");
+  _pool["path"]     = QRegExp("(/[^/]+)+/?");
   _pool["query"]    = QRegExp("([&?][a-z0-9_]=[^&])*");
   _pool["anchor"]   = QRegExp("\\w+");
   _pool["uri"]      = QRegExp ( QString("^((%1):/{1,3})(%2)?(%3)(:%4)?(%5(%6)?(#%7)?)?$")

@@ -27,6 +27,7 @@ namespace KIO_CLIPBOARD
       Semantics m_semantics;
       QString   m_name;
       KUrl      m_url;
+      KUrl      m_link;
       QString   m_path;
       int       m_type;
     protected:
@@ -43,8 +44,10 @@ namespace KIO_CLIPBOARD
       inline const Semantics& semantics ( ) const { return m_semantics; };
       inline const QString&   name      ( ) const { return m_name; };
       inline const KUrl&      url       ( ) const { return m_url; };
+      inline const KUrl&      link      ( ) const { return m_link; };
       inline const QString&   path      ( ) const { return m_path; };
       inline int              type      ( ) const { return m_type; };
+      inline int              size      ( ) const { return m_payload.size(); };
       QString  prettyIndex     ( ) const;
       QString  prettyPayload   ( ) const;
       QString  prettySemantics ( ) const;

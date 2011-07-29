@@ -20,7 +20,7 @@ namespace CRI
     : public QtConcurrent::Exception
   {
     public:
-      inline Exception ( Error _code, const QString &_text=0 ) : code(_code), text(_text) {};
+      inline Exception ( Error _code, const QString &_text=0 ) : code(_code), text(_text) { };
       inline Exception ( KJob* _job ) : code(Error(_job->error())), text(_job->errorString()) { delete _job; };
       inline ~Exception () throw() {};
       inline Exception* clone () const { return new Exception(*this); };

@@ -89,7 +89,7 @@ void KIOKlipperProtocol::del ( const KUrl& url, bool isfile )
   // note: isfile signals if a directory or a file is meant to be deleted
   // this does make little sense for a clipboard, since it is just a string anyway
   MY_KDEBUG_BLOCK ( "<del>" );
-  kDebug() << url.prettyUrl() << isfile;
+  kDebug() << url.prettyUrl ( ) << isfile;
   try
   {
     // remove entry from clipboard
@@ -102,12 +102,12 @@ void KIOKlipperProtocol::del ( const KUrl& url, bool isfile )
 void KIOKlipperProtocol::get ( const KUrl& url )
 {
   MY_KDEBUG_BLOCK ( "<get>" );
-  kDebug() << url.prettyUrl() ;
+  kDebug() << url.prettyUrl ( ) ;
   KUrl _url;
   try
   {
-    // send data, depending on the semantic type of the payload
-    const KIONodeWrapper* _entry = findNodeByUrl(url);
+    // send data, depending on the semantics of the payload
+    const KIONodeWrapper* _entry = findNodeByUrl ( url );
     switch ( _entry->semantics() )
     {
       case T_TEXT:
@@ -115,20 +115,20 @@ void KIOKlipperProtocol::get ( const KUrl& url )
         mimeType ( _entry->mimetype() );
         data     ( _entry->payload().toUtf8() );
         data     ( QByteArray() );
-        finished();
+        finished ( );
         return;
       case T_FILE:
       case T_DIR:
         _url = KUrl(_entry->path() );
-        kDebug() << "redirecting to:" << _url;
+        kDebug() << "redirecting to:" << _url.prettyUrl ( );
         redirection ( _url );
-        finished();
+        finished ( );
         return;
       case T_URL:
         _url = KUrl(_entry->url() );
-        kDebug() << "redirecting to:" << _url;
+        kDebug() << "redirecting to:" << _url.prettyUrl ( );
         redirection ( _url );
-        finished();
+        finished ( );
         return;
       default:
         throw CRI::Exception ( Error(ERR_INTERNAL_SERVER), url.prettyUrl() );
@@ -140,7 +140,7 @@ void KIOKlipperProtocol::get ( const KUrl& url )
 void KIOKlipperProtocol::listDir ( const KUrl& url )
 {
   MY_KDEBUG_BLOCK ( "<listDir>" );
-  kDebug() << url.prettyUrl();
+  kDebug() << url.prettyUrl ( );
   try
   {
     if ( url.path().isEmpty() )
@@ -162,11 +162,11 @@ void KIOKlipperProtocol::listDir ( const KUrl& url )
 void KIOKlipperProtocol::mimetype ( const KUrl& url )
 {
   MY_KDEBUG_BLOCK ( "<mimetype>" );
-  kDebug() << url.prettyUrl();
+  kDebug() << url.prettyUrl ( );
   try
   {
     // find the matching node entry
-    const KIONodeWrapper* _entry = findNodeByUrl(url);
+    const KIONodeWrapper* _entry = findNodeByUrl ( url );
     if ( ! _entry->mimetype().isEmpty()
         && _entry->mimetype()!="application/octet-stream" )
     {
@@ -187,13 +187,13 @@ void KIOKlipperProtocol::mimetype ( const KUrl& url )
         case T_FILE:
         case T_DIR:
           _url = KUrl(_entry->path() );
-          kDebug() << "redirecting to:" << _url;
+          kDebug() << "redirecting to:" << _url.prettyUrl ( );
           redirection ( _url );
           finished ( );
           return;
         case T_URL:
           _url = KUrl(_entry->url() );
-          kDebug() << "redirecting to:" << _url;
+          kDebug() << "redirecting to:" << _url.prettyUrl ( );
           redirection ( _url );
           finished ( );
           return;
@@ -212,7 +212,7 @@ void KIOKlipperProtocol::mkdir ( const KUrl& url, int permissions )
   // ToDo: just like in put(): the resulting url is clipboard:/-specific, that makes no sense
   // note: permissions and flags (OVERWRITE) dont make sense for a local clipboard
   MY_KDEBUG_BLOCK ( "<mkdir>" );
-  kDebug() << url.prettyUrl() << permissions;
+  kDebug() << url.prettyUrl ( ) << permissions;
   try
   {
     pushEntry ( url.url() );
@@ -227,7 +227,7 @@ void KIOKlipperProtocol::put ( const KUrl& url, int permissions, KIO::JobFlags f
   // ToDo: it has to be source specific instead ! and a full path, not just a file name
   // note: permissions and flags (OVERWRITE) dont make sense for a local clipboard
   MY_KDEBUG_BLOCK ( "<put>" );
-  kDebug() << url.prettyUrl() << permissions << flags;
+  kDebug() << url.prettyUrl ( ) << permissions << flags;
   try
   {
     // we want to push an entry to the clipboard, but this is the _content_ of the url, not the name
@@ -251,20 +251,21 @@ void KIOKlipperProtocol::put ( const KUrl& url, int permissions, KIO::JobFlags f
 void KIOKlipperProtocol::stat( const KUrl& url )
 {
   MY_KDEBUG_BLOCK ( "<stat>" );
-  kDebug() << url.prettyUrl();
+  kDebug() << url.prettyUrl ( );
   try
   {
     if ( url.path().isEmpty() )
     {
       KUrl _new_url = url;
       _new_url.setPath("/");
-      kDebug() << "redirecting to:" << _new_url;
+      kDebug() << "redirecting to:" << _new_url.prettyUrl ( );
       redirection ( _new_url );
       finished ( );
       return;
     }
     if ( QLatin1String("/")==url.path() )
     {
+      // root element
       kDebug() << "generating root entry";
       statEntry ( toUDSEntry() );
       finished ( );
@@ -272,8 +273,8 @@ void KIOKlipperProtocol::stat( const KUrl& url )
     }
     else
     {
-      //non-root element
-      const KIONodeWrapper* _entry = findNodeByUrl(url);
+      // non-root element
+      const KIONodeWrapper* _entry = findNodeByUrl ( url );
       switch ( _entry->semantics() )
       {
         case T_TEXT:
@@ -283,11 +284,13 @@ void KIOKlipperProtocol::stat( const KUrl& url )
           return;
         case T_FILE:
         case T_DIR:
-          redirection ( KUrl(_entry->url()) );
-          finished();
+          kDebug() << "redirecting to:" << KUrl(_entry->path()).prettyUrl ( );
+          redirection ( KUrl(_entry->path()) );
+          finished ( );
           return;
         case T_URL:
-          redirection ( KUrl(_entry->url()) );
+          kDebug() << "redirecting to:" << _entry->prettyUrl ( );
+          redirection ( _entry->url() );
           finished ( );
           return;
         default:
@@ -308,8 +311,8 @@ void KIOKlipperProtocol::symlink ( const QString& target, const KUrl& dest, KIO:
     if ( _url.isLocalFile() )
       pushEntry ( _url.path() );
     else
-//      pushEntry ( _url.url() );
-      pushEntry ( _url.prettyUrl() );
+      pushEntry ( _url.url() );
+//      pushEntry ( _url.prettyUrl() );
     finished();
   }
   catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }

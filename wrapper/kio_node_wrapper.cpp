@@ -8,6 +8,7 @@
 #include <kdebug.h>
 #include <kurl.h>
 #include <kmimetype.h>
+#include <kio/netaccess.h>
 #include <klocalizedstring.h>
 #include "christian-reiner.info/exception.h"
 #include "kio_clipboard_protocol.h"
@@ -30,14 +31,16 @@ KIONodeWrapper::KIONodeWrapper ( int index, const QString& payload )
     m_semantics =  Semantics(T_URL);
     m_payload   = payload.trimmed ( );
     m_url       = KUrl ( m_payload );
-    if ( m_url.scheme()=="file" )
+    m_link      = m_url;
+    if ( m_url.isLocalFile() )
       m_path      = m_url.path ( );
   }
   else if ( m_regEx["path"].exactMatch(payload.trimmed()) )
   {
     m_semantics =  Semantics(T_FILE);
-    m_payload   = payload.trimmed();
-//    m_url       = KUrl ( m_payload );
+    m_payload   = payload.trimmed ( );
+    m_url       = KUrl ( m_payload );
+    m_link      = m_url;
     m_path      = m_payload;
   }
   else
@@ -70,8 +73,10 @@ KIONodeWrapper::KIONodeWrapper ( int index, const QString& payload )
       break;
     case T_URL:
 //      m_type     = S_IFREG;
-      m_type     = S_IFLNK;
-      m_mimetype = "application/octet-stream";
+      m_type     = S_IFLNK; // looks pretier because of the array in the icon... any side effects ?!?
+      m_mimetype = KMimeType::findByUrl(m_url)->name();
+//      m_mimetype = NetAccess::mimetype ( m_url, NULL ); // far too expensive for remote files
+//      m_mimetype = "application/octet-stream";
       break;
     default:
       m_type     = S_IFMT;
@@ -150,34 +155,36 @@ UDSEntry KIONodeWrapper::toUDSEntry ( ) const
   kDebug() << prettyName() << "(" << m_index << ")";
   UDSEntry _entry;
   _entry.insert( UDSEntry::UDS_NAME,              prettyIndex() );
-  if ( !m_path.isEmpty() )
-    _entry.insert( UDSEntry::UDS_LOCAL_PATH,      m_path );
-  if ( ! m_url.isEmpty() )
-    _entry.insert( UDSEntry::UDS_URL,             m_url.url() );
-  _entry.insert( UDSEntry::UDS_SIZE,              m_payload.size() );
-  _entry.insert( UDSEntry::UDS_FILE_TYPE,         m_type );
-  if ( ! m_mimetype.isEmpty() )
-    _entry.insert( UDSEntry::UDS_MIME_TYPE,       m_mimetype );
   _entry.insert( UDSEntry::UDS_DISPLAY_NAME,      prettyName() );
+  _entry.insert( UDSEntry::UDS_FILE_TYPE,         m_type );
+  _entry.insert( UDSEntry::UDS_MIME_TYPE,         m_mimetype );
+  _entry.insert( UDSEntry::UDS_SIZE,              size() );
   _entry.insert( UDSEntry::UDS_ACCESS,            S_IRUSR | S_IRGRP | S_IROTH );
 //  _entry.insert( UDSEntry::UDS_MODIFICATION_TIME, utime(path, &myutimbuf);
-  // some intense debugging...
+  if ( !m_path.isEmpty() )
+    _entry.insert( UDSEntry::UDS_LOCAL_PATH,        m_path );
+  if ( ! m_url.isEmpty() )
+    _entry.insert( UDSEntry::UDS_URL,               m_url.url() );
+  if ( ! m_link.isEmpty() )
+    _entry.insert( UDSEntry::UDS_LINK_DEST,         m_link.url() );
+  // some intense debugging output...
   QList<uint> _tags = _entry.listFields ( );
   kDebug() << "list of defined UDS entry tags for entry" << prettyIndex() << ":";
   foreach ( uint _tag, _tags )
     switch ( _tag )
     {
-      case UDSEntry::UDS_NAME:         kDebug() << "UDS_NAME:"         << _entry.stringValue(_tag); break;
-      case UDSEntry::UDS_LOCAL_PATH:   kDebug() << "UDS_LOCAL_PATH:"   << _entry.stringValue(_tag); break;
-      case UDSEntry::UDS_URL:          kDebug() << "UDS_URL:"          << _entry.stringValue(_tag); break;
-      case UDSEntry::UDS_TARGET_URL:   kDebug() << "UDS_TARGET_URL:"   << _entry.stringValue(_tag); break;
-      case UDSEntry::UDS_LINK_DEST:    kDebug() << "UDS_LINK_DEST:"    << _entry.stringValue(_tag); break;
-      case UDSEntry::UDS_SIZE:         kDebug() << "UDS_SIZE:"         << _entry.numberValue(_tag); break;
-      case UDSEntry::UDS_FILE_TYPE:    kDebug() << "UDS_FILE_TYPE:"    << _entry.stringValue(_tag); break;
-      case UDSEntry::UDS_MIME_TYPE:    kDebug() << "UDS_MIME_TYPE:"    << _entry.stringValue(_tag); break;
-      case UDSEntry::UDS_DISPLAY_NAME: kDebug() << "UDS_DISPLAY_NAME:" << _entry.stringValue(_tag); break;
-      case UDSEntry::UDS_ACCESS:       kDebug() << "UDS_ACCESS:"       << _entry.numberValue(_tag); break;
-      default:                         kDebug() << "UDS_<UNKNOWN>:"    << _tag;
+      case UDSEntry::UDS_NAME:              kDebug() << "UDS_NAME:"              << _entry.stringValue(_tag); break;
+      case UDSEntry::UDS_LOCAL_PATH:        kDebug() << "UDS_LOCAL_PATH:"        << _entry.stringValue(_tag); break;
+      case UDSEntry::UDS_URL:               kDebug() << "UDS_URL:"               << _entry.stringValue(_tag); break;
+      case UDSEntry::UDS_TARGET_URL:        kDebug() << "UDS_TARGET_URL:"        << _entry.stringValue(_tag); break;
+      case UDSEntry::UDS_LINK_DEST:         kDebug() << "UDS_LINK_DEST:"         << _entry.stringValue(_tag); break;
+      case UDSEntry::UDS_SIZE:              kDebug() << "UDS_SIZE:"              << _entry.numberValue(_tag); break;
+      case UDSEntry::UDS_FILE_TYPE:         kDebug() << "UDS_FILE_TYPE:"         << _entry.numberValue(_tag); break;
+      case UDSEntry::UDS_MIME_TYPE:         kDebug() << "UDS_MIME_TYPE:"         << _entry.stringValue(_tag); break;
+      case UDSEntry::UDS_GUESSED_MIME_TYPE: kDebug() << "UDS_GUESSED_MIME_TYPE:" << _entry.stringValue(_tag); break;
+      case UDSEntry::UDS_DISPLAY_NAME:      kDebug() << "UDS_DISPLAY_NAME:"      << _entry.stringValue(_tag); break;
+      case UDSEntry::UDS_ACCESS:            kDebug() << "UDS_ACCESS:"            << _entry.numberValue(_tag); break;
+      default:                              kDebug() << "UDS_<UNKNOWN>:"         << _tag;
     } // switch
 
   return _entry;

@@ -123,6 +123,7 @@ const KIONodeWrapper* KIOClipboardWrapper::findNodeByUrl ( const KUrl& url )
 {
   kDebug() << url.prettyUrl();
   // note: we might have a fresh process...
+  // TODO: find some way of really caching thing between different processes (KDED ? )
   if ( m_nodes.isEmpty() )
     refreshNodes ( );
   // look for the matching entry
