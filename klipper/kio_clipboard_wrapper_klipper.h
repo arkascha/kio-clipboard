@@ -22,11 +22,13 @@ namespace KIO_CLIPBOARD
       DBusClientKlipper* m_dbus;
     protected:
     public:
-      KIOClipboardWrapperKlipper ( const KUrl& base );
+      KIOClipboardWrapperKlipper ( const KUrl& url, const QString& name );
       ~KIOClipboardWrapperKlipper ( );
-      QString getClipboardEntry ( );
+      inline const ClipboardType type     ( ) const { return ClipboardType(KLIPPER); };
+      inline const QString       protocol ( ) const { return "protocol"; };
+      QString     getClipboardEntry   ( );
       QStringList getClipboardEntries ( );
-      void pushEntry ( QString entry );
+      void pushEntry ( const QString& entry );
       void delEntry  ( const KUrl& url );
   }; // class ClipboardWrapperKlipper
 

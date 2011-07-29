@@ -29,8 +29,8 @@ namespace KIO_CLIPBOARD
       QString     getClipboardContents    ();
       QStringList getClipboardHistoryMenu ();
       QString     getClipboardHistoryItem ( int index );
-      void        setClipboardContents    ( QString &_entry );
-      void        setClipboardHistory     ( QStringList &_entries );
+      void        setClipboardContents    ( const QString& _entry );
+      void        setClipboardHistory     ( const QStringList& _entries );
   }; // class DBusWrapperKlipper
 
 } // namespace KIO_CLIPBOARD

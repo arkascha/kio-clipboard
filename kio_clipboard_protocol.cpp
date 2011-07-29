@@ -11,8 +11,9 @@
 #include <KMimeType>
 #include <kdeversion.h>
 #include <kdebug.h>
-#include "kio_clipboard_protocol.h"
 #include "christian-reiner.info/exception.h"
+#include "kio_clipboard_protocol.h"
+#include "wrapper/kio_clipboard_wrapper.h"
 
 // Kdebug::Block is only defined from KDE-4.6.0 on
 // we wrap it cause this appears to be the only requirement for KDE-4.6
@@ -32,14 +33,13 @@ KIOClipboardProtocol::KIOClipboardProtocol( const QByteArray &_pool, const QByte
   kDebug();
   try
   {
-    QMap<ClipboardType,QString> _clipboards = KIOClipboardWrapper::detectClipboards();
+    QList<const KIOClipboardWrapper*> _clipboards = KIOClipboardWrapper::detectClipboards();
     // register each detected clipboard
-    QMap<ClipboardType,QString>::iterator _entry;
-    for ( _entry = _clipboards.begin(); _entry != _clipboards.end(); _entry++ )
+    foreach ( const KIOClipboardWrapper* _entry, _clipboards )
     {
-      KUrl _url (QString("clipboard:/%1").arg(_entry.value()));
-      kDebug() << QString("registering clipboard of type '%1' at url %2").arg(_entry.key()).arg(_url.prettyUrl());
-      registerClipboard ( _entry.key(), _url );
+      const KUrl _url (QString("clipboard:/%1").arg(_entry->name()));
+      kDebug() << QString("registering clipboard of type '%1' at url %2").arg(_entry->type()).arg(_url.prettyUrl());
+      m_nodes.insert ( _url, _entry );
     }
   }
   catch ( CRI::Exception &e ) { error ( e.getCode(), e.getText() ); }
@@ -55,68 +55,61 @@ KIOClipboardProtocol::~KIOClipboardProtocol()
   catch ( CRI::Exception &e ) { error ( e.getCode(), e.getText() ); }
 }
 
-void KIOClipboardProtocol::registerClipboard ( ClipboardType type, const KUrl& base )
-{
-  kDebug();
-  UDSEntry _entry;
-  _entry.insert( UDSEntry::UDS_NAME,         base.fileName() );
-  _entry.insert( UDSEntry::UDS_DISPLAY_NAME, base.fileName() );
-  _entry.insert( UDSEntry::UDS_MIME_TYPE,    "inode/directory");
-  _entry.insert( UDSEntry::UDS_URL,          base.url() );
-  _entry.insert( UDSEntry::UDS_ACCESS,       S_IRUSR | S_IRGRP | S_IROTH );
-  _entry.insert( UDSEntry::UDS_FILE_TYPE,    S_IFDIR );
-//  _entry.insert( UDSEntry::UDS_EXTRA,        "" );
-//  _entry.insert( UDSEntry::UDS_EXTRA+1,      "1" );
-  m_clipboards.insert ( base, _entry );
-} // KIOClipboardProtocol::registerClipboard
-
-const UDSEntry KIOClipboardProtocol::rootUDSEntry ()
+const UDSEntry KIOClipboardProtocol::toUDSEntry ()
 {
   kDebug();
   UDSEntry _entry;
   _entry.clear();
-  _entry.insert( UDSEntry::UDS_NAME,         QString::fromLatin1("clipboard"));
+  _entry.insert( UDSEntry::UDS_NAME,         QString::fromLatin1("."));
   _entry.insert( UDSEntry::UDS_FILE_TYPE,    S_IFDIR);
   _entry.insert( UDSEntry::UDS_ACCESS,       0700);
   _entry.insert( UDSEntry::UDS_MIME_TYPE,    QString::fromLatin1("inode/directory"));
   return _entry;
-} // KIOClipboardProtocol::rootUDSEntry
+} // KIOClipboardProtocol::toUDSEntry
 
-const UDSEntryList KIOClipboardProtocol::listOfUDSEntries ()
+const UDSEntryList KIOClipboardProtocol::toUDSEntryList ()
 {
-  kDebug();
   UDSEntryList _entries;
-  foreach ( UDSEntry _entry, m_clipboards.values() )
-    _entries << _entry;
+  foreach ( const KIOClipboardWrapper* _entry, m_nodes )
+//  foreach ( const KIOClipboardWrapper* const& _entry, m_nodes.values() )
+    _entries << _entry->toUDSEntry();
+  kDebug() << "listing" << _entries.count() << "entries";
   return _entries;
-} // KIOClipboardProtocol::listOfUDSEntries
+} // KIOClipboardProtocol::toUDSEntryList
+
+const KIO_CLIPBOARD::KIOClipboardWrapper* KIOClipboardProtocol::findClipboardByUrl ( const KUrl& url )
+{
+  kDebug() << url.prettyUrl();
+  if ( m_nodes.contains(url) )
+    return m_nodes[url];
+  throw CRI::Exception ( Error(ERR_DOES_NOT_EXIST), url.prettyUrl() );
+} // KIOClipboardProtocol::findClipboardByUrl
 
 //======================
 
-bool KIOClipboardProtocol::rewriteUrl   ( const KUrl& oldUrl, KUrl& newUrl )
+bool KIOClipboardProtocol::rewriteUrl ( const KUrl& oldUrl, KUrl& newUrl )
 {
   // convert clipboard:/klipper/02 to klipper:/02
   kDebug() << oldUrl.url();
   try
   {
-    QStringList tokens = KIO_CLIPBOARD::tokenizeUrl(oldUrl);
+    KUrl _clipboard_url;
+    QStringList _tokens = KIO_CLIPBOARD::tokenizeUrl(oldUrl);
     // token holds n+1 entries (0-n), where 0 holds the _whole_ url
-    switch ( tokens.count() )
+    switch ( _tokens.count() )
     {
       case 1: // just a plain clipboard:/ was requested
         // we should not come here...
         kDebug() << "rewriting attempt of url pointing to this object";
-        throw CRI::Exception ( Error(ERR_UNSUPPORTED_ACTION), oldUrl.url() );
+        throw CRI::Exception ( Error(ERR_UNSUPPORTED_ACTION), oldUrl.prettyUrl() );
         break;
       case 2: // something like clipboard:/klipper was requested
-//        newUrl = KUrl(QString("%1:/").arg(tokens[1]));
-        newUrl.setScheme(tokens[1]);
-        newUrl.addPath("/");
+        newUrl = findClipboardByUrl(oldUrl)->url();
         break;
       case 3: // full url like clipboard:/klipper/007 was requested
-//        newUrl = KUrl(QString("%1:").arg(tokens[1])).addPath(tokens[2]);
-        newUrl.setScheme(tokens[1]);
-        newUrl.addPath(tokens[2]);
+        _clipboard_url = KUrl ( QString("%1:/%2").arg(_tokens[2]).arg(_tokens[3]) );
+        newUrl = findClipboardByUrl(_clipboard_url)->url();
+        newUrl.addPath(_tokens[2]);
         break;
       default:
         kDebug() << "rewriting attempt produced more than the expected 3 url tokens";
@@ -139,7 +132,7 @@ void KIOClipboardProtocol::del (const KUrl &url, bool isfile )
     if ( QLatin1String("/")==url.path() || url.path().isEmpty() )
     {
       // del() on the root entry ?!?
-      throw CRI::Exception ( Error(ERR_SERVICE_NOT_AVAILABLE), url.url() );
+      throw CRI::Exception ( Error(ERR_SERVICE_NOT_AVAILABLE), url.prettyUrl() );
     }
     else
     {
@@ -158,7 +151,7 @@ void KIOClipboardProtocol::get ( const KUrl &url )
     if ( QLatin1String("/")==url.path() || url.path().isEmpty() )
     {
       // get() on the root entry ?!?
-      throw CRI::Exception ( Error(ERR_SERVICE_NOT_AVAILABLE), url.url() );
+      throw CRI::Exception ( Error(ERR_SERVICE_NOT_AVAILABLE), url.prettyUrl() );
     }
     else
     {
@@ -176,8 +169,8 @@ void KIOClipboardProtocol::listDir ( const KUrl& url )
   {
     if ( QLatin1String("/")==url.path() || url.path().isEmpty() )
     {
-      totalSize ( m_clipboards.size() );
-      listEntries ( listOfUDSEntries() );
+      totalSize ( m_nodes.size() );
+      listEntries ( toUDSEntryList() );
       finished ();
     }
     else
@@ -216,7 +209,7 @@ void KIOClipboardProtocol::mkdir (const KUrl &url, int permissions )
     if ( QLatin1String("/")==url.path() || url.path().isEmpty() )
     {
       // mkdir() on the root entry ?!?
-      throw CRI::Exception ( Error(ERR_SERVICE_NOT_AVAILABLE), url.url() );
+      throw CRI::Exception ( Error(ERR_SERVICE_NOT_AVAILABLE), url.prettyUrl() );
     }
     else
     {
@@ -235,7 +228,7 @@ void KIOClipboardProtocol::put (const KUrl &url, int permissions, JobFlags flags
     if ( QLatin1String("/")==url.path() || url.path().isEmpty() )
     {
       // put() on the root entry ?!?
-      throw CRI::Exception ( Error(ERR_SERVICE_NOT_AVAILABLE), url.url() );
+      throw CRI::Exception ( Error(ERR_SERVICE_NOT_AVAILABLE), url.prettyUrl() );
     }
     else
     {
@@ -253,7 +246,7 @@ void KIOClipboardProtocol::stat (const KUrl &url)
   {
     if ( QLatin1String("/")==url.path() || url.path().isEmpty() )
     {
-      statEntry ( rootUDSEntry() );
+      statEntry ( toUDSEntry() );
       finished();
     }
     else
@@ -273,7 +266,7 @@ void KIOClipboardProtocol::symlink ( const QString& target, const KUrl& dest, Jo
     if ( QLatin1String("/")==dest.path() || dest.path().isEmpty() )
     {
       // symlink() on the root entry ?!?
-      throw CRI::Exception ( Error(ERR_SERVICE_NOT_AVAILABLE), dest.url() );
+      throw CRI::Exception ( Error(ERR_SERVICE_NOT_AVAILABLE), dest.prettyUrl() );
     }
     else
     {

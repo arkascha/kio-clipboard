@@ -32,15 +32,15 @@ using namespace KIO_CLIPBOARD;
 KIOKlipperProtocol::KIOKlipperProtocol( const QByteArray &_pool, const QByteArray &_app, QObject* parent )
   : QObject ( parent )
   , SlaveBase ( "klipper", _pool, _app )
-  , KIOClipboardWrapperKlipper ( KUrl("klipper:/") )
+  , KIOClipboardWrapperKlipper ( KUrl("klipper:/"), "klipper" )
 {
 //  KDebug::Block myBlock( "<slave setup>" );
   MY_KDEBUG_BLOCK ( "<slave setup>" );
   kDebug() << "constructing protocol";
   try
   {
-    // initialize the wrappers pool content
-    refreshPool();
+    // initialize the wrappers nodes
+    refreshNodes ( );
   }
   catch ( CRI::Exception &e ) { error ( e.getCode(), e.getText() ); }
 }
@@ -60,7 +60,7 @@ KIOKlipperProtocol::~KIOKlipperProtocol()
 
 //==========
 
-const UDSEntry KIOKlipperProtocol::rootUDSEntry ()
+const UDSEntry KIOKlipperProtocol::toUDSEntry ()
 {
   kDebug() << type();
   UDSEntry _entry;
@@ -70,7 +70,17 @@ const UDSEntry KIOKlipperProtocol::rootUDSEntry ()
   _entry.insert( UDSEntry::UDS_ACCESS,    0744);
   _entry.insert( UDSEntry::UDS_MIME_TYPE, QString::fromLatin1("inode/directory"));
   return _entry;
-} // KIOKlipperProtocol::rootUDSEntry
+} // KIOKlipperProtocol::toUDSEntry
+
+const UDSEntryList KIOKlipperProtocol::toUDSEntryList ()
+{
+  UDSEntryList _entries;
+  foreach ( const KIONodeWrapper* _entry, m_nodes )
+//  foreach ( const KIOClipboardWrapper* const& _entry, m_nodes.values() )
+    _entries << _entry->toUDSEntry();
+  kDebug() << "listing" << _entries.count() << "entries";
+  return _entries;
+} // KIOKlipperProtocol::toUDSEntryList
 
 //======================
 
@@ -96,27 +106,26 @@ void KIOKlipperProtocol::get ( const KUrl& url )
   KUrl _url;
   try
   {
-    // find the matching entry
-    UDSEntry _entry = findEntryByUrl(url);
     // send data, depending on the semantic type of the payload
-    switch ( _entry.numberValue(UDSEntry::UDS_EXTRA+2) )
+    const KIONodeWrapper* _entry = findNodeByUrl(url);
+    switch ( _entry->semantics() )
     {
-      case T_STRING:
+      case T_TEXT:
       case T_CODE:
-        mimeType ( _entry.stringValue(UDSEntry::UDS_MIME_TYPE) );
-        data     ( _entry.stringValue(UDSEntry::UDS_EXTRA).toUtf8() );
+        mimeType ( _entry->mimetype() );
+        data     ( _entry->payload().toUtf8() );
         data     ( QByteArray() );
         finished();
         return;
       case T_FILE:
       case T_DIR:
-        _url = KUrl(_entry.stringValue(UDSEntry::UDS_LOCAL_PATH));
+        _url = KUrl(_entry->path() );
         kDebug() << "redirecting to:" << _url;
         redirection ( _url );
         finished();
         return;
       case T_URL:
-        _url = KUrl(_entry.stringValue(UDSEntry::UDS_URL));
+        _url = KUrl(_entry->url() );
         kDebug() << "redirecting to:" << _url;
         redirection ( _url );
         finished();
@@ -142,10 +151,10 @@ void KIOKlipperProtocol::listDir ( const KUrl& url )
       finished ( );
       return;
     }
-    refreshPool();
-    totalSize ( m_pool.size() );
-    listEntries ( m_pool );
-    finished ();
+    refreshNodes ( );
+    totalSize ( m_nodes.size() );
+    listEntries ( toUDSEntryList() );
+    finished ( );
   }
   catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::listDir
@@ -156,33 +165,34 @@ void KIOKlipperProtocol::mimetype ( const KUrl& url )
   kDebug() << url.prettyUrl();
   try
   {
-    // find the matching pool entry
-    UDSEntry _entry = findEntryByUrl(url);
-    if ( 1==0 && _entry.contains(UDSEntry::UDS_MIME_TYPE) )
+    // find the matching node entry
+    const KIONodeWrapper* _entry = findNodeByUrl(url);
+    if ( ! _entry->mimetype().isEmpty()
+        && _entry->mimetype()!="application/octet-stream" )
     {
-      mimeType ( _entry.stringValue(UDSEntry::UDS_MIME_TYPE) );
+      mimeType ( _entry->mimetype() );
       finished();
       return;
     }
     else
     {
       KUrl _url;
-      switch ( _entry.numberValue(UDSEntry::UDS_EXTRA+2) )
+      switch ( _entry->semantics() )
       {
-        case T_STRING:
+        case T_TEXT:
         case T_CODE:
           mimeType ( "text/plain" );
           finished();
           return;
         case T_FILE:
         case T_DIR:
-          _url = KUrl(_entry.stringValue(UDSEntry::UDS_LOCAL_PATH));
+          _url = KUrl(_entry->path() );
           kDebug() << "redirecting to:" << _url;
           redirection ( _url );
           finished ( );
           return;
         case T_URL:
-          _url = KUrl(_entry.stringValue(UDSEntry::UDS_URL));
+          _url = KUrl(_entry->url() );
           kDebug() << "redirecting to:" << _url;
           redirection ( _url );
           finished ( );
@@ -256,28 +266,28 @@ void KIOKlipperProtocol::stat( const KUrl& url )
     if ( QLatin1String("/")==url.path() )
     {
       kDebug() << "generating root entry";
-      statEntry ( rootUDSEntry() );
+      statEntry ( toUDSEntry() );
       finished ( );
       return;
     }
     else
     {
       //non-root element
-      UDSEntry _entry = findEntryByUrl ( url );
-      switch ( _entry.numberValue(UDSEntry::UDS_EXTRA+2) )
+      const KIONodeWrapper* _entry = findNodeByUrl(url);
+      switch ( _entry->semantics() )
       {
-        case T_STRING:
+        case T_TEXT:
         case T_CODE:
-          statEntry ( _entry );
+          statEntry ( _entry->toUDSEntry() );
           finished ( );
           return;
         case T_FILE:
         case T_DIR:
-          redirection ( KUrl(_entry.stringValue(UDSEntry::UDS_URL)) );
+          redirection ( KUrl(_entry->url()) );
           finished();
           return;
         case T_URL:
-          redirection ( KUrl(_entry.stringValue(UDSEntry::UDS_URL)) );
+          redirection ( KUrl(_entry->url()) );
           finished ( );
           return;
         default:

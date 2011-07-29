@@ -7,15 +7,15 @@
  */
 #include <kdebug.h>
 #include <klocalizedstring.h>
-
+#include "christian-reiner.info/exception.h"
 #include "klipper/kio_clipboard_wrapper_klipper.h"
 #include "klipper/dbus_client_klipper.h"
 
 using namespace KIO;
 using namespace KIO_CLIPBOARD;
 
-KIOClipboardWrapperKlipper::KIOClipboardWrapperKlipper ( const KUrl& base )
-  : KIOClipboardWrapper ( KIO_CLIPBOARD::KLIPPER, base )
+KIOClipboardWrapperKlipper::KIOClipboardWrapperKlipper ( const KUrl& url, const QString& name )
+  : KIOClipboardWrapper ( url, name )
 {
   kDebug() << "constructing specialized clipboard wrapper of type 'klipper'";
   m_dbus = new DBusClientKlipper ();
@@ -46,30 +46,27 @@ QStringList KIOClipboardWrapperKlipper::getClipboardEntries ()
   return entries;
 } // KIOClipboardWrapperKlipper::getClipboardEntries
 
-void KIOClipboardWrapperKlipper::pushEntry ( QString entry )
+void KIOClipboardWrapperKlipper::pushEntry ( const QString& entry )
 {
   kDebug() << entry;
   m_dbus->setClipboardContents ( entry );
-  refreshPool();
+  refreshNodes ( );
 } // KIOClipboardWrapperKlipper::pushEntry
 
 void KIOClipboardWrapperKlipper::delEntry ( const KUrl& url )
 {
   kDebug() << url;
-  QStringList _remains;
-  UDSEntry _deliquent = findEntryByUrl ( url );
+  const KIONodeWrapper* const _deliquent = findNodeByUrl ( url );
   // build a backup list of all remaining entries (as strings)
-//  foreach ( UDSEntry _entry, pool )
-  // reverse order required !
-  for ( int _i=m_pool.size()-1; _i>=0; _i--)
-  {
-    const UDSEntry& _entry = m_pool.at(_i);
-    if ( _entry.stringValue(UDSEntry::UDS_NAME)!=_deliquent.stringValue(UDSEntry::UDS_NAME) )
-      _remains << _entry.stringValue ( UDSEntry::UDS_EXTRA );
-  }
+  // we use prepend 'cause we need reverse order !
+  QStringList _remains;
+  foreach ( const KIONodeWrapper* _entry, m_nodes )
+//  foreach ( const KIONodeWrapper* _entry, m_nodes.values() )
+    if ( _entry->payload()!=_deliquent->payload() )
+      _remains.prepend ( _entry->payload() );
   // and (re-) add the backup list from above
   m_dbus->setClipboardHistory ( _remains );
   // now re-read all entries to have a clean buffer
-  refreshPool();
+  refreshNodes ( );
 } // KIOClipboardWrapperKlipper::delEntry
 

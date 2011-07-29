@@ -30,8 +30,7 @@ CRI::regExPool CRI::loadRegExPool()
                                         .arg(_pool["query"].pattern())
                                         .arg(_pool["anchor"].pattern()) );
   // validate each regex
-  QString _key;
-  foreach ( _key, _pool.keys() )
+  foreach ( const QString& _key, _pool.keys() )
     if ( ! _pool[_key].isValid() )
     {
       const char* _err = "failed to load regex engine because of invalid rexex '%1': %2";
@@ -39,6 +38,5 @@ CRI::regExPool CRI::loadRegExPool()
       throw CRI::Exception ( Error(ERR_SLAVE_DEFINED),
                              i18n(_err).arg(_key).arg(_pool[_key].pattern()) );
     }
-  kDebug() << "regEx pool validated";
   return _pool;
 } // CRI::loadRegExPool

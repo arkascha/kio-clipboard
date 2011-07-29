@@ -9,6 +9,8 @@
 #define KIO_KLIPPER_PROTOCOL_H
 
 #include <QtCore/QMutex>
+#include <QString>
+#include <QMap>
 #include <kio/global.h>
 #include <kio/slavebase.h>
 #include "kio/udsentry.h"
@@ -25,7 +27,8 @@ namespace KIO_CLIPBOARD
     Q_OBJECT
     private:
     protected:
-      const UDSEntry rootUDSEntry ( );
+      const UDSEntry     toUDSEntry ( );
+      const UDSEntryList toUDSEntryList ( );
     public:
       KIOKlipperProtocol ( const QByteArray &pool, const QByteArray &app, QObject* parent=0 );
       virtual ~KIOKlipperProtocol();

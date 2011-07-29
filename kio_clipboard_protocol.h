@@ -9,6 +9,8 @@
 #define KIO_CLIPBOARD_PROTOCOL_H
 
 #include <QtCore/QMutex>
+#include <QString>
+#include <QMap>
 #include <kio/global.h>
 #include <kio/forwardingslavebase.h>
 #include "kio/udsentry.h"
@@ -18,21 +20,19 @@
 
 namespace KIO_CLIPBOARD
 {
-  static const int     C_mappingNameCardinality = 50;
-  static const QString C_mappingNamePattern     = "%1[%2]:%3";
-
-  typedef QMap<KUrl, UDSEntry> ClipboardPool;
+  static       int     C_mappingNameCardinality;
+  static const int     C_mappingNameLength       = 60;
+  static const QString C_mappingNamePattern      = "%1[%2]:%3";
 
   class KIOClipboardProtocol
     : public ForwardingSlaveBase
   {
     private:
-      ClipboardPool m_clipboards;
+      QMap<KUrl,const KIOClipboardWrapper*> m_nodes;
     protected:
-      void registerClipboard ( ClipboardType type, const KUrl& base );
-      const UDSEntry rootUDSEntry ();
-      const UDSEntryList listOfUDSEntries ();
-      const UDSEntry& findClipboardByUrl ( const KUrl& url );
+      const UDSEntry     toUDSEntry ();
+      const UDSEntryList toUDSEntryList ();
+      const KIOClipboardWrapper* findClipboardByUrl ( const KUrl& url );
     public:
       KIOClipboardProtocol ( const QByteArray &pool, const QByteArray &app );
       virtual ~KIOClipboardProtocol();

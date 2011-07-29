@@ -75,18 +75,18 @@ QString DBusClientKlipper::getClipboardHistoryItem ( int index )
   return _entry;
 } // DBusClientKlipper::getClipboardHistoryItem
 
-void DBusClientKlipper::setClipboardContents ( QString &entry )
+void DBusClientKlipper::setClipboardContents ( const QString& entry )
 {
   kDebug() << entry;
   call ( "setClipboardContents", entry );
 } // DBusClientKlipper::setClipboardContents
 
-void DBusClientKlipper::setClipboardHistory ( QStringList &entries )
+void DBusClientKlipper::setClipboardHistory ( const QStringList& entries )
 {
   // strategy: remove all entries and re-add everything in the correct order
   kDebug();
   call ( "clearClipboardHistory" );
-  foreach ( QString _entry, entries )
+  foreach ( const QString& _entry, entries )
     call ( "setClipboardContents", _entry );
   kDebug() << QString("populated clipboard history with %1 entries").arg(entries.size());
 } // DBusClientKlipper::setClipboardHistory
