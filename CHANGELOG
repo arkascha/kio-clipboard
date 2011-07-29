@@ -1,2 +1,7 @@
+2011-07-29, Christian Reiner:
+- complete rewrite of the internal storage structure
+- fixed display name of clipboard folders not to vanish when being clicked
+- changed version to 0.2.0
+
 2011-07-26, Christian Reiner:
-- initial version 0.1
+- release of the initial version 0.1.0
