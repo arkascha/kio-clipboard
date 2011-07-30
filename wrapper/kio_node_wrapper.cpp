@@ -26,9 +26,14 @@ KIONodeWrapper::KIONodeWrapper ( int index, const QString& payload )
   kDebug();
   m_index     = index;
   // decide about the sematics ("meaning") of the content
-  if ( m_regEx["uri"].exactMatch(payload.trimmed()) )
+  if ( payload.trimmed().isEmpty() )
   {
-    m_semantics =  Semantics(T_URL);
+    m_semantics = KIO_CLIPBOARD::S_EMPTY;
+    m_payload   = payload;
+  }
+  else if ( m_regEx["uri"].exactMatch(payload.trimmed()) )
+  {
+    m_semantics = KIO_CLIPBOARD::S_URL;
     m_payload   = payload.trimmed ( );
     m_url       = KUrl ( m_payload );
     m_link      = m_url;
@@ -37,7 +42,7 @@ KIONodeWrapper::KIONodeWrapper ( int index, const QString& payload )
   }
   else if ( m_regEx["path"].exactMatch(payload.trimmed()) )
   {
-    m_semantics =  Semantics(T_FILE);
+    m_semantics = KIO_CLIPBOARD::S_FILE;
     m_payload   = payload.trimmed ( );
     m_url       = KUrl ( m_payload );
     m_link      = m_url;
@@ -46,32 +51,36 @@ KIONodeWrapper::KIONodeWrapper ( int index, const QString& payload )
   else
   {
     // TODO: using libmagic differ between plain string or stuff like 'code' or else
-    m_semantics =  Semantics(T_TEXT);
+    m_semantics = KIO_CLIPBOARD::S_TEXT;
     m_payload   = payload; // no trimming, keep extra whitespaces, important for code
   }
   switch ( m_semantics )
   {
-    case T_TEXT:
+    case KIO_CLIPBOARD::S_EMPTY:
       m_type     = S_IFREG;
       m_mimetype = "text/plain";
       break;
-    case T_CODE:
+    case KIO_CLIPBOARD::S_TEXT:
       m_type     = S_IFREG;
       m_mimetype = "text/plain";
       break;
-    case T_FILE:
+    case KIO_CLIPBOARD::S_CODE:
+      m_type     = S_IFREG;
+      m_mimetype = "text/plain";
+      break;
+    case KIO_CLIPBOARD::S_FILE:
       m_type     = S_IFREG;
       m_mimetype = KMimeType::findByUrl(m_url)->name();
       break;
-    case T_LINK:
+    case KIO_CLIPBOARD::S_LINK:
       m_type     = S_IFLNK;
       m_mimetype = KMimeType::findByUrl(m_url)->name();
       break;
-    case T_DIR:
+    case KIO_CLIPBOARD::S_DIR:
       m_type     = S_IFDIR;
       m_mimetype = "inode/directory";
       break;
-    case T_URL:
+    case KIO_CLIPBOARD::S_URL:
 //      m_type     = S_IFREG;
       m_type     = S_IFLNK; // looks pretier because of the array in the icon... any side effects ?!?
       m_mimetype = KMimeType::findByUrl(m_url)->name();
@@ -115,13 +124,14 @@ QString KIONodeWrapper::prettySemantics ( ) const
   QString _pretty;
   switch ( m_semantics )
   {
-    case Semantics(T_TEXT): _pretty = i18n ( "Text" );      break;
-    case Semantics(T_CODE): _pretty = i18n ( "Code" );      break;
-    case Semantics(T_FILE): _pretty = i18n ( "File" );      break;
-    case Semantics(T_LINK): _pretty = i18n ( "Link");       break;
-    case Semantics(T_DIR):  _pretty = i18n ( "Directory" ); break;
-    case Semantics(T_URL):  _pretty = i18n ( "URL" );       break;
-    default:                _pretty = i18n ( "???" );
+    case KIO_CLIPBOARD::S_EMPTY: _pretty = i18n ( "Empty" );     break;
+    case KIO_CLIPBOARD::S_TEXT:  _pretty = i18n ( "Text" );      break;
+    case KIO_CLIPBOARD::S_CODE:  _pretty = i18n ( "Code" );      break;
+    case KIO_CLIPBOARD::S_FILE:  _pretty = i18n ( "File" );      break;
+    case KIO_CLIPBOARD::S_LINK:  _pretty = i18n ( "Link");       break;
+    case KIO_CLIPBOARD::S_DIR:   _pretty = i18n ( "Directory" ); break;
+    case KIO_CLIPBOARD::S_URL:   _pretty = i18n ( "URL" );       break;
+    default:                   _pretty = i18n ( "???" );
   } // switch
   kDebug() << _pretty;
   return _pretty;

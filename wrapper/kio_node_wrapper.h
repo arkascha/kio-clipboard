@@ -16,7 +16,7 @@ using namespace KIO;
 namespace KIO_CLIPBOARD
 {
 
-  enum Semantics { T_TEXT,T_CODE,T_FILE,T_LINK,T_DIR,T_URL };
+  typedef enum { S_EMPTY, S_TEXT, S_CODE, S_FILE, S_LINK, S_DIR, S_URL } Semantics;
 
   class KIONodeWrapper
   {

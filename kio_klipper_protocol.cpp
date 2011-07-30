@@ -110,21 +110,22 @@ void KIOKlipperProtocol::get ( const KUrl& url )
     const KIONodeWrapper* _entry = findNodeByUrl ( url );
     switch ( _entry->semantics() )
     {
-      case T_TEXT:
-      case T_CODE:
+      case KIO_CLIPBOARD::S_EMPTY:
+      case KIO_CLIPBOARD::S_TEXT:
+      case KIO_CLIPBOARD::S_CODE:
         mimeType ( _entry->mimetype() );
         data     ( _entry->payload().toUtf8() );
         data     ( QByteArray() );
         finished ( );
         return;
-      case T_FILE:
-      case T_DIR:
+      case KIO_CLIPBOARD::S_FILE:
+      case KIO_CLIPBOARD::S_DIR:
         _url = KUrl(_entry->path() );
         kDebug() << "redirecting to:" << _url.prettyUrl ( );
         redirection ( _url );
         finished ( );
         return;
-      case T_URL:
+      case KIO_CLIPBOARD::S_URL:
         _url = KUrl(_entry->url() );
         kDebug() << "redirecting to:" << _url.prettyUrl ( );
         redirection ( _url );
@@ -179,19 +180,20 @@ void KIOKlipperProtocol::mimetype ( const KUrl& url )
       KUrl _url;
       switch ( _entry->semantics() )
       {
-        case T_TEXT:
-        case T_CODE:
+        case KIO_CLIPBOARD::S_EMPTY:
+        case KIO_CLIPBOARD::S_TEXT:
+        case KIO_CLIPBOARD::S_CODE:
           mimeType ( "text/plain" );
           finished();
           return;
-        case T_FILE:
-        case T_DIR:
+        case KIO_CLIPBOARD::S_FILE:
+        case KIO_CLIPBOARD::S_DIR:
           _url = KUrl(_entry->path() );
           kDebug() << "redirecting to:" << _url.prettyUrl ( );
           redirection ( _url );
           finished ( );
           return;
-        case T_URL:
+        case KIO_CLIPBOARD::S_URL:
           _url = KUrl(_entry->url() );
           kDebug() << "redirecting to:" << _url.prettyUrl ( );
           redirection ( _url );
@@ -277,18 +279,19 @@ void KIOKlipperProtocol::stat( const KUrl& url )
       const KIONodeWrapper* _entry = findNodeByUrl ( url );
       switch ( _entry->semantics() )
       {
-        case T_TEXT:
-        case T_CODE:
+        case KIO_CLIPBOARD::S_EMPTY:
+        case KIO_CLIPBOARD::S_TEXT:
+        case KIO_CLIPBOARD::S_CODE:
           statEntry ( _entry->toUDSEntry() );
           finished ( );
           return;
-        case T_FILE:
-        case T_DIR:
+        case KIO_CLIPBOARD::S_FILE:
+        case KIO_CLIPBOARD::S_DIR:
           kDebug() << "redirecting to:" << KUrl(_entry->path()).prettyUrl ( );
           redirection ( KUrl(_entry->path()) );
           finished ( );
           return;
-        case T_URL:
+        case KIO_CLIPBOARD::S_URL:
           kDebug() << "redirecting to:" << _entry->prettyUrl ( );
           redirection ( _entry->url() );
           finished ( );
