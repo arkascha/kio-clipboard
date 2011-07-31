@@ -1,3 +1,9 @@
+2011-07-30, Christian Reiner:
+- changed technical names of virtual nodes from a numeric index to a check sum
+  this fixes addressing the wrong node after changes to the clipboard that were not reflected in an ambedding application
+- additional content semantics 'Empty', since such content is not really 'Text'
+- changed version to 0.2.1
+
 2011-07-29, Christian Reiner:
 - complete rewrite of the internal storage structure
 - fixed display name of clipboard folders not to vanish when being clicked

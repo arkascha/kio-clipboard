@@ -107,7 +107,7 @@ void KIOClipboardWrapper::refreshNodes ()
   foreach ( const QString& _entry, _entries )
   {
     KIONodeWrapper* _node = new KIONodeWrapper ( ++_index, _entry );
-    m_nodes.insert ( _node->prettyIndex(), _node );
+    m_nodes.insert ( _node->name(), _node );
   }
   kDebug() << QString("populated fresh set of nodes with %1 entries").arg(m_nodes.size());
 } // KIOClipboardWrapper::refreshNodes

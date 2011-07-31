@@ -5,6 +5,7 @@
  * $Revision$
  * $Date$
  */
+#include <QCryptographicHash>
 #include <kdebug.h>
 #include <kurl.h>
 #include <kmimetype.h>
@@ -25,6 +26,8 @@ KIONodeWrapper::KIONodeWrapper ( int index, const QString& payload )
 {
   kDebug();
   m_index     = index;
+  // construct a valid file name, even for a payload that is a path or url
+  m_name      = QString(QCryptographicHash::hash(payload.toUtf8(),QCryptographicHash::Md5).toHex());
   // decide about the sematics ("meaning") of the content
   if ( payload.trimmed().isEmpty() )
   {
@@ -164,7 +167,8 @@ UDSEntry KIONodeWrapper::toUDSEntry ( ) const
 {
   kDebug() << prettyName() << "(" << m_index << ")";
   UDSEntry _entry;
-  _entry.insert( UDSEntry::UDS_NAME,              prettyIndex() );
+  //_entry.insert( UDSEntry::UDS_NAME,              prettyIndex() );
+  _entry.insert( UDSEntry::UDS_NAME,              name() );
   _entry.insert( UDSEntry::UDS_DISPLAY_NAME,      prettyName() );
   _entry.insert( UDSEntry::UDS_FILE_TYPE,         m_type );
   _entry.insert( UDSEntry::UDS_MIME_TYPE,         m_mimetype );
