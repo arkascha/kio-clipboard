@@ -16,11 +16,16 @@ using namespace KIO;
 namespace CRI
 {
 
+  /**
+   * Convenience wrapper for standard exception
+   * this class serves as a header-only library (no object file to be linked)
+   */
   class Exception
     : public QtConcurrent::Exception
   {
     public:
-      inline Exception ( Error _code, const QString &_text=0 ) : code(_code), text(_text) { };
+      inline Exception ( Error _code, const QString &_text=0 ) : code(_code),        text(_text) { };
+      inline Exception ( int   _code, const QString &_text=0 ) : code(Error(_code)), text(_text) { };
       inline Exception ( KJob* _job ) : code(Error(_job->error())), text(_job->errorString()) { delete _job; };
       inline ~Exception () throw() {};
       inline Exception* clone () const { return new Exception(*this); };

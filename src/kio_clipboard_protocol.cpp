@@ -26,6 +26,12 @@
 using namespace KIO;
 using namespace KIO_CLIPBOARD;
 
+/**
+ * This constructor is responsible to present all available clipboards by means of internal presentation.
+ * Therefore he tries auto detection as offered by the specialized protocols
+ * and reads those clipboards from the configuration that were specified manually
+ * TODO: read manually specified clipboards from configuration
+ */
 KIOClipboardProtocol::KIOClipboardProtocol( const QByteArray &_pool, const QByteArray &_app )
   : ForwardingSlaveBase ( "clipboard", _pool, _app )
 {
@@ -33,7 +39,7 @@ KIOClipboardProtocol::KIOClipboardProtocol( const QByteArray &_pool, const QByte
   kDebug();
   try
   {
-    QList<const KIOClipboardWrapper*> _clipboards = KIOClipboardWrapper::detectClipboards();
+    QList<const KIOClipboardWrapper*> _clipboards = detectClipboards();
     // register each detected clipboard
     foreach ( const KIOClipboardWrapper* _entry, _clipboards )
     {
@@ -45,6 +51,9 @@ KIOClipboardProtocol::KIOClipboardProtocol( const QByteArray &_pool, const QByte
   catch ( CRI::Exception &e ) { error ( e.getCode(), e.getText() ); }
 }
 
+/**
+ * Any cleanup required comes here, currently nothing...
+ */
 KIOClipboardProtocol::~KIOClipboardProtocol()
 {
   MY_KDEBUG_BLOCK ( "<slave shutdown>" );
@@ -55,6 +64,9 @@ KIOClipboardProtocol::~KIOClipboardProtocol()
   catch ( CRI::Exception &e ) { error ( e.getCode(), e.getText() ); }
 }
 
+/**
+ * Generates a plain UDSEntry object that describes this protocol itself, that is its base folder.
+ */
 const UDSEntry KIOClipboardProtocol::toUDSEntry ()
 {
   kDebug();
@@ -67,6 +79,9 @@ const UDSEntry KIOClipboardProtocol::toUDSEntry ()
   return _entry;
 } // KIOClipboardProtocol::toUDSEntry
 
+/**
+ * Generates a list of UDSEntries that describe all nodes (clipboards) as being available
+ */
 const UDSEntryList KIOClipboardProtocol::toUDSEntryList ()
 {
   UDSEntryList _entries;
@@ -77,6 +92,9 @@ const UDSEntryList KIOClipboardProtocol::toUDSEntryList ()
   return _entries;
 } // KIOClipboardProtocol::toUDSEntryList
 
+/**
+ * convenience routine to identify a node (a clipboard) when referenced by its URL
+ */
 const KIO_CLIPBOARD::KIOClipboardWrapper* KIOClipboardProtocol::findClipboardByUrl ( const KUrl& url )
 {
   kDebug() << url.prettyUrl();
@@ -85,8 +103,42 @@ const KIO_CLIPBOARD::KIOClipboardWrapper* KIOClipboardProtocol::findClipboardByU
   throw CRI::Exception ( Error(ERR_DOES_NOT_EXIST), url.prettyUrl() );
 } // KIOClipboardProtocol::findClipboardByUrl
 
+/**
+ * autodetection of available clipboards for thise cases where this is possiblet
+ * - local clipboard applications: 
+ * - - 'klipper': detect its presence on DBus
+ * - remote clipboard services:
+ * - - ??
+ */
+const QList<const KIOClipboardWrapper*> KIOClipboardProtocol::detectClipboards ( )
+{
+  kDebug();
+  QList<const KIOClipboardWrapper*> _clipboards;
+  // strategy: for clipboards available on DBus we ask org.freedesktop.DBus for such a service
+  DBusClient dbus;
+  dbus.setupInterface ( "org.freedesktop.DBus", "/org/freedesktop/DBus", "" );
+  dbus.call ( "ListNames" );
+  const QStringList _names = dbus.convertReturnValue(dbus.result().first(),QVariant::StringList).toStringList();
+  // now add entries one by one
+  foreach (const QString& _name, _names )
+  {
+    if ( "org.kde.klipper"==_name )
+    {
+      kDebug() << "detected available clipboard of type 'KLIPPER' with url 'klipper:/'";
+      _clipboards << new KIOClipboardWrapperKlipper ( KUrl("klipper:/"), "klipper" );
+    }
+  }
+  kDebug() << "detected" << _clipboards.count() << "available clipboards";
+  return _clipboards;
+} // KIOClipboardProtocol::detectClipboards
+
 //======================
 
+/**
+ * This assists the calling interface to redirect to the specialized slave/protocol
+ * when accessing a specific clipboard amongst those offered as available by this meta slave
+ * We do this by matching the URL that was called against those stored as adresses in the clipboard nodes
+ */
 bool KIOClipboardProtocol::rewriteUrl ( const KUrl& oldUrl, KUrl& newUrl )
 {
   // convert clipboard:/klipper/02 to klipper:/02
@@ -123,6 +175,9 @@ bool KIOClipboardProtocol::rewriteUrl ( const KUrl& oldUrl, KUrl& newUrl )
 
 //==========
 
+/**
+ * We deny all attempts to delete a clipboard
+ */
 void KIOClipboardProtocol::del (const KUrl &url, bool isfile )
 {
   MY_KDEBUG_BLOCK ( "<del>" );
@@ -142,6 +197,9 @@ void KIOClipboardProtocol::del (const KUrl &url, bool isfile )
   catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOClipboardProtocol::del
 
+/**
+ * We deny all attempts to get a clipboard itself
+ */
 void KIOClipboardProtocol::get ( const KUrl &url )
 {
   MY_KDEBUG_BLOCK ( "<get>" );
@@ -161,6 +219,9 @@ void KIOClipboardProtocol::get ( const KUrl &url )
   catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOClipboardProtocol::get
 
+/**
+ * We list all available clipboards as a list of UDSEntries
+ */
 void KIOClipboardProtocol::listDir ( const KUrl& url )
 {
   MY_KDEBUG_BLOCK ( "<listDir>" );
@@ -181,6 +242,11 @@ void KIOClipboardProtocol::listDir ( const KUrl& url )
   catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOClipboardProtocol::listDir
 
+/**
+ * We simply claim a directory mimetype for all available clipboards
+ * This makes them being presented as folders which is what we want
+ * TODO: check what happens if we use something like "inode/vde-kde-network" or similar
+ */
 void KIOClipboardProtocol::mimetype ( const KUrl& url )
 {
   MY_KDEBUG_BLOCK ( "<mimetype>" );
@@ -200,6 +266,11 @@ void KIOClipboardProtocol::mimetype ( const KUrl& url )
   catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOClipboardProtocol::listDir
 
+/**
+ * We deny all attempts to create a directory on the base level.
+ * This base level is reserved for clipboards only as detected or configured.
+ * TODO: maybe in future versions we want to allow a creation here: something like a self-created folder acting as simple fifo, aka a primitive clipboard
+ */
 void KIOClipboardProtocol::mkdir (const KUrl &url, int permissions )
 {
   MY_KDEBUG_BLOCK ( "<mkdir>" );
@@ -219,6 +290,10 @@ void KIOClipboardProtocol::mkdir (const KUrl &url, int permissions )
   catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOClipboardProtocol::put
 
+/**
+ * We deny all attempts to push an entry into this base level. 
+ * This base level is reserved for clipboards only as detected or configured.
+ */
 void KIOClipboardProtocol::put (const KUrl &url, int permissions, JobFlags flags )
 {
   MY_KDEBUG_BLOCK ( "<put>" );
@@ -238,6 +313,10 @@ void KIOClipboardProtocol::put (const KUrl &url, int permissions, JobFlags flags
   catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOClipboardProtocol::put
 
+/**
+ * We answer requests for information about nodes with a UDSEntry
+ * we rely on data previously provided by predetection of configuration of clipboards
+ */
 void KIOClipboardProtocol::stat (const KUrl &url)
 {
   MY_KDEBUG_BLOCK ( "<stat>" );
@@ -257,6 +336,10 @@ void KIOClipboardProtocol::stat (const KUrl &url)
   catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOClipboardProtocol::stat
 
+/**
+ * We deny all attempts to push an entry into this base level.
+ * This base level is reserved for clipboards only as detected or configured.
+ */
 void KIOClipboardProtocol::symlink ( const QString& target, const KUrl& dest, JobFlags flags )
 {
   MY_KDEBUG_BLOCK ( "<symlink>" );

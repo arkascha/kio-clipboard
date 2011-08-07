@@ -12,17 +12,20 @@
 #include <QString>
 #include <QMap>
 #include <kio/global.h>
-#include <kio/slavebase.h>
-#include "kio/udsentry.h"
+#include <kio/udsentry.h>
+#include "kio_protocol.h"
 #include "wrapper/kio_clipboard_wrapper.h"
 #include "klipper/kio_clipboard_wrapper_klipper.h"
 
+using namespace KIO;
 namespace KIO_CLIPBOARD
 {
+  /**
+   * The central definition of a clipboard protocol that can communicate with the clipboard application 'klipper' as used in KDE4 desktops. 
+   */
   class KIOKlipperProtocol
     : public QObject
-    , public SlaveBase
-    , protected KIOClipboardWrapperKlipper
+    , public KIOProtocol
   {
     Q_OBJECT
     private:
@@ -33,7 +36,7 @@ namespace KIO_CLIPBOARD
       KIOKlipperProtocol ( const QByteArray &pool, const QByteArray &app, QObject* parent=0 );
       virtual ~KIOKlipperProtocol();
     public:
-      //void copy     ( const KUrl& src, const KUrl& dest, int permissions, JobFlags flags );
+      void copy     ( const KUrl& src, const KUrl& dest, int permissions, JobFlags flags );
       void del      ( const KUrl& url, bool isfile );
       void get      ( const KUrl& url );
       void listDir  ( const KUrl& url );

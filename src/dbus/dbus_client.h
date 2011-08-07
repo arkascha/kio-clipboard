@@ -21,6 +21,13 @@ using namespace KIO;
 namespace KIO_CLIPBOARD
 {
 
+  /**
+   * A generic DBus client
+   * This class acts as a simple bridge between the separate object representations inside DBus and c++
+   * Basic error handling is provided and a few convenience methods
+   * This class is usually not used by itself in a raw manner, instead it has to be derived by a
+   * specialized client implementing the real functions as implemented by the DBus service
+   */
   class DBusClient
     : public QObject
   {

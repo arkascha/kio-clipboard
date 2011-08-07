@@ -1,21 +1,22 @@
 ** Features:
-- auto detection for available clipboards
 - configuration for remote clipboards, cause most likely those cannot be autodetected
---- something like a registration of an url
+- - something like a registration of an url
 - signal refresh of list to make dolphin repaint - how ?!?
---- afiestas(#kde-devel): create a kded, monitor clipboard changes from there and use KDirNotify to "simulate"
+- - afiestas(#kde-devel): create a kded, monitor clipboard changes from there and use KDirNotify to "simulate"
 - turn regex engine in namespace CRI (folder christian-reiner.info) into a header-only-lib
+- copy folder currently works recursive, that makes no sense. 
 - "link here" does not work, "symlink" is not called and a "permission denied" pops up
 ** Implementation
 - use d-pointers for private members
---- binary compatibility (actually irrelevant for a kio slave...)
---- kde coding conventions (hm...)
+- - binary compatibility (actually irrelevant for a kio slave...)
+- - kde coding conventions (hm...)
 ** Add support for further clipboards:
 - parcellite: simply basic cli clipboard - ? question: any API ?
 - pastie: problems with pygobject in numerous setups I tried
 - glipper:
 - any online clipboard ?
+- - pastebin.com: great and mighty API, but requires a key to use it
 ** Convenience:
 - start local clipboard when not running ? (alternative to detectPresence())
---- maybe after a message box ("local clipboard not running, you want to start it ?")
- 
+- - not during auto detection, but maybe when a slave is selected manually (clicking on it) ?
+- - maybe after a message box ("local clipboard not running, you want to start it ?")

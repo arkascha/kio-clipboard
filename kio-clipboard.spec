@@ -14,7 +14,7 @@ BuildRequires:  libkde4-devel
 License:        GPLv2+
 Group:          Utilities/Desktop
 Summary:        KDE IO Slave for file based access of clipboard entries
-Version:        0.2.1
+Version:        0.2.2
 Release:        1.0
 Source:         %name-%version.tar.bz2
 Url:            http://kde-apps.org/content/show.php/kio-clipboard?content=143976
@@ -60,5 +60,23 @@ rm -rf $RPM_BUILD_ROOT
 %_kde_share_dir/services/klipper.protocol
 
 %changelog
-* Mon Jul 25 2011 kio-clipboard@christian-reiner.info
-- initial release of version 0.1
+* Sun Aug 07 2011 Christian Reiner: version 0.2.2
+- new structure for source file collection
+- slightly optimized icons by usage of overlays (for kde>=4.5)
+- fixed 'delete item' action not to delte the target file points to (!)
+- preparations for translation (i18n)
+- implementation of the 'copyToFile' feature for protocols
+- implementation of the 'copyFromFile' feature for protocols
+  + for human readable files the content will copied to the clipboard instead of the url or path
+  + for all other files or files that exceed the clipboard entries size limit a linking of the url/path is offered instead
+  + the user can chose to accept or cancel
+* Sat Jul 30 2011 Christian Reiner: version 0.2.1
+- changed technical names of virtual nodes from a numeric index to a check sum
+  this fixes addressing the wrong node after changes to the clipboard that were not reflected in an ambedding application
+- additional content semantics 'Empty', since such content is not really 'Text'
+* Fri Jul 29 2011 Christian Reiner: version 0.2.0
+- complete rewrite of the internal storage structure
+- fixed display name of clipboard folders not to vanish when being clicked
+* Tue Jul 27 2011 Christian Reiner: version 0.1
+- initial (and buggy) release
+- publication on kde-apps.org

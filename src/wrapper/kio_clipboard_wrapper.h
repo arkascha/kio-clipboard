@@ -23,8 +23,22 @@ namespace KIO_CLIPBOARD
 {
   const QStringList tokenizeUrl ( const KUrl& url);
 
+  /**
+   * an enumeration of clipboard types as known, handled and implemented
+   * each type of clipboard has it's own specific ways of how to be handled
+   * therefore it is very important to clearly identify that type upon usage
+   * - KLIPPER: local clipboard application used as a standard in KDE4 desktops
+   * TODO: check if these definitions cannot be defined each in its specialized clipboard implementation
+   */
   enum ClipboardType  { KLIPPER };
 
+  /**
+   * This class acts as a proxy layer between frontend and backend
+   * - frontend: the slave/protocol offering the backend inside the KIO system
+   * - backend: the clipboard itself as accessible by some interface
+   * The access to the clipboard strictly depends on the interface that is used to access features and content
+   * This class acts as a wrapper to make the clipboard accessible in a generic way, so it is some kind of application proxy
+   */
   class KIOClipboardWrapper
   {
     private:
@@ -34,23 +48,23 @@ namespace KIO_CLIPBOARD
     public:
       QMap<QString,const KIONodeWrapper*> m_nodes;
     protected:
-      const KIONodeWrapper* findNodeByUrl ( const KUrl& url );
-      void refreshNodes ( );
-      void clearNodes ( );
     public:
-      static QList<const KIOClipboardWrapper*> detectClipboards ( );
       KIOClipboardWrapper ( const KUrl& url, const QString& name );
       ~KIOClipboardWrapper ( );
       virtual const ClipboardType type     ( ) const = 0;
       virtual const QString       protocol ( ) const = 0;
+      virtual const int           limit    ( ) const = 0;
       inline const KUrl&    url  ( ) const { return this->m_url; };
       inline const QString& name ( ) const { return this->m_name; };
-      const UDSEntry     toUDSEntry     ( ) const;
-      const UDSEntryList toUDSEntryList ( ) const;
-      virtual QString     getClipboardEntry   ( ) = 0;
-      virtual QStringList getClipboardEntries ( ) = 0;
-      virtual void        pushEntry ( const QString& entry ) = 0;
-      virtual void        delEntry  ( const KUrl& url      ) = 0;
+      const KIONodeWrapper* findNodeByUrl  ( const KUrl& url );
+      const UDSEntry        toUDSEntry     ( ) const;
+      const UDSEntryList    toUDSEntryList ( ) const;
+      virtual QString       getClipboardEntry   ( ) = 0;
+      virtual QStringList   getClipboardEntries ( ) = 0;
+      virtual void          pushEntry ( const QString& entry ) = 0;
+      virtual void          delEntry  ( const KUrl& url      ) = 0;
+      void refreshNodes ( );
+      void clearNodes ( );
   }; // class KIOClipboardWrapper
 
 } // namespace KIO_CLIPBOARD

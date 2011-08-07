@@ -35,7 +35,7 @@ int kdemain( int argc, char **argv )
 
   if (argc != 4)
   {
-    fprintf(stderr, i18n("Usage: kio_clipboard protocol domain-socket1 domain-socket2\n").toUtf8() );
+    fprintf(stderr, i18n("Usage: %1").arg("kio_clipboard protocol domain-socket1 domain-socket2\n").toUtf8() );
     exit(-1);
   }
 

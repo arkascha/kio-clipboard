@@ -19,6 +19,10 @@
 using namespace KIO;
 using namespace KIO_CLIPBOARD;
 
+/**
+ * A simple convenience function that breaks a given URL in tokens
+ * TODO: this might be better based closer on KUrl and its methods, only the path has to be broken manually
+ */
 const QStringList KIO_CLIPBOARD::tokenizeUrl ( const KUrl& url )
 {
   QRegExp exp ("^([a-z0-9_]+):/([^/]+)?(/.+)?$");
@@ -34,30 +38,11 @@ const QStringList KIO_CLIPBOARD::tokenizeUrl ( const KUrl& url )
   throw CRI::Exception ( Error(ERR_MALFORMED_URL), url.url() );
 } // KIOClipboardWrapper::tokenizeUrl
 
-QList<const KIOClipboardWrapper*> KIOClipboardWrapper::detectClipboards ( )
-{
-  kDebug();
-  QList<const KIOClipboardWrapper*> _clipboards;
-  // strategy: for clipboards available on DBus we ask org.freedesktop.DBus for such a service
-  DBusClient dbus;
-  dbus.setupInterface ( "org.freedesktop.DBus", "/org/freedesktop/DBus", "" );
-  dbus.call ( "ListNames" );
-  const QStringList _names = dbus.convertReturnValue(dbus.result().first(),QVariant::StringList).toStringList();
-  // now add entries one by one
-  foreach (const QString& _name, _names )
-  {
-    if ( "org.kde.klipper"==_name )
-    {
-      kDebug() << "detected available clipboard of type 'KLIPPER' with url 'klipper:/'";
-      _clipboards << new KIOClipboardWrapperKlipper ( KUrl("klipper:/"), "klipper" );
-    }
-  }
-  kDebug() << "detected" << _clipboards.count() << "available clipboards";
-  return _clipboards;
-}
-
 //==========
 
+/**
+ * Each representation of a clipboard is identified by its name and an URL to access it. 
+ */
 KIOClipboardWrapper::KIOClipboardWrapper ( const KUrl& url, const QString& name )
   : m_url      ( url )
   , m_name     ( name )
@@ -65,12 +50,18 @@ KIOClipboardWrapper::KIOClipboardWrapper ( const KUrl& url, const QString& name 
   kDebug();
 } // KIOClipboardWrapper::KIOClipboardWrapper
 
+/**
+ * Any ceanups required go here. 
+ */
 KIOClipboardWrapper::~KIOClipboardWrapper()
 {
   kDebug();
   clearNodes();
 } // KIOClipboardWrapper::~KIOClipboardWrapper
 
+/**
+ * A clipboard itself as presented to the outside worlds (the KIO system)
+ */
 const UDSEntry KIOClipboardWrapper::toUDSEntry ( ) const
 {
   kDebug();
@@ -83,6 +74,9 @@ const UDSEntry KIOClipboardWrapper::toUDSEntry ( ) const
   return _entry;
 } // KIOClipboardProtocol::registerClipboard
 
+/**
+ * A list of all nodes (clipboard entries) as present in this wrapper. 
+ */
 const UDSEntryList KIOClipboardWrapper::toUDSEntryList ( ) const
 {
   UDSEntryList _entries;
@@ -92,6 +86,10 @@ const UDSEntryList KIOClipboardWrapper::toUDSEntryList ( ) const
   return _entries;
 } // KIOClipboardWrapper::toUDSEntryList
 
+/**
+ * Since we buffer the clipboards entries in a map of objects we have to refresh that map from time to time
+ * Since changes in clipboards often can only be detected by polling this has to be done quite frequent
+ */
 void KIOClipboardWrapper::refreshNodes ()
 {
   kDebug();
@@ -112,6 +110,10 @@ void KIOClipboardWrapper::refreshNodes ()
   kDebug() << QString("populated fresh set of nodes with %1 entries").arg(m_nodes.size());
 } // KIOClipboardWrapper::refreshNodes
 
+/**
+ * Removes all nodes that act as representations for clipboard entries.
+ * Typically called upon cleanup of right before re-populating by reading all available entries again. 
+ */
 void KIOClipboardWrapper::clearNodes ( )
 {
   kDebug();
@@ -119,6 +121,11 @@ void KIOClipboardWrapper::clearNodes ( )
     delete _entry;
 } // KIOClipboardWrapper::clearNodes
 
+/**
+ * Since clipboard entries do not have clear and simple file names we require a failure proof identification of each entry
+ * (Note that the index of an entry can easily change when the clipboars content is changed...)
+ * So we define a unique URL for each node and match all requests lateer against this url
+ */
 const KIONodeWrapper* KIOClipboardWrapper::findNodeByUrl ( const KUrl& url )
 {
   kDebug() << url.prettyUrl();
@@ -133,3 +140,4 @@ const KIONodeWrapper* KIOClipboardWrapper::findNodeByUrl ( const KUrl& url )
   // no matching element found ?!?
   throw CRI::Exception ( Error(ERR_DOES_NOT_EXIST), url.prettyUrl() );
 } // KIOClipboardWrapper::findNodeByUrl
+

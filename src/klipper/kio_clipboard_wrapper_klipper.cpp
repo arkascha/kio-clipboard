@@ -14,6 +14,9 @@
 using namespace KIO;
 using namespace KIO_CLIPBOARD;
 
+/**
+ * All setup required is a DBus client we use as a proxy
+ */
 KIOClipboardWrapperKlipper::KIOClipboardWrapperKlipper ( const KUrl& url, const QString& name )
   : KIOClipboardWrapper ( url, name )
 {
@@ -21,12 +24,19 @@ KIOClipboardWrapperKlipper::KIOClipboardWrapperKlipper ( const KUrl& url, const 
   m_dbus = new DBusClientKlipper ();
 } // constructor
 
+/**
+ * All cleanup required is to destroy the DBus client
+ */
 KIOClipboardWrapperKlipper::~KIOClipboardWrapperKlipper ()
 {
   kDebug() << "destructing specialized clipboard wrapper of type 'klipper'";
   delete m_dbus;
 } // destructor
 
+/**
+ * reads a single clipboard entry (the content)
+ * note that this is always a string, be it human-readable or not
+ */
 QString KIOClipboardWrapperKlipper::getClipboardEntry ()
 {
   kDebug();
@@ -36,6 +46,10 @@ QString KIOClipboardWrapperKlipper::getClipboardEntry ()
   return entry;
 } // KIOClipboardWrapperKlipper::getClipboardEntry
 
+/**
+ * conveniently get all clipboard entries in a single call
+ * this makes sense for refreshing and initializing
+ */
 QStringList KIOClipboardWrapperKlipper::getClipboardEntries ()
 {
   kDebug();
@@ -46,6 +60,10 @@ QStringList KIOClipboardWrapperKlipper::getClipboardEntries ()
   return entries;
 } // KIOClipboardWrapperKlipper::getClipboardEntries
 
+/**
+ * push a new entry onto the clipboard
+ * since clipboards act as fifos this entry is typically pushed onto the front of the front of the stack
+ */
 void KIOClipboardWrapperKlipper::pushEntry ( const QString& entry )
 {
   kDebug() << entry;
@@ -53,6 +71,12 @@ void KIOClipboardWrapperKlipper::pushEntry ( const QString& entry )
   refreshNodes ( );
 } // KIOClipboardWrapperKlipper::pushEntry
 
+/**
+ * removes an entry from the clipboard
+ * note that this works random-access, a feature that is not actually offered by a clipboard
+ * we kind of emulate this feature instead by removing all entries and repopulating the clipboard
+ * with all entries except that one to be removed
+ */
 void KIOClipboardWrapperKlipper::delEntry ( const KUrl& url )
 {
   kDebug() << url;
@@ -69,4 +93,3 @@ void KIOClipboardWrapperKlipper::delEntry ( const KUrl& url )
   // now re-read all entries to have a clean buffer
   refreshNodes ( );
 } // KIOClipboardWrapperKlipper::delEntry
-

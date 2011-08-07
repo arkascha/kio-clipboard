@@ -35,7 +35,7 @@ int kdemain( int argc, char **argv )
 
   if (argc != 4)
   {
-    fprintf(stderr, "Usage: kio_klipper protocol domain-socket1 domain-socket2\n");
+    fprintf(stderr, i18n("Usage: ").arg("kio_klipper protocol domain-socket1 domain-socket2\n").toUtf8() );
     exit(-1);
   }
 

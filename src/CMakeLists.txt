@@ -5,7 +5,8 @@ add_definitions(${QT_DEFINITIONS} ${KDE4_DEFINITIONS})
 
 set(klipper_SRCS       klipper/kio_clipboard_wrapper_klipper.cpp
                        klipper/dbus_client_klipper.cpp)
-set(shared_SRCS        wrapper/kio_clipboard_wrapper.cpp
+set(shared_SRCS        kio_protocol.cpp
+                       wrapper/kio_clipboard_wrapper.cpp
                        wrapper/kio_node_wrapper.cpp
                        dbus/dbus_client.cpp
                        christian-reiner.info/regex.cpp)

@@ -13,17 +13,22 @@
 #include <QMap>
 #include <kio/global.h>
 #include <kio/forwardingslavebase.h>
-#include "kio/udsentry.h"
-
+#include <kio/udsentry.h>
 #include "wrapper/kio_clipboard_wrapper.h"
 #include "klipper/kio_clipboard_wrapper_klipper.h"
 
+using namespace KIO;
 namespace KIO_CLIPBOARD
 {
   static       int     C_mappingNameCardinality;
   static const int     C_mappingNameLength       = 60;
   static const QString C_mappingNamePattern      = "%1[%2]:%3";
 
+  /**
+   * This class implements something like a 'meta slave', a slave that acts as a proxy to other, specialized slaves.
+   * All available clipboards, auto detected or manually specified are presented, access to any one is forwarded
+   * to a specialized slave implementation (this is done by the interface, not directly by this class)
+   */
   class KIOClipboardProtocol
     : public ForwardingSlaveBase
   {
@@ -33,6 +38,7 @@ namespace KIO_CLIPBOARD
       const UDSEntry     toUDSEntry ();
       const UDSEntryList toUDSEntryList ();
       const KIOClipboardWrapper* findClipboardByUrl ( const KUrl& url );
+      const QList<const KIOClipboardWrapper*> detectClipboards ( );
     public:
       KIOClipboardProtocol ( const QByteArray &pool, const QByteArray &app );
       virtual ~KIOClipboardProtocol();

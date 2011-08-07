@@ -11,6 +11,8 @@
 #include "christian-reiner.info/exception.h"
 #include "christian-reiner.info/regex.h"
 
+// TODO: turn this 'thing' into a head-only library
+
 CRI::regExPool CRI::loadRegExPool()
 {
   regExPool _pool;
@@ -33,10 +35,9 @@ CRI::regExPool CRI::loadRegExPool()
   foreach ( const QString& _key, _pool.keys() )
     if ( ! _pool[_key].isValid() )
     {
-      const char* _err = "failed to load regex engine because of invalid rexex '%1': %2";
+      const QString _err = i18n("Failed to load regex engine, invalid expression '%1': %2").arg(_key).arg(_pool[_key].pattern());
       kDebug() << QString(_err).arg(_key).arg(_pool[_key].pattern());
-      throw CRI::Exception ( Error(ERR_SLAVE_DEFINED),
-                             i18n(_err).arg(_key).arg(_pool[_key].pattern()) );
+      throw CRI::Exception ( Error(ERR_SLAVE_DEFINED), _err );
     }
   return _pool;
 } // CRI::loadRegExPool

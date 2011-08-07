@@ -29,17 +29,28 @@ using namespace KIO_CLIPBOARD;
 const int timeout = 5000;
 const int repeat = 6;
 
+/**
+ * Constructor
+ * nothing special to setup since this is a generic proxy
+ */
 DBusClient::DBusClient ( QObject* _parent )
   : QObject ( _parent )
 {
   kDebug() << "constructing generic DBus client";
 }
 
+/**
+ * Destructor
+ * nothing to cleanup
+ */
 DBusClient::~DBusClient ( )
 {
   kDebug() << "destructing generic DBus client";
 }
 
+/**
+ * TODO: move this into the destructor
+ */
 void DBusClient::cleanup ()
 {
   // * de-register any signals from DBus
@@ -47,6 +58,9 @@ void DBusClient::cleanup ()
   delete m_interface;
 } // DBusClient::cleanup
 
+/**
+ * TODO: move this into the constructor
+ */
 void DBusClient::setupInterface ( const QString& service, const QString& path, const QString& interface )
 {
   kDebug() << service, path, interface;
@@ -61,16 +75,32 @@ void DBusClient::setupInterface ( const QString& service, const QString& path, c
   kDebug() << "connection to DBus successful.";
 } // DBusClient::setupInterface
 
+/**
+ * read-only access to the result a request produced
+ * used by deriving classes, might be extended by error handling
+ */
 QList<QVariant> DBusClient::result ( )
 {
   return m_result;
 } // DBusClient::result
 
+/**
+ * the actual size of the result a request produced
+ * used by deriving classes, might be extended by error handling
+ */
 int DBusClient::resultSize ( )
 {
   return m_result.size();
 } // DBusClient::resultSize
 
+/**
+ * converts the representation of data in a result into a more convenient c++ format
+ * since the structure of a result depends on the request called and might actually
+ * differ from situation to situation we use QVariants to holds the data
+ *
+ * this method is used by the calling scope as a service to convert a data held in a result into an expected format
+ * error handling is done as far as possible (syntactically and type-specific)
+ */
 QVariant& DBusClient::convertReturnValue ( QVariant &variant, QVariant::Type _t )
 {
   kDebug() << QVariant::typeToName(_t);
@@ -87,6 +117,11 @@ QVariant& DBusClient::convertReturnValue ( QVariant &variant, QVariant::Type _t 
   return variant;
 } // DBusClient::readReturnValue
 
+/**
+ * generic wrapper of an actual request (call) to DBus
+ * basic error handling considers protocol and transport problems,
+ * but there is no way to deal with the content received as a result
+ */
 void DBusClient::call ( const QString method, const QVariant & arg1,
                                               const QVariant & arg2,
                                               const QVariant & arg3,

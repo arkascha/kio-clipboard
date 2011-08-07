@@ -11,6 +11,8 @@
 #include <QMap>
 #include <QString>
 
+// TODO: turn this 'thing' into a head-only library
+
 namespace CRI
 {
   typedef QMap<QString,QRegExp> regExPool;

@@ -11,11 +11,13 @@
 #include <KMimeType>
 #include <kdeversion.h>
 #include <kmimetype.h>
+#include <klocalizedstring.h>
 #include <kio/netaccess.h>
 #include <kio/job.h>
 #include <kio/filejob.h>
 #include <kdebug.h>
 #include "kio_klipper_protocol.h"
+#include "wrapper/kio_clipboard_wrapper.h"
 #include "christian-reiner.info/exception.h"
 
 // Kdebug::Block is only defined from KDE-4.6.0 on
@@ -29,28 +31,33 @@
 using namespace KIO;
 using namespace KIO_CLIPBOARD;
 
-KIOKlipperProtocol::KIOKlipperProtocol( const QByteArray &_pool, const QByteArray &_app, QObject* parent )
+/**
+ * The standard constructor, nothing special here.
+ * A fresh object is handled to the generic interface class this class derives from.
+ * That object is initialized by refreshing it's nodes collection and destroyed again locally in the destructor. 
+ */
+KIOKlipperProtocol::KIOKlipperProtocol( const QByteArray &pool, const QByteArray &app, QObject* parent )
   : QObject ( parent )
-  , SlaveBase ( "klipper", _pool, _app )
-  , KIOClipboardWrapperKlipper ( KUrl("klipper:/"), "klipper" )
+  , KIOProtocol ( pool, app, new KIOClipboardWrapperKlipper(KUrl("klipper:/"),"klipper") )
 {
-//  KDebug::Block myBlock( "<slave setup>" );
   MY_KDEBUG_BLOCK ( "<slave setup>" );
-  kDebug() << "constructing protocol";
   try
   {
     // initialize the wrappers nodes
-    refreshNodes ( );
+    m_clipboard->refreshNodes ( );
   }
   catch ( CRI::Exception &e ) { error ( e.getCode(), e.getText() ); }
 }
 
+/**
+ * The destructor cleans up the specialized clipboard wrapper object instantiated in the constructor. 
+ */
 KIOKlipperProtocol::~KIOKlipperProtocol()
 {
   MY_KDEBUG_BLOCK ( "<slave shutdown>" );
-  kDebug() << "destructing protocol";
   try
   {
+    delete m_clipboard;
   }
   catch ( CRI::Exception &e )
   {
@@ -60,22 +67,28 @@ KIOKlipperProtocol::~KIOKlipperProtocol()
 
 //==========
 
+/**
+ * Generates a plain UDSEntry object that describes this protocol itself, that is its base folder. 
+ */
 const UDSEntry KIOKlipperProtocol::toUDSEntry ()
 {
-  kDebug() << type();
+  kDebug() << m_clipboard->type();
   UDSEntry _entry;
   _entry.clear();
-  _entry.insert( UDSEntry::UDS_NAME,      QString::fromLatin1("klipper"));
-  _entry.insert( UDSEntry::UDS_FILE_TYPE, S_IFDIR);
-  _entry.insert( UDSEntry::UDS_ACCESS,    0744);
-  _entry.insert( UDSEntry::UDS_MIME_TYPE, QString::fromLatin1("inode/directory"));
+  _entry.insert( UDSEntry::UDS_NAME,      m_clipboard->protocol() );
+  _entry.insert( UDSEntry::UDS_FILE_TYPE, S_IFDIR );
+  _entry.insert( UDSEntry::UDS_ACCESS,    0744 );
+  _entry.insert( UDSEntry::UDS_MIME_TYPE, QString::fromLatin1("inode/directory") );
   return _entry;
 } // KIOKlipperProtocol::toUDSEntry
 
+/**
+ * Generates a list of UDSEntries that describe all nodes (clipboard entries) as present in the clipboard wrapper
+ */
 const UDSEntryList KIOKlipperProtocol::toUDSEntryList ()
 {
   UDSEntryList _entries;
-  foreach ( const KIONodeWrapper* _entry, m_nodes )
+  foreach ( const KIONodeWrapper* _entry, m_clipboard->m_nodes )
 //  foreach ( const KIOClipboardWrapper* const& _entry, m_nodes.values() )
     _entries << _entry->toUDSEntry();
   kDebug() << "listing" << _entries.count() << "entries";
@@ -84,6 +97,50 @@ const UDSEntryList KIOKlipperProtocol::toUDSEntryList ()
 
 //======================
 
+/**
+ * This implements the direct and fast copy actions that bypass the get()&put() combination if defined.
+ * There are actually 3 cases of copy requests that differ:
+ * 1.) 'klipper:/...' => 'klipper:/...', we deny this, since the names of clipboard entries cannot be influenced anyway
+ * 2.) 'file:/...' => 'klipper:/...': we grant the request and create a new entry
+ * 3.) 'klipper:/...' => 'file:/...': we deny the request, the calling interface will use get()&put() instead which works better
+ */
+void KIOKlipperProtocol::copy ( const KUrl& src, const KUrl& dest, int permissions, JobFlags flags )
+{
+  MY_KDEBUG_BLOCK ( "<copy>" );
+  kDebug() << src.prettyUrl() << dest.prettyUrl() << permissions << flags;
+  kDebug() << QString("copy from '%1' to '%2' requested").arg(src.scheme()).arg(dest.scheme());
+  try
+  {
+    // there are different ways what this method might be used foreach
+    if ( src.scheme()==m_clipboard->protocol() && dest.scheme()==m_clipboard->protocol() )
+    {
+      // klipper:/... >> klipper:/...
+      kDebug() << "trivial internal copy request, whyever, aborting";
+      throw CRI::Exception ( Error(ERR_SLAVE_DEFINED), "Names of clipboard entries are generated in a generic manner, you have no control over that. \nTherefore this action does not make sense" );
+    }
+    if ( src.scheme()=="file" && dest.scheme()==m_clipboard->protocol() )
+    {
+      // file:/... >> klipper:/...
+      kDebug() << "handling source file managament directly";
+      copyFromFile ( src, dest );
+      finished ( );
+      return;
+    }
+    if ( src.scheme()==m_clipboard->protocol() && dest.scheme()=="file" )
+    {
+      // klipper:/... >> file:/...
+      kDebug() << "handling destiny file managament indirectly via get() & put()";
+      throw CRI::Exception ( Error(ERR_UNSUPPORTED_ACTION), dest.prettyUrl() );
+      return;
+    }
+  }
+  catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
+} // KIOKlipperProtocol::copy
+
+/**
+ * Request to remove an entry from the clipboad.
+ * We let the clipboard wrapper handle the real work. 
+ */
 void KIOKlipperProtocol::del ( const KUrl& url, bool isfile )
 {
   // note: isfile signals if a directory or a file is meant to be deleted
@@ -93,12 +150,20 @@ void KIOKlipperProtocol::del ( const KUrl& url, bool isfile )
   try
   {
     // remove entry from clipboard
-    delEntry ( url );
+    m_clipboard->delEntry ( url );
     finished();
   }
   catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::del
 
+/**
+ * Request to get an entry from the clipboad.
+ * We differ 3 cases of what we actually deliver:
+ * 1.) in case of human readable entries we deliver the content of the entry as payload
+ * 2.) in case of references to files we redirect the interface to the file itself
+ * 3.) in case if urls we redirect to interface to the url itself
+ * This saves us from handling all sorts of file and url handling which is implemented in specialized protocols anyway
+ */
 void KIOKlipperProtocol::get ( const KUrl& url )
 {
   MY_KDEBUG_BLOCK ( "<get>" );
@@ -107,7 +172,7 @@ void KIOKlipperProtocol::get ( const KUrl& url )
   try
   {
     // send data, depending on the semantics of the payload
-    const KIONodeWrapper* _entry = findNodeByUrl ( url );
+    const KIONodeWrapper* _entry = m_clipboard->findNodeByUrl ( url );
     switch ( _entry->semantics() )
     {
       case KIO_CLIPBOARD::S_EMPTY:
@@ -138,6 +203,9 @@ void KIOKlipperProtocol::get ( const KUrl& url )
   catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::get
 
+/**
+ * Lists all clipboard entries as present in the clipboard wrapper. 
+ */
 void KIOKlipperProtocol::listDir ( const KUrl& url )
 {
   MY_KDEBUG_BLOCK ( "<listDir>" );
@@ -152,14 +220,21 @@ void KIOKlipperProtocol::listDir ( const KUrl& url )
       finished ( );
       return;
     }
-    refreshNodes ( );
-    totalSize ( m_nodes.size() );
+    m_clipboard->refreshNodes ( );
+    totalSize ( m_clipboard->m_nodes.size() );
     listEntries ( toUDSEntryList() );
     finished ( );
   }
   catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::listDir
 
+/**
+ * Delivers the mimetype of a clipboard entry.
+ * Again, as in get() we differ 3 cases:
+ * 1.) for human readable entries we deliver the mimetype is predetected by the clipboard wrapper
+ * 2.) for entries holding refrences to files we redirect the interface to consider that file directly
+ * 3.) for urls we redirect to those urls, since the specialized protocol implementations are certainly better in handling this
+ */
 void KIOKlipperProtocol::mimetype ( const KUrl& url )
 {
   MY_KDEBUG_BLOCK ( "<mimetype>" );
@@ -167,7 +242,7 @@ void KIOKlipperProtocol::mimetype ( const KUrl& url )
   try
   {
     // find the matching node entry
-    const KIONodeWrapper* _entry = findNodeByUrl ( url );
+    const KIONodeWrapper* _entry = m_clipboard->findNodeByUrl ( url );
     if ( ! _entry->mimetype().isEmpty()
         && _entry->mimetype()!="application/octet-stream" )
     {
@@ -183,6 +258,8 @@ void KIOKlipperProtocol::mimetype ( const KUrl& url )
         case KIO_CLIPBOARD::S_EMPTY:
         case KIO_CLIPBOARD::S_TEXT:
         case KIO_CLIPBOARD::S_CODE:
+          // this should have been predetected whilst reading the entry by the clipboard wrapper,
+          // so this is just a save fallback in case the generic lines above did not find such mimetype: 
           mimeType ( "text/plain" );
           finished();
           return;
@@ -207,6 +284,10 @@ void KIOKlipperProtocol::mimetype ( const KUrl& url )
   catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::mimetype
 
+/**
+ * creation of directories on a clipboard do not make sense: clipboards are no hierarchical file systems.
+ * therefore we deny the request as a not supported action
+ */
 void KIOKlipperProtocol::mkdir ( const KUrl& url, int permissions )
 {
   // ToDo: this currently works recursive:
@@ -217,12 +298,28 @@ void KIOKlipperProtocol::mkdir ( const KUrl& url, int permissions )
   kDebug() << url.prettyUrl ( ) << permissions;
   try
   {
-    pushEntry ( url.url() );
+    m_clipboard->pushEntry ( url.url() );
+  /* ok: an ugly hack, looks strange, butappears to be working:
+   * after linking w directory (we CANNOT copy a directory) we do NOT emit finished(), but throw an error instead.
+   * This appears to prevent a recursive copy request of all the diretories content which is what we want.
+   * so far I could not see any negative outcomes, since the directory itself HAS been linked, which is what we want too.
+   */
+    if ( KMimeType::findByPath(url.path())->inherits("inode/directory") )
+    {
+      kDebug() << "silently terminating recursive copying of a directory after linking it";
+      throw CRI::Exception ( Error(ERR_UNSUPPORTED_ACTION), url.prettyUrl() );
+    }
     finished();
   }
   catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::mkdir
 
+/**
+ * request to push some entry onto the clipboard
+ * unlike copy() this does not get any source url but the content as data instead
+ * in case of human readable content we have no problems and simply copy the content to the clipboard
+ * in other cases we want to create a reference to the source instead
+ */
 void KIOKlipperProtocol::put ( const KUrl& url, int permissions, KIO::JobFlags flags )
 {
   // ToDo: the resulting url is clipboard:/-specific, that makes no sense
@@ -234,22 +331,27 @@ void KIOKlipperProtocol::put ( const KUrl& url, int permissions, KIO::JobFlags f
   {
     // we want to push an entry to the clipboard, but this is the _content_ of the url, not the name
     int _ret_val;
-    int _max_buffer_length = 32*1024; // TODO: turn into something like a global define or configuration value
     QByteArray _buffer, _payload;
     do
     {
       dataReq();
       int _ret_val = readData ( _buffer );
       if  ( _ret_val<0 )
-        throw CRI::Exception ( Error(ERR_COULD_NOT_READ), url.prettyUrl() ); // TODO: show source file instead of target file
+        throw CRI::Exception ( Error(ERR_COULD_NOT_READ), url.prettyUrl() ); // FIXME: show source file instead of target file
       _payload += _buffer;
-    } while ( _ret_val!=0 && _max_buffer_length>_payload.size() ); // a return value of 0 (zero) means: no more data
-    pushEntry ( QString(_payload) );
+    } while ( _ret_val!=0 && m_clipboard->limit()>_payload.size() ); // a return value of 0 (zero) means: no more data
+    m_clipboard->pushEntry ( QString(_payload) );
     finished ( );
   }
   catch ( CRI::Exception &e ) { error ( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::put
 
+/**
+ * request for the description of a single entry in the clipboard
+ * we rely on the node description as collected by the specialized clipboard wrapper
+ * for human readably entries we simple pass that information turned into an UDSEntry
+ * for other cases, file and url references we redirect the interface to those instead
+ */
 void KIOKlipperProtocol::stat( const KUrl& url )
 {
   MY_KDEBUG_BLOCK ( "<stat>" );
@@ -276,7 +378,7 @@ void KIOKlipperProtocol::stat( const KUrl& url )
     else
     {
       // non-root element
-      const KIONodeWrapper* _entry = findNodeByUrl ( url );
+      const KIONodeWrapper* _entry = m_clipboard->findNodeByUrl ( url );
       switch ( _entry->semantics() )
       {
         case KIO_CLIPBOARD::S_EMPTY:
@@ -304,6 +406,10 @@ void KIOKlipperProtocol::stat( const KUrl& url )
   catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::stat
 
+/**
+ * (sorry, not really a clue how this works currently)
+ * TODO FIXME do-something!
+ */
 void KIOKlipperProtocol::symlink ( const QString& target, const KUrl& dest, KIO::JobFlags flags )
 {
   MY_KDEBUG_BLOCK ( "<symlink>" );
@@ -312,9 +418,9 @@ void KIOKlipperProtocol::symlink ( const QString& target, const KUrl& dest, KIO:
   {
     KUrl _url ( target );
     if ( _url.isLocalFile() )
-      pushEntry ( _url.path() );
+      m_clipboard->pushEntry ( _url.path() );
     else
-      pushEntry ( _url.url() );
+      m_clipboard->pushEntry ( _url.url() );
 //      pushEntry ( _url.prettyUrl() );
     finished();
   }
