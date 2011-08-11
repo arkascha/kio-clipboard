@@ -1,3 +1,8 @@
+* Wed Aug 10 2011 Christian Reiner: version 0.2.3
+- enhanced mimetype detection for text based clipboard entries
+- detection of a few special types of text entries declared as "code"
+- simplyfied setup up of internal DBus clients
+- fixed cardinality of numeric index in displayed entry names to honour the clipboards size
 * Sun Aug 07 2011 Christian Reiner: version 0.2.2
 - new structure for source file collection
 - slightly optimized icons by usage of overlays (for kde>=4.5)

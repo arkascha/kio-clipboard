@@ -33,36 +33,10 @@ const int repeat = 6;
  * Constructor
  * nothing special to setup since this is a generic proxy
  */
-DBusClient::DBusClient ( QObject* _parent )
-  : QObject ( _parent )
+DBusClient::DBusClient ( const QString& service, const QString& path, const QString& interface, QObject* parent )
+  : QObject ( parent )
 {
   kDebug() << "constructing generic DBus client";
-}
-
-/**
- * Destructor
- * nothing to cleanup
- */
-DBusClient::~DBusClient ( )
-{
-  kDebug() << "destructing generic DBus client";
-}
-
-/**
- * TODO: move this into the destructor
- */
-void DBusClient::cleanup ()
-{
-  // * de-register any signals from DBus
-  // * clean detach from DBus
-  delete m_interface;
-} // DBusClient::cleanup
-
-/**
- * TODO: move this into the constructor
- */
-void DBusClient::setupInterface ( const QString& service, const QString& path, const QString& interface )
-{
   kDebug() << service, path, interface;
   // setup bus connection details
   QDBusConnection _bus = QDBusConnection::sessionBus();
@@ -73,7 +47,17 @@ void DBusClient::setupInterface ( const QString& service, const QString& path, c
     else
       throw CRI::Exception ( Error(ERR_INTERNAL), this->m_interface->lastError().message() );
   kDebug() << "connection to DBus successful.";
-} // DBusClient::setupInterface
+}
+
+/**
+ * Destructor
+ * nothing to cleanup
+ */
+DBusClient::~DBusClient ( )
+{
+  kDebug() << "destructing generic DBus client";
+  delete this->m_interface;
+}
 
 /**
  * read-only access to the result a request produced

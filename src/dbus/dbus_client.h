@@ -15,8 +15,6 @@
 #include <kio/global.h>
 #include <KUrl>
 
-// ToDo: move dbus clients into a separate thread
-
 using namespace KIO;
 namespace KIO_CLIPBOARD
 {
@@ -33,12 +31,8 @@ namespace KIO_CLIPBOARD
   {
     Q_OBJECT
     public:
-      DBusClient ( QObject* _parent=0 );
+      DBusClient ( const QString& service, const QString& path, const QString& interface, QObject* parent=0 );
       ~DBusClient ( );
-    private slots:
-      void cleanup ( );
-    protected slots:
-    public slots:
     private:
     protected:
       QList<QVariant> m_result;
@@ -46,7 +40,6 @@ namespace KIO_CLIPBOARD
     public:
       QList<QVariant> result ( );
       int             resultSize ( );
-      void      setupInterface ( const QString& service, const QString& path, const QString& interface );
       QVariant& convertReturnValue ( QVariant &variant, QVariant::Type _t );
       void      call ( const QString method, const QVariant & arg1 = QVariant(),
                                              const QVariant & arg2 = QVariant(),

@@ -21,7 +21,7 @@ namespace KIO_CLIPBOARD
   {
     Q_OBJECT
     public:
-      DBusClientKlipper ( QObject* _parent=0 );
+      DBusClientKlipper ( QObject* parent=0 );
       ~DBusClientKlipper ();
     public slots:
       void        clearClipboardContents  ();

@@ -21,7 +21,6 @@ using namespace KIO_CLIPBOARD;
 
 /**
  * A simple convenience function that breaks a given URL in tokens
- * TODO: this might be better based closer on KUrl and its methods, only the path has to be broken manually
  */
 const QStringList KIO_CLIPBOARD::tokenizeUrl ( const KUrl& url )
 {
@@ -44,8 +43,11 @@ const QStringList KIO_CLIPBOARD::tokenizeUrl ( const KUrl& url )
  * Each representation of a clipboard is identified by its name and an URL to access it. 
  */
 KIOClipboardWrapper::KIOClipboardWrapper ( const KUrl& url, const QString& name )
-  : m_url      ( url )
-  , m_name     ( name )
+  : m_url  ( url )
+  , m_name ( name )
+  , m_mappingNameCardinality ( KIO_CLIPBOARD::C_mappingNameCardinality ) 
+  , m_mappingNameLength      ( KIO_CLIPBOARD::C_mappingNameLength )
+  , m_mappingNamePattern     ( KIO_CLIPBOARD::C_mappingNamePattern )
 {
   kDebug();
 } // KIOClipboardWrapper::KIOClipboardWrapper
@@ -98,13 +100,13 @@ void KIOClipboardWrapper::refreshNodes ()
   // ask the specialised client for the entries
   QStringList _entries = getClipboardEntries ();
   // update global name cardinality, important to construct names with correct cardinality of their name prefix indexes
-  C_mappingNameCardinality = QString("%1").arg(_entries.count()).size();
+  m_mappingNameCardinality = QString("%1").arg(_entries.count()).size();
   kDebug() << QString("set mapping cardinality to %1 (length of numeric index)").arg(C_mappingNameCardinality);
   // now populate the nodes, one entry after another
   int _index = 0;
   foreach ( const QString& _entry, _entries )
   {
-    KIONodeWrapper* _node = new KIONodeWrapper ( ++_index, _entry );
+    KIONodeWrapper* _node = new KIONodeWrapper ( this, ++_index, _entry );
     m_nodes.insert ( _node->name(), _node );
   }
   kDebug() << QString("populated fresh set of nodes with %1 entries").arg(m_nodes.size());

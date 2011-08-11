@@ -28,7 +28,6 @@ namespace KIO_CLIPBOARD
    * each type of clipboard has it's own specific ways of how to be handled
    * therefore it is very important to clearly identify that type upon usage
    * - KLIPPER: local clipboard application used as a standard in KDE4 desktops
-   * TODO: check if these definitions cannot be defined each in its specialized clipboard implementation
    */
   enum ClipboardType  { KLIPPER };
 
@@ -42,9 +41,12 @@ namespace KIO_CLIPBOARD
   class KIOClipboardWrapper
   {
     private:
-      const KUrl           m_url;
-      const QString        m_name;
+      const KUrl     m_url;
+      const QString  m_name;
     protected:
+      int            m_mappingNameCardinality;
+      const int      m_mappingNameLength;
+      const QString& m_mappingNamePattern;
     public:
       QMap<QString,const KIONodeWrapper*> m_nodes;
     protected:
@@ -54,8 +56,11 @@ namespace KIO_CLIPBOARD
       virtual const ClipboardType type     ( ) const = 0;
       virtual const QString       protocol ( ) const = 0;
       virtual const int           limit    ( ) const = 0;
-      inline const KUrl&    url  ( ) const { return this->m_url; };
-      inline const QString& name ( ) const { return this->m_name; };
+      inline const KUrl&    url                    ( ) const { return this->m_url; };
+      inline const QString& name                   ( ) const { return this->m_name; };
+      inline const int      mappingNameCardinality ( ) const { return m_mappingNameCardinality; };
+      inline const int      mappingNameLength      ( ) const { return m_mappingNameLength; };
+      inline const QString& mappingNamePattern     ( ) const { return m_mappingNamePattern; };
       const KIONodeWrapper* findNodeByUrl  ( const KUrl& url );
       const UDSEntry        toUDSEntry     ( ) const;
       const UDSEntryList    toUDSEntryList ( ) const;

@@ -178,7 +178,7 @@ void KIOKlipperProtocol::get ( const KUrl& url )
       case KIO_CLIPBOARD::S_EMPTY:
       case KIO_CLIPBOARD::S_TEXT:
       case KIO_CLIPBOARD::S_CODE:
-        mimeType ( _entry->mimetype() );
+        mimeType ( _entry->mimetype()->name() );
         data     ( _entry->payload().toUtf8() );
         data     ( QByteArray() );
         finished ( );
@@ -243,43 +243,31 @@ void KIOKlipperProtocol::mimetype ( const KUrl& url )
   {
     // find the matching node entry
     const KIONodeWrapper* _entry = m_clipboard->findNodeByUrl ( url );
-    if ( ! _entry->mimetype().isEmpty()
-        && _entry->mimetype()!="application/octet-stream" )
+    KUrl _target;
+    switch ( _entry->semantics() )
     {
-      mimeType ( _entry->mimetype() );
-      finished();
-      return;
-    }
-    else
-    {
-      KUrl _url;
-      switch ( _entry->semantics() )
-      {
-        case KIO_CLIPBOARD::S_EMPTY:
-        case KIO_CLIPBOARD::S_TEXT:
-        case KIO_CLIPBOARD::S_CODE:
-          // this should have been predetected whilst reading the entry by the clipboard wrapper,
-          // so this is just a save fallback in case the generic lines above did not find such mimetype: 
-          mimeType ( "text/plain" );
-          finished();
-          return;
-        case KIO_CLIPBOARD::S_FILE:
-        case KIO_CLIPBOARD::S_DIR:
-          _url = KUrl(_entry->path() );
-          kDebug() << "redirecting to:" << _url.prettyUrl ( );
-          redirection ( _url );
-          finished ( );
-          return;
-        case KIO_CLIPBOARD::S_URL:
-          _url = KUrl(_entry->url() );
-          kDebug() << "redirecting to:" << _url.prettyUrl ( );
-          redirection ( _url );
-          finished ( );
-          return;
-        default:
-          throw CRI::Exception ( Error(ERR_INTERNAL_SERVER), url.prettyUrl() );
-      } // switch
-    }
+      case KIO_CLIPBOARD::S_EMPTY:
+      case KIO_CLIPBOARD::S_TEXT:
+      case KIO_CLIPBOARD::S_CODE:
+        mimeType ( _entry->mimetype()->name() );
+        finished();
+        return;
+      case KIO_CLIPBOARD::S_FILE:
+      case KIO_CLIPBOARD::S_DIR:
+        _target = KUrl(_entry->path() );
+        kDebug() << "redirecting to:" << _target.prettyUrl ( );
+        redirection ( _target );
+        finished ( );
+        return;
+      case KIO_CLIPBOARD::S_URL:
+        _target = KUrl(_entry->url() );
+        kDebug() << "redirecting to:" << _target.prettyUrl ( );
+        redirection ( _target );
+        finished ( );
+        return;
+      default:
+        throw CRI::Exception ( Error(ERR_INTERNAL_SERVER), url.prettyUrl() );
+    } // switch
   }
   catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::mimetype
@@ -290,9 +278,9 @@ void KIOKlipperProtocol::mimetype ( const KUrl& url )
  */
 void KIOKlipperProtocol::mkdir ( const KUrl& url, int permissions )
 {
-  // ToDo: this currently works recursive:
+  // FIXME: this currently works recursive:
   // all files contained in the directory are copied one by one
-  // ToDo: just like in put(): the resulting url is clipboard:/-specific, that makes no sense
+  // FIXME: just like in put(): the resulting url is clipboard:/-specific, that makes no sense
   // note: permissions and flags (OVERWRITE) dont make sense for a local clipboard
   MY_KDEBUG_BLOCK ( "<mkdir>" );
   kDebug() << url.prettyUrl ( ) << permissions;
@@ -304,7 +292,7 @@ void KIOKlipperProtocol::mkdir ( const KUrl& url, int permissions )
    * This appears to prevent a recursive copy request of all the diretories content which is what we want.
    * so far I could not see any negative outcomes, since the directory itself HAS been linked, which is what we want too.
    */
-    if ( KMimeType::findByPath(url.path())->inherits("inode/directory") )
+    if ( KMimeType::findByPath(url.path())->is("inode/directory") )
     {
       kDebug() << "silently terminating recursive copying of a directory after linking it";
       throw CRI::Exception ( Error(ERR_UNSUPPORTED_ACTION), url.prettyUrl() );
@@ -322,8 +310,8 @@ void KIOKlipperProtocol::mkdir ( const KUrl& url, int permissions )
  */
 void KIOKlipperProtocol::put ( const KUrl& url, int permissions, KIO::JobFlags flags )
 {
-  // ToDo: the resulting url is clipboard:/-specific, that makes no sense
-  // ToDo: it has to be source specific instead ! and a full path, not just a file name
+  // FIXME: the resulting url is clipboard:/-specific, that makes no sense
+  // FIXME: it has to be source specific instead ! and a full path, not just a file name
   // note: permissions and flags (OVERWRITE) dont make sense for a local clipboard
   MY_KDEBUG_BLOCK ( "<put>" );
   kDebug() << url.prettyUrl ( ) << permissions << flags;
@@ -369,7 +357,7 @@ void KIOKlipperProtocol::stat( const KUrl& url )
     }
     if ( QLatin1String("/")==url.path() )
     {
-      // root element
+      // root elementŝ
       kDebug() << "generating root entry";
       statEntry ( toUDSEntry() );
       finished ( );

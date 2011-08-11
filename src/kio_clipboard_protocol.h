@@ -20,7 +20,7 @@
 using namespace KIO;
 namespace KIO_CLIPBOARD
 {
-  static       int     C_mappingNameCardinality;
+  static       int     C_mappingNameCardinality  = 1;
   static const int     C_mappingNameLength       = 60;
   static const QString C_mappingNamePattern      = "%1[%2]:%3";
 

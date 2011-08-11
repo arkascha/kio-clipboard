@@ -115,8 +115,7 @@ const QList<const KIOClipboardWrapper*> KIOClipboardProtocol::detectClipboards (
   kDebug();
   QList<const KIOClipboardWrapper*> _clipboards;
   // strategy: for clipboards available on DBus we ask org.freedesktop.DBus for such a service
-  DBusClient dbus;
-  dbus.setupInterface ( "org.freedesktop.DBus", "/org/freedesktop/DBus", "" );
+  DBusClient dbus ( "org.freedesktop.DBus", "/org/freedesktop/DBus", "" );
   dbus.call ( "ListNames" );
   const QStringList _names = dbus.convertReturnValue(dbus.result().first(),QVariant::StringList).toStringList();
   // now add entries one by one

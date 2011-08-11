@@ -85,7 +85,7 @@ void KIOProtocol::copyFromFile ( const KUrl& src,  const KUrl& dest )
   int _choice;
   // strategy: for text based mime types copy _content_ of the file, otheriwse create a reference, which means copy the path/url
   KMimeType::Ptr _mimetype = KMimeType::findByUrl ( src, 0, TRUE ); // TODO: file mode as second argument
-  if ( _mimetype->isBinaryData(src.fileName()) || ! _mimetype->inherits("text/plain") )
+  if ( _mimetype->isBinaryData(src.fileName()) || ! _mimetype->is("text/plain") )
   {
     kDebug() << "file content is binary data, creating a reference instead";
     _choice = messageBox ( WarningContinueCancel,
@@ -182,8 +182,7 @@ void KIOProtocol::copyFromFile_Reference ( const KUrl& url )
 {
   kDebug() << url.prettyUrl();
   if ( url.isLocalFile() )
-    // FIXME: I guess this url has to be turned into local url first, being a localFile does not neccessarily mean the path itself is already local
-    m_clipboard->pushEntry ( url.path() );
+    m_clipboard->pushEntry ( url.toLocalFile() );
   else
     m_clipboard->pushEntry ( url.prettyUrl() );
 } // KIOProtocol::copyFromFile_reference

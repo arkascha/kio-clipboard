@@ -8,7 +8,6 @@
 #include <QCryptographicHash>
 #include <kdebug.h>
 #include <kurl.h>
-#include <kmimetype.h>
 #include <kio/netaccess.h>
 #include <klocalizedstring.h>
 #include <kdeversion.h>
@@ -26,16 +25,14 @@ using namespace KIO_CLIPBOARD;
  * - all basic data is collected and stored in private members
  * - primitive rules are used decide upon a few basic interpretations of the type of content in an entry
  */
-KIONodeWrapper::KIONodeWrapper ( int index, const QString& payload )
-  : m_regEx    ( CRI::loadRegExPool() )
-  , m_mappingNameCardinality (KIO_CLIPBOARD::C_mappingNameCardinality)
-  , m_mappingNameLength      (KIO_CLIPBOARD::C_mappingNameLength)
-  , m_mappingNamePattern     (KIO_CLIPBOARD::C_mappingNamePattern)
+KIONodeWrapper::KIONodeWrapper ( KIOClipboardWrapper* const clipboard,  int index, const QString& payload )
+  : m_regEx     ( CRI::loadRegExPool() )
+  , m_clipboard ( clipboard )
 {
-  kDebug();
-  m_index     = index;
+  kDebug() << index;
+  m_index = index;
   // construct a valid file name, even for a payload that is a path or url
-  m_name      = QString(QCryptographicHash::hash(payload.toUtf8(),QCryptographicHash::Md5).toHex());
+  m_name  = QString(QCryptographicHash::hash(payload.toUtf8(),QCryptographicHash::Md5).toHex());
   // mark first entry in the list as the newest by using an overlay
   if ( 1==index )
     m_overlays << "emblem-new";
@@ -64,7 +61,6 @@ KIONodeWrapper::KIONodeWrapper ( int index, const QString& payload )
   }
   else
   {
-    // TODO: using libmagic differ between plain string or stuff like 'code' or else
     m_semantics = KIO_CLIPBOARD::S_TEXT;
     m_payload   = payload; // no trimming, keep extra whitespaces, important for code
   }
@@ -72,43 +68,51 @@ KIONodeWrapper::KIONodeWrapper ( int index, const QString& payload )
   {
     case KIO_CLIPBOARD::S_EMPTY:
       m_type     = S_IFREG;
-      m_mimetype = "text/plain";
+      m_mimetype = KMimeType::mimeType("text/plain");
       m_overlays << "emblem-special";
       break;
     case KIO_CLIPBOARD::S_TEXT:
       m_type     = S_IFREG;
-      m_mimetype = "text/plain";
+      m_mimetype = KMimeType::findByContent(payload.toUtf8());
+      // check if we can refine the sematics to something more specific
+      // TODO: find some more generic way as an alternative to this list of test for recognized mimetypes
+      if (  ("text/x-"==m_mimetype->name().left(7))
+          ||(m_mimetype->is("text/css"))
+          ||(m_mimetype->is("text/html"))
+          ||(m_mimetype->is("text/sgml"))
+          ||(m_mimetype->is("text/xml")) )
+        m_semantics = KIO_CLIPBOARD::S_CODE;
       break;
     case KIO_CLIPBOARD::S_CODE:
       m_type     = S_IFREG;
-      m_mimetype = "text/plain";
+      m_mimetype = KMimeType::findByContent(payload.toUtf8());
       break;
     case KIO_CLIPBOARD::S_FILE:
 //      m_type     = S_IFREG;
       m_type     = S_IFLNK;
-      m_mimetype = KMimeType::findByUrl(m_url)->name();
+      m_mimetype = KMimeType::findByUrl(m_url);
       m_overlays << "emblem-symbolic-link";
       break;
     case KIO_CLIPBOARD::S_DIR:
       m_type     = S_IFDIR;
-      m_mimetype = "inode/directory";
+      m_mimetype = KMimeType::mimeType("inode/directory");
       m_overlays << "emblem-symbolic-link";
       break;
     case KIO_CLIPBOARD::S_LINK:
       m_type     = S_IFLNK;
-      m_mimetype = KMimeType::findByUrl(m_url)->name();
+      m_mimetype = KMimeType::findByUrl(m_url);
       m_overlays << "emblem-link";
       break;
     case KIO_CLIPBOARD::S_URL:
       m_type     = S_IFREG;
-      m_mimetype = KMimeType::findByUrl(m_url)->name();
+      m_mimetype = KMimeType::findByUrl(m_url);
 //      m_mimetype = NetAccess::mimetype ( m_url, NULL ); // far too expensive for remote files
-//      m_mimetype = "application/octet-stream";
+//      m_mimetype = KMimeType::mimetype("application/octet-stream");
       m_overlays << "emblem-link";
       break;
     default:
       m_type     = S_IFMT;
-      m_mimetype = "application/octet-stream";
+      m_mimetype = KMimeType::mimeType("application/octet-stream");
   }
 } // KIONodeWrapper::KIONodeWrapper
 
@@ -130,7 +134,7 @@ KIONodeWrapper::~KIONodeWrapper()
  */
 QString KIONodeWrapper::prettyIndex ( ) const
 {
-  QString _pretty = QString("%1").arg(m_index,m_mappingNameCardinality,10,QChar('0'));
+  QString _pretty = QString("%1").arg(m_index,m_clipboard->mappingNameCardinality(),10,QChar('0'));
   kDebug() << _pretty;
   return _pretty;
 } // KIONodeWrapper::prettyIndex
@@ -143,15 +147,22 @@ QString KIONodeWrapper::prettyIndex ( ) const
  */
 QString KIONodeWrapper::prettyPayload ( ) const
 {
-  QString _pretty;
-  int _trim_length = (m_mappingNameLength<15) ? 15 : m_mappingNameLength-5;
-  if ( _trim_length<m_payload.trimmed().length() )
-    _pretty = QString("%1[...]").arg(m_payload.trimmed().left(_trim_length-5));
-  else
-    _pretty = m_payload.trimmed();
-  kDebug() << _pretty;
-  return _pretty;
+  QString _payload = m_payload.simplified();
+  int _trim_length = (m_clipboard->mappingNameLength()<15) ? 15 : m_clipboard->mappingNameLength()-5;
+  if ( _trim_length<_payload.length() )
+    _payload = QString("%1[...]").arg(_payload.left(_trim_length-5));
+  kDebug() << _payload;
+  return _payload;
 } // KIONodeWrapper::prettyPayload
+
+/**
+ * returns the human readable description of a mimetype
+ */
+QString KIONodeWrapper::prettyMimetype ( ) const
+{
+  kDebug() << m_mimetype->comment();
+  return m_mimetype->comment();
+} // KIONodeWrapper::prettyMimetype
 
 /**
  * since the internal 'semantics', the meaning of an entries content is very important
@@ -186,7 +197,7 @@ QString KIONodeWrapper::prettySemantics ( ) const
 QString KIONodeWrapper::prettyName ( ) const
 {
   // we construct something like this: "007(String): Es war einmal vor langer, langer Zeit [...]"
-  QString _pretty = m_mappingNamePattern
+  QString _pretty = m_clipboard->mappingNamePattern()
                     // a leading numerical index, cardinality depends of the size of the set of nodes
                     .arg( prettyIndex() )
                     // linguistic type of content, like TEXT or CODE or URL
@@ -222,7 +233,10 @@ UDSEntry KIONodeWrapper::toUDSEntry ( ) const
   _entry.insert( UDSEntry::UDS_NAME,               name() );
   _entry.insert( UDSEntry::UDS_DISPLAY_NAME,       prettyName() );
   _entry.insert( UDSEntry::UDS_FILE_TYPE,          m_type );
-  _entry.insert( UDSEntry::UDS_MIME_TYPE,          m_mimetype );
+  _entry.insert( UDSEntry::UDS_MIME_TYPE,          m_mimetype->name() );
+#if KDE_IS_VERSION(4,5,0)
+  _entry.insert( UDSEntry::UDS_DISPLAY_TYPE,       m_mimetype->comment() );
+#endif
   _entry.insert( UDSEntry::UDS_SIZE,               size() );
   _entry.insert( UDSEntry::UDS_ACCESS,             S_IRUSR | S_IRGRP | S_IROTH );
 //  _entry.insert( UDSEntry::UDS_MODIFICATION_TIME,  utime(path, &myutimbuf);

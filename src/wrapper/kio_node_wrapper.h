@@ -10,11 +10,13 @@
 
 #include <kio/global.h>
 #include "kio/udsentry.h"
+#include <kmimetype.h>
 #include "christian-reiner.info/regex.h"
 
 using namespace KIO;
 namespace KIO_CLIPBOARD
 {
+  class KIOClipboardWrapper;
 
   typedef enum { S_EMPTY, S_TEXT, S_CODE, S_FILE, S_DIR, S_LINK, S_URL } Semantics;
 
@@ -32,39 +34,38 @@ namespace KIO_CLIPBOARD
   class KIONodeWrapper
   {
     private:
-      int         m_index;
-      QString     m_payload;
-      QString     m_mimetype;
-      Semantics   m_semantics;
-      QString     m_name;
-      KUrl        m_url;
-      KUrl        m_link;
-      QString     m_path;
-      int         m_type;
-      QString     m_icon;
-      QStringList m_overlays;
+      int            m_index;
+      QString        m_payload;
+      KMimeType::Ptr m_mimetype;
+      Semantics      m_semantics;
+      QString        m_name;
+      KUrl           m_url;
+      KUrl           m_link;
+      QString        m_path;
+      int            m_type;
+      QString        m_icon;
+      QStringList    m_overlays;
     protected:
-      int                  m_mappingNameCardinality;
-      int                  m_mappingNameLength;
-      QString              m_mappingNamePattern;
-      const CRI::regExPool m_regEx;
+      KIOClipboardWrapper* const m_clipboard;
+      const CRI::regExPool       m_regEx;
     public:
-      KIONodeWrapper ( int index, const QString& payload );
+      KIONodeWrapper ( KIOClipboardWrapper* const clipboard, int index, const QString& payload );
       ~KIONodeWrapper();
-      inline int                index     ( ) const { return m_index; };
-      inline const QString&     payload   ( ) const { return m_payload; };
-      inline const QString&     mimetype  ( ) const { return m_mimetype; };
-      inline const Semantics&   semantics ( ) const { return m_semantics; };
-      inline const QString&     name      ( ) const { return m_name; };
-      inline const KUrl&        url       ( ) const { return m_url; };
-      inline const KUrl&        link      ( ) const { return m_link; };
-      inline const QString&     path      ( ) const { return m_path; };
-      inline int                type      ( ) const { return m_type; };
-      inline const QString&     icon      ( ) const { return m_icon; };
-      inline const QStringList& overlays  ( ) const { return m_overlays; };
-      inline int                size      ( ) const { return m_payload.size(); };
+      inline int                   index     ( ) const { return m_index; };
+      inline const QString&        payload   ( ) const { return m_payload; };
+      inline const KMimeType::Ptr& mimetype  ( ) const { return m_mimetype; };
+      inline const Semantics&      semantics ( ) const { return m_semantics; };
+      inline const QString&        name      ( ) const { return m_name; };
+      inline const KUrl&           url       ( ) const { return m_url; };
+      inline const KUrl&           link      ( ) const { return m_link; };
+      inline const QString&        path      ( ) const { return m_path; };
+      inline int                   type      ( ) const { return m_type; };
+      inline const QString&        icon      ( ) const { return m_icon; };
+      inline const QStringList&    overlays  ( ) const { return m_overlays; };
+      inline int                   size      ( ) const { return m_payload.size(); };
       QString  prettyIndex     ( ) const;
       QString  prettyPayload   ( ) const;
+      QString  prettyMimetype  ( ) const;
       QString  prettySemantics ( ) const;
       QString  prettyName      ( ) const;
       QString  prettyUrl       ( ) const;

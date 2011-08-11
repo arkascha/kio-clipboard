@@ -19,17 +19,15 @@ using namespace KIO;
 using namespace KIO_CLIPBOARD;
 
 
-DBusClientKlipper::DBusClientKlipper ( QObject* _parent )
-  : DBusClient ( _parent )
+DBusClientKlipper::DBusClientKlipper ( QObject* parent )
+  : DBusClient ( "org.kde.klipper", "/klipper", "org.kde.klipper.klipper", parent  )
 {
   kDebug() << "constructing specialized DBus client of type 'klipper'";
-  setupInterface ( "org.kde.klipper", "/klipper", "org.kde.klipper.klipper" );
 } // DBusClientKlipper::DBusClientKlipper
 
 DBusClientKlipper::~DBusClientKlipper ()
 {
   kDebug() << "destructing specialized DBus client of type 'klipper'";
-  delete this->m_interface;
 } // DBusClientKlipper::~DBusClientKlipper
 
 void DBusClientKlipper::clearClipboardContents ()
