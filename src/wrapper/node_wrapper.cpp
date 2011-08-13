@@ -26,8 +26,7 @@ using namespace KIO_CLIPBOARD;
  * - primitive rules are used decide upon a few basic interpretations of the type of content in an entry
  */
 KIONodeWrapper::KIONodeWrapper ( KIOClipboardWrapper* const clipboard,  int index, const QString& payload )
-  : m_regEx     ( CRI::loadRegExPool() )
-  , m_clipboard ( clipboard )
+  : m_clipboard ( clipboard )
 {
   kDebug() << index;
   m_index = index;

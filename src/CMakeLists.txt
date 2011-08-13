@@ -8,8 +8,7 @@ set(klipper_SRCS       clipboards/klipper/klipper_frontend.cpp
 set(shared_SRCS        kio_protocol.cpp
                        wrapper/clipboard_wrapper.cpp
                        wrapper/node_wrapper.cpp
-                       clients/dbus/dbus_client.cpp
-                       christian-reiner.info/regex.cpp)
+                       clients/dbus/dbus_client.cpp)
 set(kio_klipper_SRCS   kio_klipper.cpp
                        kio_klipper_protocol.cpp)
 set(kio_clipboard_SRCS kio_clipboard.cpp
