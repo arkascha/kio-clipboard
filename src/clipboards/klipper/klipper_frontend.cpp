@@ -18,7 +18,7 @@ using namespace KIO_CLIPBOARD;
  * All setup required is a DBus client we use as a proxy
  */
 KlipperFrontend::KlipperFrontend ( const KUrl& url, const QString& name )
-  : KIOClipboardWrapper ( url, name )
+  : ClipboardFrontend ( url, name )
 {
   kDebug() << "constructing specialized clipboard wrapper of type 'klipper'";
   m_backend = new KlipperBackend ();
@@ -80,12 +80,12 @@ void KlipperFrontend::pushEntry ( const QString& entry )
 void KlipperFrontend::delEntry ( const KUrl& url )
 {
   kDebug() << url;
-  const KIONodeWrapper* const _deliquent = findNodeByUrl ( url );
+  const NodeWrapper* const _deliquent = findNodeByUrl ( url );
   // build a backup list of all remaining entries (as strings)
   // we use prepend 'cause we need reverse order !
   QStringList _remains;
-  foreach ( const KIONodeWrapper* _entry, m_nodes )
-//  foreach ( const KIONodeWrapper* _entry, m_nodes.values() )
+  foreach ( const NodeWrapper* _entry, m_nodes )
+//  foreach ( const NodeWrapper* _entry, m_nodes.values() )
     if ( _entry->payload()!=_deliquent->payload() )
       _remains.prepend ( _entry->payload() );
   // and (re-) add the backup list from above

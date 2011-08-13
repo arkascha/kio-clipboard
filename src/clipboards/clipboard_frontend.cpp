@@ -12,8 +12,8 @@
 #include <kio/netaccess.h>
 #include "christian-reiner.info/exception.h"
 #include "kio_clipboard_protocol.h"
-#include "wrapper/clipboard_wrapper.h"
-#include "wrapper/node_wrapper.h"
+#include "node/node_wrapper.h"
+#include "clipboards/clipboard_frontend.h"
 #include "clipboards/klipper/klipper_frontend.h"
 
 using namespace KIO;
@@ -35,14 +35,14 @@ const QStringList KIO_CLIPBOARD::tokenizeUrl ( const KUrl& url )
     return tokens;
   }
   throw CRI::Exception ( Error(ERR_MALFORMED_URL), url.url() );
-} // KIOClipboardWrapper::tokenizeUrl
+} // ClipboardFrontend::tokenizeUrl
 
 //==========
 
 /**
  * Each representation of a clipboard is identified by its name and an URL to access it. 
  */
-KIOClipboardWrapper::KIOClipboardWrapper ( const KUrl& url, const QString& name )
+ClipboardFrontend::ClipboardFrontend ( const KUrl& url, const QString& name )
   : m_url  ( url )
   , m_name ( name )
   , m_mappingNameCardinality ( KIO_CLIPBOARD::C_mappingNameCardinality ) 
@@ -50,21 +50,21 @@ KIOClipboardWrapper::KIOClipboardWrapper ( const KUrl& url, const QString& name 
   , m_mappingNamePattern     ( KIO_CLIPBOARD::C_mappingNamePattern )
 {
   kDebug();
-} // KIOClipboardWrapper::KIOClipboardWrapper
+} // ClipboardFrontend::ClipboardFrontend
 
 /**
  * Any ceanups required go here. 
  */
-KIOClipboardWrapper::~KIOClipboardWrapper()
+ClipboardFrontend::~ClipboardFrontend()
 {
   kDebug();
   clearNodes();
-} // KIOClipboardWrapper::~KIOClipboardWrapper
+} // ClipboardFrontend::~ClipboardFrontend
 
 /**
  * A clipboard itself as presented to the outside worlds (the KIO system)
  */
-const UDSEntry KIOClipboardWrapper::toUDSEntry ( ) const
+const UDSEntry ClipboardFrontend::toUDSEntry ( ) const
 {
   kDebug();
   UDSEntry _entry;
@@ -79,20 +79,20 @@ const UDSEntry KIOClipboardWrapper::toUDSEntry ( ) const
 /**
  * A list of all nodes (clipboard entries) as present in this wrapper. 
  */
-const UDSEntryList KIOClipboardWrapper::toUDSEntryList ( ) const
+const UDSEntryList ClipboardFrontend::toUDSEntryList ( ) const
 {
   UDSEntryList _entries;
-  foreach ( const KIONodeWrapper* _entry, m_nodes )
+  foreach ( const NodeWrapper* _entry, m_nodes )
     _entries << _entry->toUDSEntry();
   kDebug() << "listing" << _entries.count() << "entries";
   return _entries;
-} // KIOClipboardWrapper::toUDSEntryList
+} // ClipboardFrontend::toUDSEntryList
 
 /**
  * Since we buffer the clipboards entries in a map of objects we have to refresh that map from time to time
  * Since changes in clipboards often can only be detected by polling this has to be done quite frequent
  */
-void KIOClipboardWrapper::refreshNodes ()
+void ClipboardFrontend::refreshNodes ()
 {
   kDebug();
   // strategy: clear the nodes before (re-) populating it
@@ -106,29 +106,29 @@ void KIOClipboardWrapper::refreshNodes ()
   int _index = 0;
   foreach ( const QString& _entry, _entries )
   {
-    KIONodeWrapper* _node = new KIONodeWrapper ( this, ++_index, _entry );
+    NodeWrapper* _node = new NodeWrapper ( this, ++_index, _entry );
     m_nodes.insert ( _node->name(), _node );
   }
   kDebug() << QString("populated fresh set of nodes with %1 entries").arg(m_nodes.size());
-} // KIOClipboardWrapper::refreshNodes
+} // ClipboardFrontend::refreshNodes
 
 /**
  * Removes all nodes that act as representations for clipboard entries.
  * Typically called upon cleanup of right before re-populating by reading all available entries again. 
  */
-void KIOClipboardWrapper::clearNodes ( )
+void ClipboardFrontend::clearNodes ( )
 {
   kDebug();
-  foreach ( const KIONodeWrapper* const& _entry, m_nodes.values() )
+  foreach ( const NodeWrapper* const& _entry, m_nodes.values() )
     delete _entry;
-} // KIOClipboardWrapper::clearNodes
+} // ClipboardFrontend::clearNodes
 
 /**
  * Since clipboard entries do not have clear and simple file names we require a failure proof identification of each entry
  * (Note that the index of an entry can easily change when the clipboars content is changed...)
  * So we define a unique URL for each node and match all requests lateer against this url
  */
-const KIONodeWrapper* KIOClipboardWrapper::findNodeByUrl ( const KUrl& url )
+const NodeWrapper* ClipboardFrontend::findNodeByUrl ( const KUrl& url )
 {
   kDebug() << url.prettyUrl();
   // note: we might have a fresh process...
@@ -141,5 +141,5 @@ const KIONodeWrapper* KIOClipboardWrapper::findNodeByUrl ( const KUrl& url )
     return m_nodes[_name];
   // no matching element found ?!?
   throw CRI::Exception ( Error(ERR_DOES_NOT_EXIST), url.prettyUrl() );
-} // KIOClipboardWrapper::findNodeByUrl
+} // ClipboardFrontend::findNodeByUrl
 

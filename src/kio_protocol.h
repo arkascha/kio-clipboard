@@ -12,12 +12,12 @@
 #include <kio/global.h>
 #include <kio/slavebase.h>
 #include <kio/udsentry.h>
-#include "wrapper/node_wrapper.h"
+#include "node/node_wrapper.h"
 
 using namespace KIO;
 namespace KIO_CLIPBOARD
 {
-  class KIOClipboardWrapper;
+  class ClipboardFrontend;
 
   /**
    * This is an abstract base common to all specialized kio-clipboard protocols.
@@ -29,16 +29,16 @@ namespace KIO_CLIPBOARD
   {
     private:
     protected:
-      KIOClipboardWrapper* const m_clipboard;
+      ClipboardFrontend* const m_clipboard;
       virtual const UDSEntry     toUDSEntry ( ) = 0;
       virtual const UDSEntryList toUDSEntryList ( ) = 0;
     public:
-      KIOProtocol ( const QByteArray& pool, const QByteArray& app, KIOClipboardWrapper* const clipboard );
+      KIOProtocol ( const QByteArray& pool, const QByteArray& app, ClipboardFrontend* const clipboard );
       ~KIOProtocol ( );
     protected:
-//      void copyToFile             ( const KIONodeWrapper* src, const KUrl& dest );
-//      void copyToFile_Reference   ( const KIONodeWrapper* src, const KUrl& dest );
-//      void copyToFile_Content     ( const KIONodeWrapper* src, const KUrl& dest );
+//      void copyToFile             ( const NodeWrapper* src, const KUrl& dest );
+//      void copyToFile_Reference   ( const NodeWrapper* src, const KUrl& dest );
+//      void copyToFile_Content     ( const NodeWrapper* src, const KUrl& dest );
       void copyFromFile           ( const KUrl&    src,  const KUrl& dest );
       void copyFromFile_Reference ( const KUrl&    url );
       void copyFromFile_Reference ( const QString& path );

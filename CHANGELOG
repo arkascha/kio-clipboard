@@ -1,3 +1,5 @@
+* ??? ??? ?? ???? Christian Reiner: version 0.2.4
+- a number of internal reorganisations as preparation for version 0.3 integrating further clipboard applciations/services
 * Wed Aug 10 2011 Christian Reiner: version 0.2.3
 - enhanced mimetype detection for text based clipboard entries
 - detection of a few special types of text entries declared as "code"

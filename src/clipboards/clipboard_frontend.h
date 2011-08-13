@@ -5,8 +5,8 @@
  * $Revision$
  * $Date$
  */
-#ifndef KIO_CLIPBOARD_WRAPPER_H
-#define KIO_CLIPBOARD_WRAPPER_H
+#ifndef CLIPBOARD_FRONTEND_H
+#define CLIPBOARD_FRONTEND_H
 
 #include <QObject>
 #include <QString>
@@ -16,11 +16,15 @@
 #include <kio/jobclasses.h>
 #include <kio/udsentry.h>
 #include "christian-reiner.info/regex.h"
-#include "wrapper/node_wrapper.h"
+#include "clipboards/klipper/klipper_backend.h"
+#include "node/node_wrapper.h"
 
 using namespace KIO;
 namespace KIO_CLIPBOARD
 {
+  /**
+   * A simple convenience function that breaks a given URL into three tokens:
+   */
   const QStringList tokenizeUrl ( const KUrl& url);
 
   /**
@@ -38,21 +42,21 @@ namespace KIO_CLIPBOARD
    * The access to the clipboard strictly depends on the interface that is used to access features and content
    * This class acts as a wrapper to make the clipboard accessible in a generic way, so it is some kind of application proxy
    */
-  class KIOClipboardWrapper
+  class ClipboardFrontend
   {
     private:
-      const KUrl     m_url;
-      const QString  m_name;
+      const KUrl    m_url;
+      const QString m_name;
     protected:
-      int            m_mappingNameCardinality;
-      const int      m_mappingNameLength;
-      const QString& m_mappingNamePattern;
+      int               m_mappingNameCardinality;
+      const int         m_mappingNameLength;
+      const QString&    m_mappingNamePattern;
+      ClipboardBackend* m_backend;
     public:
-      QMap<QString,const KIONodeWrapper*> m_nodes;
-    protected:
+      QMap<QString,const NodeWrapper*> m_nodes;
     public:
-      KIOClipboardWrapper ( const KUrl& url, const QString& name );
-      ~KIOClipboardWrapper ( );
+      ClipboardFrontend ( const KUrl& url, const QString& name );
+      ~ClipboardFrontend ( );
       virtual const ClipboardType type     ( ) const = 0;
       virtual const QString       protocol ( ) const = 0;
       virtual const int           limit    ( ) const = 0;
@@ -61,7 +65,7 @@ namespace KIO_CLIPBOARD
       inline const int      mappingNameCardinality ( ) const { return m_mappingNameCardinality; };
       inline const int      mappingNameLength      ( ) const { return m_mappingNameLength; };
       inline const QString& mappingNamePattern     ( ) const { return m_mappingNamePattern; };
-      const KIONodeWrapper* findNodeByUrl  ( const KUrl& url );
+      const NodeWrapper* findNodeByUrl  ( const KUrl& url );
       const UDSEntry        toUDSEntry     ( ) const;
       const UDSEntryList    toUDSEntryList ( ) const;
       virtual QString       getClipboardEntry   ( ) = 0;
@@ -70,8 +74,8 @@ namespace KIO_CLIPBOARD
       virtual void          delEntry  ( const KUrl& url      ) = 0;
       void refreshNodes ( );
       void clearNodes ( );
-  }; // class KIOClipboardWrapper
+  }; // class ClipboardFrontend
 
 } // namespace KIO_CLIPBOARD
 
-#endif // KIO_CLIPBOARD_WRAPPER_H
+#endif // CLIPBOARD_FRONTEND_H

@@ -9,6 +9,7 @@
 #define KLIPPER_BACKEND_H
 
 #include "clients/dbus/dbus_client.h"
+#include "clipboards/clipboard_backend.h"
 
 class QDBusInterface;
 
@@ -17,12 +18,13 @@ namespace KIO_CLIPBOARD
 {
 
   class KlipperBackend
-    : public DBusClient
+    : public ClipboardBackend
+    , public DBusClient
   {
     Q_OBJECT
     public:
       KlipperBackend ( QObject* parent=0 );
-      ~KlipperBackend ();
+      ~KlipperBackend ( );
     public slots:
       void        clearClipboardContents  ();
       void        clearClipboardHistory   ();

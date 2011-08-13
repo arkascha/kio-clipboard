@@ -6,8 +6,9 @@ add_definitions(${QT_DEFINITIONS} ${KDE4_DEFINITIONS})
 set(klipper_SRCS       clipboards/klipper/klipper_frontend.cpp
                        clipboards/klipper/klipper_backend.cpp)
 set(shared_SRCS        kio_protocol.cpp
-                       wrapper/clipboard_wrapper.cpp
-                       wrapper/node_wrapper.cpp
+                       clipboards/clipboard_frontend.cpp
+                       clipboards/clipboard_backend.cpp
+                       node/node_wrapper.cpp
                        clients/dbus/dbus_client.cpp)
 set(kio_klipper_SRCS   kio_klipper.cpp
                        kio_klipper_protocol.cpp)
@@ -28,6 +29,6 @@ install(FILES clipboard.protocol DESTINATION ${SERVICES_INSTALL_DIR})
 install(FILES klipper.protocol DESTINATION   ${SERVICES_INSTALL_DIR})
 
 add_subdirectory(christian-reiner.info)
-add_subdirectory(wrapper)
+add_subdirectory(node)
 add_subdirectory(clients)
 add_subdirectory(clipboards)

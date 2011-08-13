@@ -8,7 +8,6 @@
 #ifndef DBUS_CLIENT_H
 #define DBUS_CLIENT_H
 
-#include <QObject>
 #include <QString>
 #include <QStringList>
 #include <QtDBus/QDBusConnection>
@@ -27,11 +26,9 @@ namespace KIO_CLIPBOARD
    * specialized client implementing the real functions as implemented by the DBus service
    */
   class DBusClient
-    : public QObject
   {
-    Q_OBJECT
     public:
-      DBusClient ( const QString& service, const QString& path, const QString& interface, QObject* parent=0 );
+      DBusClient ( const QString& service, const QString& path, const QString& interface );
       ~DBusClient ( );
     private:
     protected:

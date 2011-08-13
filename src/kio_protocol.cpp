@@ -23,7 +23,7 @@ using namespace KIO_CLIPBOARD;
  * Besides the typical arguments required for a slave it requires a pointer to a clipboard object.
  * That object is used as the implementation of the specialized, that is specific routines required to communicate with an existing clipboard application. 
  */
-KIOProtocol::KIOProtocol ( const QByteArray& pool, const QByteArray& app, KIOClipboardWrapper* const clipboard )
+KIOProtocol::KIOProtocol ( const QByteArray& pool, const QByteArray& app, ClipboardFrontend* const clipboard )
   : SlaveBase ( clipboard->protocol().toUtf8(), pool, app )
   , m_clipboard ( clipboard )
 {
@@ -157,14 +157,14 @@ void KIOProtocol::copyFromFile ( const KUrl& src,  const KUrl& dest )
  * Pushes a reference to a file onto the clipboard.
  */
 /*
-void KIOProtocol::copyToFile_Reference ( const KIONodeWrapper* src, const KUrl& dest )
+void KIOProtocol::copyToFile_Reference ( const NodeWrapper* src, const KUrl& dest )
 {
   kDebug() << src->prettyName() << dest.prettyUrl();
   if ( FALSE==NetAccess::dircopy(src->url(),dest,NULL) )
     throw CRI::Exception ( NetAccess::lastError(), NetAccess::lastErrorString() );
 } // KIOProtocol::copyToFile_Reference
 
-void KIOProtocol::copyToFile_Content ( const KIONodeWrapper* src, const KUrl& dest )
+void KIOProtocol::copyToFile_Content ( const NodeWrapper* src, const KUrl& dest )
 {
   kDebug() << src->prettyName() << dest.prettyUrl();
   QFile _file ( dest.path() );

@@ -14,7 +14,6 @@
 #include <kio/global.h>
 #include <kio/forwardingslavebase.h>
 #include <kio/udsentry.h>
-#include "wrapper/clipboard_wrapper.h"
 #include "clipboards/klipper/klipper_frontend.h"
 
 using namespace KIO;
@@ -33,12 +32,12 @@ namespace KIO_CLIPBOARD
     : public ForwardingSlaveBase
   {
     private:
-      QMap<KUrl,const KIOClipboardWrapper*> m_nodes;
+      QMap<KUrl,const ClipboardFrontend*> m_nodes;
     protected:
       const UDSEntry     toUDSEntry ();
       const UDSEntryList toUDSEntryList ();
-      const KIOClipboardWrapper* findClipboardByUrl ( const KUrl& url );
-      const QList<const KIOClipboardWrapper*> detectClipboards ( );
+      const ClipboardFrontend* findClipboardByUrl ( const KUrl& url );
+      const QList<const ClipboardFrontend*> detectClipboards ( );
     public:
       KIOClipboardProtocol ( const QByteArray &pool, const QByteArray &app );
       virtual ~KIOClipboardProtocol();

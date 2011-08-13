@@ -13,7 +13,7 @@
 #include <kdebug.h>
 #include "christian-reiner.info/exception.h"
 #include "kio_clipboard_protocol.h"
-#include "wrapper/clipboard_wrapper.h"
+#include "clipboards/clipboard_frontend.h"
 
 // Kdebug::Block is only defined from KDE-4.6.0 on
 // we wrap it cause this appears to be the only requirement for KDE-4.6
@@ -39,9 +39,9 @@ KIOClipboardProtocol::KIOClipboardProtocol( const QByteArray &_pool, const QByte
   kDebug();
   try
   {
-    QList<const KIOClipboardWrapper*> _clipboards = detectClipboards();
+    QList<const ClipboardFrontend*> _clipboards = detectClipboards();
     // register each detected clipboard
-    foreach ( const KIOClipboardWrapper* _entry, _clipboards )
+    foreach ( const ClipboardFrontend* _entry, _clipboards )
     {
       const KUrl _url (QString("clipboard:/%1").arg(_entry->name()));
       kDebug() << QString("registering clipboard of type '%1' at url %2").arg(_entry->type()).arg(_url.prettyUrl());
@@ -85,8 +85,8 @@ const UDSEntry KIOClipboardProtocol::toUDSEntry ()
 const UDSEntryList KIOClipboardProtocol::toUDSEntryList ()
 {
   UDSEntryList _entries;
-  foreach ( const KIOClipboardWrapper* _entry, m_nodes )
-//  foreach ( const KIOClipboardWrapper* const& _entry, m_nodes.values() )
+  foreach ( const ClipboardFrontend* _entry, m_nodes )
+//  foreach ( const ClipboardFrontend* const& _entry, m_nodes.values() )
     _entries << _entry->toUDSEntry();
   kDebug() << "listing" << _entries.count() << "entries";
   return _entries;
@@ -95,7 +95,7 @@ const UDSEntryList KIOClipboardProtocol::toUDSEntryList ()
 /**
  * convenience routine to identify a node (a clipboard) when referenced by its URL
  */
-const KIO_CLIPBOARD::KIOClipboardWrapper* KIOClipboardProtocol::findClipboardByUrl ( const KUrl& url )
+const KIO_CLIPBOARD::ClipboardFrontend* KIOClipboardProtocol::findClipboardByUrl ( const KUrl& url )
 {
   kDebug() << url.prettyUrl();
   if ( m_nodes.contains(url) )
@@ -110,10 +110,10 @@ const KIO_CLIPBOARD::KIOClipboardWrapper* KIOClipboardProtocol::findClipboardByU
  * - remote clipboard services:
  * - - ??
  */
-const QList<const KIOClipboardWrapper*> KIOClipboardProtocol::detectClipboards ( )
+const QList<const ClipboardFrontend*> KIOClipboardProtocol::detectClipboards ( )
 {
   kDebug();
-  QList<const KIOClipboardWrapper*> _clipboards;
+  QList<const ClipboardFrontend*> _clipboards;
   // strategy: for clipboards available on DBus we ask org.freedesktop.DBus for such a service
   DBusClient dbus ( "org.freedesktop.DBus", "/org/freedesktop/DBus", "" );
   dbus.call ( "ListNames" );

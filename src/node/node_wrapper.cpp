@@ -13,7 +13,7 @@
 #include <kdeversion.h>
 #include "christian-reiner.info/exception.h"
 #include "kio_clipboard_protocol.h"
-#include "wrapper/node_wrapper.h"
+#include "node/node_wrapper.h"
 
 using namespace KIO;
 using namespace KIO_CLIPBOARD;
@@ -25,7 +25,7 @@ using namespace KIO_CLIPBOARD;
  * - all basic data is collected and stored in private members
  * - primitive rules are used decide upon a few basic interpretations of the type of content in an entry
  */
-KIONodeWrapper::KIONodeWrapper ( KIOClipboardWrapper* const clipboard,  int index, const QString& payload )
+NodeWrapper::NodeWrapper ( ClipboardFrontend* const clipboard,  int index, const QString& payload )
   : m_clipboard ( clipboard )
 {
   kDebug() << index;
@@ -113,15 +113,15 @@ KIONodeWrapper::KIONodeWrapper ( KIOClipboardWrapper* const clipboard,  int inde
       m_type     = S_IFMT;
       m_mimetype = KMimeType::mimeType("application/octet-stream");
   }
-} // KIONodeWrapper::KIONodeWrapper
+} // NodeWrapper::NodeWrapper
 
 /**
  * Currently no cleanup to be done, since all such nodes have a passive character
  */
-KIONodeWrapper::~KIONodeWrapper()
+NodeWrapper::~NodeWrapper()
 {
   kDebug();
-} // KIONodeWrapper::~KIONodeWrapper
+} // NodeWrapper::~NodeWrapper
 
 //==========
 
@@ -131,12 +131,12 @@ KIONodeWrapper::~KIONodeWrapper()
  * however when using this numerical index as part of names we have to take care of alphabetic sorting
  * therefore we construct a prettyIndex that is prepended with leading zeros so that all entries have a prettyIndex of same length
  */
-QString KIONodeWrapper::prettyIndex ( ) const
+QString NodeWrapper::prettyIndex ( ) const
 {
   QString _pretty = QString("%1").arg(m_index,m_clipboard->mappingNameCardinality(),10,QChar('0'));
   kDebug() << _pretty;
   return _pretty;
-} // KIONodeWrapper::prettyIndex
+} // NodeWrapper::prettyIndex
 
 /**
  * we usually store the whole and unchanged payload an entry holds
@@ -144,7 +144,7 @@ QString KIONodeWrapper::prettyIndex ( ) const
  * however, when use the payload as part of an entries 'name' at a few places to make the entry recognizable
  * in those situations we have to crop the payload since names shoulds not get too long
  */
-QString KIONodeWrapper::prettyPayload ( ) const
+QString NodeWrapper::prettyPayload ( ) const
 {
   QString _payload = m_payload.simplified();
   int _trim_length = (m_clipboard->mappingNameLength()<15) ? 15 : m_clipboard->mappingNameLength()-5;
@@ -152,23 +152,23 @@ QString KIONodeWrapper::prettyPayload ( ) const
     _payload = QString("%1[...]").arg(_payload.left(_trim_length-5));
   kDebug() << _payload;
   return _payload;
-} // KIONodeWrapper::prettyPayload
+} // NodeWrapper::prettyPayload
 
 /**
  * returns the human readable description of a mimetype
  */
-QString KIONodeWrapper::prettyMimetype ( ) const
+QString NodeWrapper::prettyMimetype ( ) const
 {
   kDebug() << m_mimetype->comment();
   return m_mimetype->comment();
-} // KIONodeWrapper::prettyMimetype
+} // NodeWrapper::prettyMimetype
 
 /**
  * since the internal 'semantics', the meaning of an entries content is very important
  * for how to handle such an entry we want to share this information with the user
  * for this purpose we translate a (numeric) semantics marker into a human readable string
  */
-QString KIONodeWrapper::prettySemantics ( ) const
+QString NodeWrapper::prettySemantics ( ) const
 {
   QString _pretty;
   switch ( m_semantics )
@@ -184,7 +184,7 @@ QString KIONodeWrapper::prettySemantics ( ) const
   } // switch
   kDebug() << _pretty;
   return _pretty;
-} // KIONodeWrapper::prettySemantics
+} // NodeWrapper::prettySemantics
 
 /**
  * each node must be represented by a name when offering it to the user
@@ -193,7 +193,7 @@ QString KIONodeWrapper::prettySemantics ( ) const
  * for our purpose we require a simple file name, therefore we generate one
  * the name is based on the passive data collected about a node and turned into something 'pretty'
  */
-QString KIONodeWrapper::prettyName ( ) const
+QString NodeWrapper::prettyName ( ) const
 {
   // we construct something like this: "007(String): Es war einmal vor langer, langer Zeit [...]"
   QString _pretty = m_clipboard->mappingNamePattern()
@@ -205,17 +205,17 @@ QString KIONodeWrapper::prettyName ( ) const
                     .arg( prettyPayload() );
   kDebug() << _pretty;
   return _pretty;
-} // KIONodeWrapper::prettyName
+} // NodeWrapper::prettyName
 
 /**
  * just a wrapper to present a URL an entry might point to in a human-readable form
  */
-QString KIONodeWrapper::prettyUrl ( ) const
+QString NodeWrapper::prettyUrl ( ) const
 {
   QString _pretty = m_url.prettyUrl();
   kDebug() << _pretty;
   return _pretty;
-} // KIONodeWrapper::prettyUrl
+} // NodeWrapper::prettyUrl
 
 //==========
 
@@ -224,7 +224,7 @@ QString KIONodeWrapper::prettyUrl ( ) const
  * however we have to translate such an object to present the entry to the outside world
  * this is done by translating an object to a constant UDSEntry as understood by the underlying KIO system
  */
-UDSEntry KIONodeWrapper::toUDSEntry ( ) const
+UDSEntry NodeWrapper::toUDSEntry ( ) const
 {
   kDebug() << prettyName() << "(" << m_index << ")";
   UDSEntry _entry;
@@ -276,4 +276,4 @@ UDSEntry KIONodeWrapper::toUDSEntry ( ) const
     } // switch
 
   return _entry;
-} // KIONodeWrapper::toUDSEntry
+} // NodeWrapper::toUDSEntry

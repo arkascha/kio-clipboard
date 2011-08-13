@@ -5,8 +5,8 @@
  * $Revision$
  * $Date$
  */
-#ifndef KIO_NODE_WRAPPER_H
-#define KIO_NODE_WRAPPER_H
+#ifndef NODE_WRAPPER_H
+#define NODE_WRAPPER_H
 
 #include <kio/global.h>
 #include "kio/udsentry.h"
@@ -16,7 +16,7 @@
 using namespace KIO;
 namespace KIO_CLIPBOARD
 {
-  class KIOClipboardWrapper;
+  class ClipboardFrontend;
 
   typedef enum { S_EMPTY, S_TEXT, S_CODE, S_FILE, S_DIR, S_LINK, S_URL } Semantics;
 
@@ -31,7 +31,7 @@ namespace KIO_CLIPBOARD
    * - in addition a number of convenience constructions are offered as methods as well
    *   these are generated based only on the constant settings stored in the members mentioned above
    */
-  class KIONodeWrapper
+  class NodeWrapper
   {
     private:
       int            m_index;
@@ -46,11 +46,11 @@ namespace KIO_CLIPBOARD
       QString        m_icon;
       QStringList    m_overlays;
     protected:
-      KIOClipboardWrapper* const m_clipboard;
+      ClipboardFrontend* const m_clipboard;
       const CRI::regExPool       m_regEx;
     public:
-      KIONodeWrapper ( KIOClipboardWrapper* const clipboard, int index, const QString& payload );
-      ~KIONodeWrapper();
+      NodeWrapper ( ClipboardFrontend* const clipboard, int index, const QString& payload );
+      ~NodeWrapper();
       inline int                   index     ( ) const { return m_index; };
       inline const QString&        payload   ( ) const { return m_payload; };
       inline const KMimeType::Ptr& mimetype  ( ) const { return m_mimetype; };
@@ -70,8 +70,8 @@ namespace KIO_CLIPBOARD
       QString  prettyName      ( ) const;
       QString  prettyUrl       ( ) const;
       UDSEntry toUDSEntry      ( ) const;
-  }; // class KIONodeWrapper
+  }; // class NodeWrapper
 
 } // namespace KIO_CLIPBOARD
 
-#endif // KIO_NODE_WRAPPER_H
+#endif // NODE_WRAPPER_H

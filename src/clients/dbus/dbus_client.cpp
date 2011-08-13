@@ -32,14 +32,13 @@ const int repeat = 6;
  * Constructor
  * nothing special to setup since this is a generic proxy
  */
-DBusClient::DBusClient ( const QString& service, const QString& path, const QString& interface, QObject* parent )
-  : QObject ( parent )
+DBusClient::DBusClient ( const QString& service, const QString& path, const QString& interface )
 {
   kDebug() << "constructing generic DBus client";
   kDebug() << service, path, interface;
   // setup bus connection details
   QDBusConnection _bus = QDBusConnection::sessionBus();
-  this->m_interface = new QDBusInterface ( service, path, interface, _bus, this );
+  this->m_interface = new QDBusInterface ( service, path, interface, _bus );
   if ( ! this->m_interface->isValid() )
     if  ( ! this->m_interface->lastError().isValid() )
       throw CRI::Exception ( Error(ERR_INTERNAL) );
@@ -124,5 +123,3 @@ void DBusClient::call ( const QString method, const QVariant & arg1,
   m_result = _msg.arguments();
   kDebug() << QString("read a result holding of %1 entries.").arg(m_result.size());
 } // DBusClient::call
-
-#include "clients/dbus/dbus_client.moc"

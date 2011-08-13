@@ -17,7 +17,7 @@
 #include <kio/filejob.h>
 #include <kdebug.h>
 #include "kio_klipper_protocol.h"
-#include "wrapper/clipboard_wrapper.h"
+#include "clipboards/clipboard_frontend.h"
 #include "christian-reiner.info/exception.h"
 
 // Kdebug::Block is only defined from KDE-4.6.0 on
@@ -88,8 +88,8 @@ const UDSEntry KIOKlipperProtocol::toUDSEntry ()
 const UDSEntryList KIOKlipperProtocol::toUDSEntryList ()
 {
   UDSEntryList _entries;
-  foreach ( const KIONodeWrapper* _entry, m_clipboard->m_nodes )
-//  foreach ( const KIOClipboardWrapper* const& _entry, m_nodes.values() )
+  foreach ( const NodeWrapper* _entry, m_clipboard->m_nodes )
+//  foreach ( const ClipboardFrontend* const& _entry, m_nodes.values() )
     _entries << _entry->toUDSEntry();
   kDebug() << "listing" << _entries.count() << "entries";
   return _entries;
@@ -172,7 +172,7 @@ void KIOKlipperProtocol::get ( const KUrl& url )
   try
   {
     // send data, depending on the semantics of the payload
-    const KIONodeWrapper* _entry = m_clipboard->findNodeByUrl ( url );
+    const NodeWrapper* _entry = m_clipboard->findNodeByUrl ( url );
     switch ( _entry->semantics() )
     {
       case KIO_CLIPBOARD::S_EMPTY:
@@ -242,7 +242,7 @@ void KIOKlipperProtocol::mimetype ( const KUrl& url )
   try
   {
     // find the matching node entry
-    const KIONodeWrapper* _entry = m_clipboard->findNodeByUrl ( url );
+    const NodeWrapper* _entry = m_clipboard->findNodeByUrl ( url );
     KUrl _target;
     switch ( _entry->semantics() )
     {
@@ -366,7 +366,7 @@ void KIOKlipperProtocol::stat( const KUrl& url )
     else
     {
       // non-root element
-      const KIONodeWrapper* _entry = m_clipboard->findNodeByUrl ( url );
+      const NodeWrapper* _entry = m_clipboard->findNodeByUrl ( url );
       switch ( _entry->semantics() )
       {
         case KIO_CLIPBOARD::S_EMPTY:

@@ -19,7 +19,8 @@ using namespace KIO_CLIPBOARD;
 
 
 KlipperBackend::KlipperBackend ( QObject* parent )
-  : DBusClient ( "org.kde.klipper", "/klipper", "org.kde.klipper.klipper", parent  )
+  : ClipboardBackend ( parent )
+  , DBusClient ( "org.kde.klipper", "/klipper", "org.kde.klipper.klipper" )
 {
   kDebug() << "constructing specialized DBus client of type 'klipper'";
 } // KlipperBackend::KlipperBackend

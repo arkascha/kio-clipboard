@@ -9,7 +9,8 @@
 #define KLIPPER_FRONTEND_H
 
 #include "clipboards/klipper/klipper_backend.h"
-#include "wrapper/clipboard_wrapper.h"
+#include "clipboards/clipboard_frontend.h"
+#include "clipboards/clipboard_backend.h"
 
 using namespace KIO;
 namespace KIO_CLIPBOARD
@@ -24,11 +25,11 @@ namespace KIO_CLIPBOARD
    * The actual communication via DBus is handled by a DBus client defined externally
    */
   class KlipperFrontend
-      : public KIOClipboardWrapper
+      : public ClipboardFrontend
   {
     private:
-      KlipperBackend* m_backend;
     protected:
+      ClipboardBackend* m_backend;
     public:
       KlipperFrontend ( const KUrl& url, const QString& name );
       ~KlipperFrontend ( );
