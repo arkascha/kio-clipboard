@@ -1,16 +1,16 @@
 /* This file is part of 'kio-clipboard'
  * Copyright (C) 2011 Christian Reiner <kio-clipboard@christian-reiner.info>
  *
- * $Author: arkascha $
- * $Revision: 27 $
- * $Date: 2011-07-31 18:49:38 +0200 (Sun, 31 Jul 2011) $
+ * $Author$
+ * $Revision$
+ * $Date$
  */
 #include <QFile>
 #include <kmimetype.h>
 #include <kio/netaccess.h>
 #include <kdebug.h>
 #include "christian-reiner.info/exception.h"
-#include "klipper/kio_clipboard_wrapper_klipper.h"
+#include "clipboards/klipper/klipper_frontend.h"
 #include "kio_protocol.h"
 
 using namespace KIO;

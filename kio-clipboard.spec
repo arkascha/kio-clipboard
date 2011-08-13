@@ -14,8 +14,8 @@ BuildRequires:  libkde4-devel
 License:        GPLv2+
 Group:          Utilities/Desktop
 Summary:        KDE IO Slave for file based access of clipboard entries
-Version:        0.2.3
-Release:        1.0
+Version:        0.2.4
+Release:        1
 Source:         %name-%version.tar.bz2
 Url:            http://kde-apps.org/content/show.php/kio-clipboard?content=143976
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build

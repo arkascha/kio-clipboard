@@ -5,11 +5,11 @@
  * $Revision$
  * $Date$
  */
-#ifndef KIO_CLIPBOARD_WRAPPER_KLIPPER_H
-#define KIO_CLIPBOARD_WRAPPER_KLIPPER_H
+#ifndef KLIPPER_FRONTEND_H
+#define KLIPPER_FRONTEND_H
 
-#include "klipper/dbus_client_klipper.h"
-#include "wrapper/kio_clipboard_wrapper.h"
+#include "clipboards/klipper/klipper_backend.h"
+#include "wrapper/clipboard_wrapper.h"
 
 using namespace KIO;
 namespace KIO_CLIPBOARD
@@ -23,15 +23,15 @@ namespace KIO_CLIPBOARD
    * This interface is not really 'random-access', but good enough for our purpose
    * The actual communication via DBus is handled by a DBus client defined externally
    */
-  class KIOClipboardWrapperKlipper
+  class KlipperFrontend
       : public KIOClipboardWrapper
   {
     private:
-      DBusClientKlipper* m_dbus;
+      KlipperBackend* m_backend;
     protected:
     public:
-      KIOClipboardWrapperKlipper ( const KUrl& url, const QString& name );
-      ~KIOClipboardWrapperKlipper ( );
+      KlipperFrontend ( const KUrl& url, const QString& name );
+      ~KlipperFrontend ( );
       inline const ClipboardType type     ( ) const { return ClipboardType(KLIPPER); };
       inline const QString       protocol ( ) const { return QString::fromLatin1("klipper"); };
       inline const int           limit    ( ) const { return 32*1024; }; // TODO: 32kB: this _seems_ to be a hard limit, is there a configuration for this somewhere ?
@@ -43,4 +43,4 @@ namespace KIO_CLIPBOARD
 
 } // namespace KIO_CLIPBOARD
 
-#endif // KIO_CLIPBOARD_WRAPPER_KLIPPER_H
+#endif // KLIPPER_FRONTEND_H

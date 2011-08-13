@@ -17,7 +17,7 @@
 #include <kio/filejob.h>
 #include <kdebug.h>
 #include "kio_klipper_protocol.h"
-#include "wrapper/kio_clipboard_wrapper.h"
+#include "wrapper/clipboard_wrapper.h"
 #include "christian-reiner.info/exception.h"
 
 // Kdebug::Block is only defined from KDE-4.6.0 on
@@ -38,7 +38,7 @@ using namespace KIO_CLIPBOARD;
  */
 KIOKlipperProtocol::KIOKlipperProtocol( const QByteArray &pool, const QByteArray &app, QObject* parent )
   : QObject ( parent )
-  , KIOProtocol ( pool, app, new KIOClipboardWrapperKlipper(KUrl("klipper:/"),"klipper") )
+  , KIOProtocol ( pool, app, new KlipperFrontend(KUrl("klipper:/"),"klipper") )
 {
   MY_KDEBUG_BLOCK ( "<slave setup>" );
   try

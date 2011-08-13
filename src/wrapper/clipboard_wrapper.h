@@ -16,7 +16,7 @@
 #include <kio/jobclasses.h>
 #include <kio/udsentry.h>
 #include "christian-reiner.info/regex.h"
-#include "wrapper/kio_node_wrapper.h"
+#include "wrapper/node_wrapper.h"
 
 using namespace KIO;
 namespace KIO_CLIPBOARD

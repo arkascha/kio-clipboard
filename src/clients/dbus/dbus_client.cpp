@@ -19,8 +19,7 @@
 #include <kio/jobclasses.h>
 #include <kio/job.h>
 #include <klocalizedstring.h>
-
-#include "dbus/dbus_client.h"
+#include "clients/dbus/dbus_client.h"
 #include "christian-reiner.info/exception.h"
 
 using namespace KIO;
@@ -126,4 +125,4 @@ void DBusClient::call ( const QString method, const QVariant & arg1,
   kDebug() << QString("read a result holding of %1 entries.").arg(m_result.size());
 } // DBusClient::call
 
-#include "dbus/dbus_client.moc"
+#include "clients/dbus/dbus_client.moc"

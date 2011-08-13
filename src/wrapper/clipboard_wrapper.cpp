@@ -12,9 +12,9 @@
 #include <kio/netaccess.h>
 #include "christian-reiner.info/exception.h"
 #include "kio_clipboard_protocol.h"
-#include "kio_clipboard_wrapper.h"
-#include "wrapper/kio_node_wrapper.h"
-#include "klipper/kio_clipboard_wrapper_klipper.h"
+#include "wrapper/clipboard_wrapper.h"
+#include "wrapper/node_wrapper.h"
+#include "clipboards/klipper/klipper_frontend.h"
 
 using namespace KIO;
 using namespace KIO_CLIPBOARD;

@@ -5,10 +5,10 @@
  * $Revision$
  * $Date$
  */
-#ifndef DBUS_CLIENT_KLIPPER_H
-#define DBUS_CLIENT_KLIPPER_H
+#ifndef KLIPPER_BACKEND_H
+#define KLIPPER_BACKEND_H
 
-#include "dbus/dbus_client.h"
+#include "clients/dbus/dbus_client.h"
 
 class QDBusInterface;
 
@@ -16,13 +16,13 @@ using namespace KIO;
 namespace KIO_CLIPBOARD
 {
 
-  class DBusClientKlipper
+  class KlipperBackend
     : public DBusClient
   {
     Q_OBJECT
     public:
-      DBusClientKlipper ( QObject* parent=0 );
-      ~DBusClientKlipper ();
+      KlipperBackend ( QObject* parent=0 );
+      ~KlipperBackend ();
     public slots:
       void        clearClipboardContents  ();
       void        clearClipboardHistory   ();
@@ -35,4 +35,4 @@ namespace KIO_CLIPBOARD
 
 } // namespace KIO_CLIPBOARD
 
-#endif // DBUS_CLIENT_KLIPPER_H
+#endif // KLIPPER_BACKEND_H

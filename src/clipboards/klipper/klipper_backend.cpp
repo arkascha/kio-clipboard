@@ -11,38 +11,37 @@
 #include <kio/global.h>
 #include <kdebug.h>
 #include <klocalizedstring.h>
-
-#include "klipper/dbus_client_klipper.h"
+#include "clipboards/klipper/klipper_backend.h"
 #include "christian-reiner.info/exception.h"
 
 using namespace KIO;
 using namespace KIO_CLIPBOARD;
 
 
-DBusClientKlipper::DBusClientKlipper ( QObject* parent )
+KlipperBackend::KlipperBackend ( QObject* parent )
   : DBusClient ( "org.kde.klipper", "/klipper", "org.kde.klipper.klipper", parent  )
 {
   kDebug() << "constructing specialized DBus client of type 'klipper'";
-} // DBusClientKlipper::DBusClientKlipper
+} // KlipperBackend::KlipperBackend
 
-DBusClientKlipper::~DBusClientKlipper ()
+KlipperBackend::~KlipperBackend ()
 {
   kDebug() << "destructing specialized DBus client of type 'klipper'";
-} // DBusClientKlipper::~DBusClientKlipper
+} // KlipperBackend::~KlipperBackend
 
-void DBusClientKlipper::clearClipboardContents ()
+void KlipperBackend::clearClipboardContents ()
 {
   kDebug();
   m_interface->call ( "clearClipboardContents" );
-} // DBusClientKlipper::clearClipboardContents
+} // KlipperBackend::clearClipboardContents
 
-void DBusClientKlipper::clearClipboardHistory ()
+void KlipperBackend::clearClipboardHistory ()
 {
   kDebug();
   m_interface->call ( "clearClipboardHistory" );
-} // DBusClientKlipper::clearClipboardHistory
+} // KlipperBackend::clearClipboardHistory
 
-QString DBusClientKlipper::getClipboardContents ()
+QString KlipperBackend::getClipboardContents ()
 {
   kDebug();
   call ( "getClipboardContents" );
@@ -51,18 +50,18 @@ QString DBusClientKlipper::getClipboardContents ()
   QString _entry = convertReturnValue(m_result.first(),QVariant::String).toString();
   kDebug() << QString("read clipboard content '%1%2'").arg(_entry.left(25)).arg((25>_entry.size())?"[...]":"");
   return _entry;
-} // DBusClientKlipper::getClipboardContents
+} // KlipperBackend::getClipboardContents
 
-QStringList DBusClientKlipper::getClipboardHistoryMenu ()
+QStringList KlipperBackend::getClipboardHistoryMenu ()
 {
   kDebug();
   call ( "getClipboardHistoryMenu" );
   QStringList _entries = convertReturnValue(m_result.first(),QVariant::StringList).toStringList();
   kDebug() << QString("clipboard returned list holding %1 entries").arg(_entries.count());
   return _entries;
-} // DBusClientKlipper::getClipboardHistoryMenu
+} // KlipperBackend::getClipboardHistoryMenu
 
-QString DBusClientKlipper::getClipboardHistoryItem ( int index )
+QString KlipperBackend::getClipboardHistoryItem ( int index )
 {
   kDebug() << index;
   call ( "getClipboardHistoryMenuItem", index );
@@ -71,15 +70,15 @@ QString DBusClientKlipper::getClipboardHistoryItem ( int index )
   QString _entry = convertReturnValue(m_result.first(),QVariant::String).toString();
   kDebug() << QString("read clipboard history item #%1: '%2%3'").arg(index).arg(_entry.left(25)).arg((25>_entry.size())?"[...]":"");
   return _entry;
-} // DBusClientKlipper::getClipboardHistoryItem
+} // KlipperBackend::getClipboardHistoryItem
 
-void DBusClientKlipper::setClipboardContents ( const QString& entry )
+void KlipperBackend::setClipboardContents ( const QString& entry )
 {
   kDebug() << entry;
   call ( "setClipboardContents", entry );
-} // DBusClientKlipper::setClipboardContents
+} // KlipperBackend::setClipboardContents
 
-void DBusClientKlipper::setClipboardHistory ( const QStringList& entries )
+void KlipperBackend::setClipboardHistory ( const QStringList& entries )
 {
   // strategy: remove all entries and re-add everything in the correct order
   kDebug();
@@ -87,6 +86,6 @@ void DBusClientKlipper::setClipboardHistory ( const QStringList& entries )
   foreach ( const QString& _entry, entries )
     call ( "setClipboardContents", _entry );
   kDebug() << QString("populated clipboard history with %1 entries").arg(entries.size());
-} // DBusClientKlipper::setClipboardHistory
+} // KlipperBackend::setClipboardHistory
 
-#include "klipper/dbus_client_klipper.moc"
+#include "clipboards/klipper/klipper_backend.moc"

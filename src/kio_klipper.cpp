@@ -12,7 +12,6 @@
 #include <kcomponentdata.h>
 #include <kaboutdata.h>
 #include <kdebug.h>
-
 #include "kio_klipper_protocol.h"
 #include "about_klipper.data"
 

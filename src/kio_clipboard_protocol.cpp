@@ -13,7 +13,7 @@
 #include <kdebug.h>
 #include "christian-reiner.info/exception.h"
 #include "kio_clipboard_protocol.h"
-#include "wrapper/kio_clipboard_wrapper.h"
+#include "wrapper/clipboard_wrapper.h"
 
 // Kdebug::Block is only defined from KDE-4.6.0 on
 // we wrap it cause this appears to be the only requirement for KDE-4.6
@@ -124,7 +124,7 @@ const QList<const KIOClipboardWrapper*> KIOClipboardProtocol::detectClipboards (
     if ( "org.kde.klipper"==_name )
     {
       kDebug() << "detected available clipboard of type 'KLIPPER' with url 'klipper:/'";
-      _clipboards << new KIOClipboardWrapperKlipper ( KUrl("klipper:/"), "klipper" );
+      _clipboards << new KlipperFrontend ( KUrl("klipper:/"), "klipper" );
     }
   }
   kDebug() << "detected" << _clipboards.count() << "available clipboards";

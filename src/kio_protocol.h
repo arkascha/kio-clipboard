@@ -1,9 +1,9 @@
 /* This file is part of 'kio-clipboard'
  * Copyright (C) 2011 Christian Reiner <kio-clipboard@christian-reiner.info>
  *
- * $Author: arkascha $
- * $Revision: 27 $
- * $Date: 2011-07-31 18:49:38 +0200 (Sun, 31 Jul 2011) $
+ * $Author$
+ * $Revision$
+ * $Date$
  */
 #ifndef KIO_PROTOCOL_H
 #define KIO_PROTOCOL_H
@@ -12,7 +12,7 @@
 #include <kio/global.h>
 #include <kio/slavebase.h>
 #include <kio/udsentry.h>
-#include "wrapper/kio_node_wrapper.h"
+#include "wrapper/node_wrapper.h"
 
 using namespace KIO;
 namespace KIO_CLIPBOARD

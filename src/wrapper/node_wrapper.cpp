@@ -13,7 +13,7 @@
 #include <kdeversion.h>
 #include "christian-reiner.info/exception.h"
 #include "kio_clipboard_protocol.h"
-#include "wrapper/kio_node_wrapper.h"
+#include "wrapper/node_wrapper.h"
 
 using namespace KIO;
 using namespace KIO_CLIPBOARD;

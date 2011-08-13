@@ -14,8 +14,8 @@
 #include <kio/global.h>
 #include <kio/forwardingslavebase.h>
 #include <kio/udsentry.h>
-#include "wrapper/kio_clipboard_wrapper.h"
-#include "klipper/kio_clipboard_wrapper_klipper.h"
+#include "wrapper/clipboard_wrapper.h"
+#include "clipboards/klipper/klipper_frontend.h"
 
 using namespace KIO;
 namespace KIO_CLIPBOARD
