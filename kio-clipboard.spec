@@ -9,8 +9,6 @@
 # norootforbuild
 
 Name:           kio-clipboard
-BuildRequires:  cmake libqt4-devel
-BuildRequires:  libkde4-devel
 License:        GPLv2+
 Group:          Utilities/Desktop
 Summary:        KDE IO Slave for file based access of clipboard entries
@@ -18,7 +16,12 @@ Version:        0.2.4
 Release:        1
 Source:         %name-%version.tar.bz2
 Url:            http://kde-apps.org/content/show.php/kio-clipboard?content=143976
+Requires:       libkde4 >= 4.5
+Requires:       libqjson
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+BuildRequires:  cmake libqt4-devel libqjson-devel
+BuildRequires:  libkde4-devel >= 4.5
+BuildRequires:  libkdecore4-devel
 %kde4_runtime_requires
 
 %description
@@ -32,7 +35,7 @@ the clipboards content. There are no temporary files generated.
 
 Author:
 --------
-    Christian Reiner <kio-clipboard@christian-reiner.de>
+    Christian Reiner <kio-clipboard@christian-reiner.info>
 
 
 %prep
@@ -60,6 +63,18 @@ rm -rf $RPM_BUILD_ROOT
 %_kde_share_dir/services/klipper.protocol
 
 %changelog
+* Wed Aug 19 2011 Christian Reiner: version 0.2.4
+- a number of internal reorganisations as preparation for version 0.3 integrating further clipboard applciations/services
+- removed caching of entry payloads in memory out of scalability interests
+- dropped 'delete' action, this did not really make sense for clipboards
+- first introduction of a shared memory cache between separate slave processes
+- serialization feature for node wrapper objects, required for later persistent storage of clipboard entries between sessions
+- convenience improvements by higher abstraction of node lists
+* Wed Aug 10 2011 Christian Reiner: version 0.2.3
+- enhanced mimetype detection for text based clipboard entries
+- detection of a few special types of text entries declared as "code"
+- simplyfied setup up of internal DBus clients
+- fixed cardinality of numeric index in displayed entry names to honour the clipboards size
 * Sun Aug 07 2011 Christian Reiner: version 0.2.2
 - new structure for source file collection
 - slightly optimized icons by usage of overlays (for kde>=4.5)

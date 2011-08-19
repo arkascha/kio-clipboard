@@ -1,5 +1,10 @@
-* ??? ??? ?? ???? Christian Reiner: version 0.2.4
+* Wed Aug 19 2011 Christian Reiner: version 0.2.4
 - a number of internal reorganisations as preparation for version 0.3 integrating further clipboard applciations/services
+- removed caching of entry payloads in memory out of scalability interests
+- dropped 'delete' action, this did not really make sense for clipboards
+- first introduction of a shared memory cache between separate slave processes
+- serialization feature for node wrapper objects, required for later persistent storage of clipboard entries between sessions
+- convenience improvements by higher abstraction of node lists
 * Wed Aug 10 2011 Christian Reiner: version 0.2.3
 - enhanced mimetype detection for text based clipboard entries
 - detection of a few special types of text entries declared as "code"

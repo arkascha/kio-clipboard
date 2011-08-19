@@ -17,6 +17,11 @@ using namespace KIO;
 namespace KIO_CLIPBOARD
 {
 
+  /**
+   * The part of the wrapper that implements the specific routines required to use the clipboard
+   * Communication is done via a separate, abstract client, in this case a DBus client
+   * So this class maps specific routines onto the abstract client methods
+   */
   class KlipperBackend
     : public ClipboardBackend
     , public DBusClient

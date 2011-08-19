@@ -34,29 +34,36 @@ KlipperFrontend::~KlipperFrontend ()
 } // destructor
 
 /**
- * reads a single clipboard entry (the content)
+ * reads current clipboard entry (the content)
  * note that this is always a string, be it human-readable or not
  */
-QString KlipperFrontend::getClipboardEntry ()
+QString KlipperFrontend::getClipboardEntry ( )
 {
   kDebug();
-  QString entry;
-  // consult the worker client
-  entry = m_backend->getClipboardContents();
-  return entry;
+  return m_backend->getClipboardContents ( );
+} // KlipperFrontend::getClipboardEntry
+
+/**
+ * reads single clipboard entry (the content) at a specified position
+ * note that this is always a string, be it human-readable or not
+ */
+QString KlipperFrontend::getClipboardEntry ( int index )
+{
+  kDebug();
+  return m_backend->getClipboardHistoryItem ( index );
 } // KlipperFrontend::getClipboardEntry
 
 /**
  * conveniently get all clipboard entries in a single call
  * this makes sense for refreshing and initializing
  */
-QStringList KlipperFrontend::getClipboardEntries ()
+QStringList KlipperFrontend::getClipboardEntries ( )
 {
   kDebug();
   QStringList entries;
   // consult the worker client
-  entries = m_backend->getClipboardHistoryMenu ();
-  kDebug() << QString("got list of %1 clipboard entries.").arg(entries.size());
+  entries = m_backend->getClipboardHistoryMenu ( );
+  kDebug() << QString( "got list of %1 clipboard entries.").arg(entries.size() );
   return entries;
 } // KlipperFrontend::getClipboardEntries
 
@@ -80,16 +87,5 @@ void KlipperFrontend::pushEntry ( const QString& entry )
 void KlipperFrontend::delEntry ( const KUrl& url )
 {
   kDebug() << url;
-  const NodeWrapper* const _deliquent = findNodeByUrl ( url );
-  // build a backup list of all remaining entries (as strings)
-  // we use prepend 'cause we need reverse order !
-  QStringList _remains;
-  foreach ( const NodeWrapper* _entry, m_nodes )
-//  foreach ( const NodeWrapper* _entry, m_nodes.values() )
-    if ( _entry->payload()!=_deliquent->payload() )
-      _remains.prepend ( _entry->payload() );
-  // and (re-) add the backup list from above
-  m_backend->setClipboardHistory ( _remains );
-  // now re-read all entries to have a clean buffer
-  refreshNodes ( );
+  throw CRI::Exception ( Error(ERR_UNSUPPORTED_ACTION), url.prettyUrl() );
 } // KlipperFrontend::delEntry

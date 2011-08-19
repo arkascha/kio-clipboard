@@ -9,7 +9,7 @@
 #define NODE_WRAPPER_H
 
 #include <kio/global.h>
-#include "kio/udsentry.h"
+#include <kio/udsentry.h>
 #include <kmimetype.h>
 #include "christian-reiner.info/regex.h"
 
@@ -17,8 +17,6 @@ using namespace KIO;
 namespace KIO_CLIPBOARD
 {
   class ClipboardFrontend;
-
-  typedef enum { S_EMPTY, S_TEXT, S_CODE, S_FILE, S_DIR, S_LINK, S_URL } Semantics;
 
   /**
    * This class describes all aspects of a 'node', this is an entry in a clipboard.
@@ -32,10 +30,35 @@ namespace KIO_CLIPBOARD
    *   these are generated based only on the constant settings stored in the members mentioned above
    */
   class NodeWrapper
+    : public QObject
   {
+    public:
+      enum Semantics { S_EMPTY, S_TEXT, S_CODE, S_FILE, S_DIR, S_LINK, S_URL };
+    Q_OBJECT
+//    Q_ENUMS ( Semantics )
+    Q_PROPERTY ( int            m_index                  READ getIndex           WRITE setIndex           )
+    Q_PROPERTY ( const QString& m_title                  READ getTitle           WRITE setTitle           )
+    Q_PROPERTY ( int            m_size                   READ getSize            WRITE setSize            )
+    Q_PROPERTY ( QString        m_mimetype               READ getMimetype        WRITE setMimetype        )
+//    Q_PROPERTY ( Semantics      m_semantics              READ getSemantics       WRITE setSemantics       )
+// Qt-bug ?? we cannot use an enum here, even with the Q_ENUMS macro above:
+// the qt meta object handler claims such property is no writable
+// thus that property will _not_ be initialized during deserialization (so get a random value)
+    Q_PROPERTY ( int            m_semantics              READ getSemantics       WRITE setSemantics       )
+    Q_PROPERTY ( const QString& m_name                   READ getName            WRITE setName            )
+    Q_PROPERTY ( QString        m_url                    READ getUrl             WRITE setUrl             )
+    Q_PROPERTY ( QString        m_link                   READ getLink            WRITE setLink            )
+    Q_PROPERTY ( const QString& m_path                   READ getPath            WRITE setPath            )
+    Q_PROPERTY ( int            m_type                   READ getType            WRITE setType            )
+    Q_PROPERTY ( const QString& m_icon                   READ getIcon            WRITE setIcon            )
+    Q_PROPERTY ( QString        m_overlay                READ getOverlays        WRITE setOverlays        )
+    Q_PROPERTY ( int            m_mappingNameCardinality READ getNameCardinality WRITE setNameCardinality )
+    Q_PROPERTY ( int            m_mappingNameLength      READ getNameLength      WRITE setNameLength      )
+    Q_PROPERTY ( const QString& m_mappingNamePattern     READ getNamePattern     WRITE setNamePattern     )
     private:
       int            m_index;
-      QString        m_payload;
+      QString        m_title;
+      int            m_size;
       KMimeType::Ptr m_mimetype;
       Semantics      m_semantics;
       QString        m_name;
@@ -46,13 +69,53 @@ namespace KIO_CLIPBOARD
       QString        m_icon;
       QStringList    m_overlays;
     protected:
-      ClipboardFrontend* const m_clipboard;
-      const CRI::regExPool       m_regEx;
+      int            m_mappingNameCardinality;
+      int            m_mappingNameLength;
+      QString        m_mappingNamePattern;
+      const CRI::regExPool m_regEx;
+    protected:
+      // member serialization interface
+      inline int            getIndex           ( ) { return m_index;                  };
+      inline const QString& getTitle           ( ) { return m_title;                  };
+      inline int            getSize            ( ) { return m_size;                   };
+      inline QString        getMimetype        ( ) { return m_mimetype->name();       };
+      inline Semantics      getSemantics       ( ) { return m_semantics;              };
+      inline const QString& getName            ( ) { return m_name;                   };
+      inline QString        getUrl             ( ) { return m_url.prettyUrl();        };
+      inline QString        getLink            ( ) { return m_link.prettyUrl();       };
+      inline const QString& getPath            ( ) { return m_path;                   };
+      inline int            getType            ( ) { return m_type;                   };
+      inline const QString& getIcon            ( ) { return m_icon;                   };
+      inline QString        getOverlays        ( ) { return m_overlays.join(",");     };
+      inline int            getNameCardinality ( ) { return m_mappingNameCardinality; };
+      inline int            getNameLength      ( ) { return m_mappingNameLength;      };
+      inline const QString& getNamePattern     ( ) { return m_mappingNamePattern;     };
+      // member deserialization interface
+      inline void setIndex           ( int            index           ) { m_index                  = index;                         };
+      inline void setTitle           ( const QString& title           ) { m_title                  = title;                         };
+      inline void setSize            ( int            size            ) { m_size                   = size;                          };
+      inline void setMimetype        ( const QString  mimetype        ) { m_mimetype               = KMimeType::mimeType(mimetype); };
+//      inline void setSemantics       ( Semantics      semantics       ) { m_semantics              = semantics;                     };
+      inline void setSemantics       ( int            semantics       ) { m_semantics              = Semantics(semantics);          };
+      inline void setName            ( const QString& name            ) { m_name                   = name;                          };
+      inline void setUrl             ( const QString& url             ) { m_url                    = KUrl(url);                     };
+      inline void setLink            ( const QString& link            ) { m_link                   = KUrl(link);                    };
+      inline void setPath            ( const QString& path            ) { m_path                   = path;                          };
+      inline void setType            ( int            type            ) { m_type                   = type;                          };
+      inline void setIcon            ( const QString& icon            ) { m_icon                   = icon;                          };
+      inline void setOverlays        ( const QString& overlays        ) { m_overlays               = overlays.split(",");           };
+      inline void setNameCardinality ( int            nameCardinality ) { m_mappingNameCardinality = nameCardinality;               };
+      inline void setNameLength      ( int            nameLength      ) { m_mappingNameLength      = nameLength;                    };
+      inline void setNamePattern     ( const QString& namePattern     ) { m_mappingNamePattern     = namePattern;                   };
     public:
-      NodeWrapper ( ClipboardFrontend* const clipboard, int index, const QString& payload );
-      ~NodeWrapper();
+      NodeWrapper ( ClipboardFrontend* const clipboard, int index, const QString& payload, QObject* parent=0 );
+      NodeWrapper ( const QByteArray& json, QObject* parent=0 );
+      NodeWrapper ( const NodeWrapper& node, QObject* parent=0 );
+      NodeWrapper ( QObject* parent=0 );
+      ~NodeWrapper ( );
       inline int                   index     ( ) const { return m_index; };
-      inline const QString&        payload   ( ) const { return m_payload; };
+      inline const QString&        title     ( ) const { return m_title; };
+      inline int                   size      ( ) const { return m_size; };
       inline const KMimeType::Ptr& mimetype  ( ) const { return m_mimetype; };
       inline const Semantics&      semantics ( ) const { return m_semantics; };
       inline const QString&        name      ( ) const { return m_name; };
@@ -62,16 +125,23 @@ namespace KIO_CLIPBOARD
       inline int                   type      ( ) const { return m_type; };
       inline const QString&        icon      ( ) const { return m_icon; };
       inline const QStringList&    overlays  ( ) const { return m_overlays; };
-      inline int                   size      ( ) const { return m_payload.size(); };
       QString  prettyIndex     ( ) const;
-      QString  prettyPayload   ( ) const;
       QString  prettyMimetype  ( ) const;
       QString  prettySemantics ( ) const;
       QString  prettyName      ( ) const;
       QString  prettyUrl       ( ) const;
-      UDSEntry toUDSEntry      ( ) const;
+             QString payload2title ( const QString& payload );
+      static QString payload2name  ( const QString& payload );
+      UDSEntry     toUDSEntry ( ) const;
+      QByteArray   toJSON ( ) const;
+      NodeWrapper& fromJSON ( const QByteArray& json );
   }; // class NodeWrapper
 
+  inline QDataStream& operator<< ( QDataStream& out, const NodeWrapper*& node ) { return out << node->toJSON(); };
+  inline QDataStream& operator>> ( QDataStream& in,        NodeWrapper*& node ) { QByteArray _json; in >> _json; node->fromJSON ( _json ); return in; };
+
 } // namespace KIO_CLIPBOARD
+
+Q_DECLARE_METATYPE ( KIO_CLIPBOARD::NodeWrapper )
 
 #endif // NODE_WRAPPER_H

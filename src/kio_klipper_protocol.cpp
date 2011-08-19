@@ -9,13 +9,13 @@
 #include <unistd.h>
 #include <KUrl>
 #include <KMimeType>
-#include <kdeversion.h>
 #include <kmimetype.h>
 #include <klocalizedstring.h>
 #include <kio/netaccess.h>
 #include <kio/job.h>
 #include <kio/filejob.h>
 #include <kdebug.h>
+#include <kdeversion.h>
 #include "kio_klipper_protocol.h"
 #include "clipboards/clipboard_frontend.h"
 #include "christian-reiner.info/exception.h"
@@ -87,12 +87,8 @@ const UDSEntry KIOKlipperProtocol::toUDSEntry ()
  */
 const UDSEntryList KIOKlipperProtocol::toUDSEntryList ()
 {
-  UDSEntryList _entries;
-  foreach ( const NodeWrapper* _entry, m_clipboard->m_nodes )
-//  foreach ( const ClipboardFrontend* const& _entry, m_nodes.values() )
-    _entries << _entry->toUDSEntry();
-  kDebug() << "listing" << _entries.count() << "entries";
-  return _entries;
+  kDebug() << "listing" << m_clipboard->countNodes() << "entries";
+  return m_clipboard->toUDSEntryList ( );
 } // KIOKlipperProtocol::toUDSEntryList
 
 //======================
@@ -175,22 +171,22 @@ void KIOKlipperProtocol::get ( const KUrl& url )
     const NodeWrapper* _entry = m_clipboard->findNodeByUrl ( url );
     switch ( _entry->semantics() )
     {
-      case KIO_CLIPBOARD::S_EMPTY:
-      case KIO_CLIPBOARD::S_TEXT:
-      case KIO_CLIPBOARD::S_CODE:
+      case KIO_CLIPBOARD::NodeWrapper::S_EMPTY:
+      case KIO_CLIPBOARD::NodeWrapper::S_TEXT:
+      case KIO_CLIPBOARD::NodeWrapper::S_CODE:
         mimeType ( _entry->mimetype()->name() );
-        data     ( _entry->payload().toUtf8() );
+        data     ( m_clipboard->getClipboardEntry(_entry->index()).toUtf8() );
         data     ( QByteArray() );
         finished ( );
         return;
-      case KIO_CLIPBOARD::S_FILE:
-      case KIO_CLIPBOARD::S_DIR:
+      case KIO_CLIPBOARD::NodeWrapper::S_FILE:
+      case KIO_CLIPBOARD::NodeWrapper::S_DIR:
         _url = KUrl(_entry->path() );
         kDebug() << "redirecting to:" << _url.prettyUrl ( );
         redirection ( _url );
         finished ( );
         return;
-      case KIO_CLIPBOARD::S_URL:
+      case KIO_CLIPBOARD::NodeWrapper::S_URL:
         _url = KUrl(_entry->url() );
         kDebug() << "redirecting to:" << _url.prettyUrl ( );
         redirection ( _url );
@@ -221,7 +217,7 @@ void KIOKlipperProtocol::listDir ( const KUrl& url )
       return;
     }
     m_clipboard->refreshNodes ( );
-    totalSize ( m_clipboard->m_nodes.size() );
+    totalSize ( m_clipboard->countNodes() );
     listEntries ( toUDSEntryList() );
     finished ( );
   }
@@ -246,20 +242,20 @@ void KIOKlipperProtocol::mimetype ( const KUrl& url )
     KUrl _target;
     switch ( _entry->semantics() )
     {
-      case KIO_CLIPBOARD::S_EMPTY:
-      case KIO_CLIPBOARD::S_TEXT:
-      case KIO_CLIPBOARD::S_CODE:
+      case KIO_CLIPBOARD::NodeWrapper::S_EMPTY:
+      case KIO_CLIPBOARD::NodeWrapper::S_TEXT:
+      case KIO_CLIPBOARD::NodeWrapper::S_CODE:
         mimeType ( _entry->mimetype()->name() );
         finished();
         return;
-      case KIO_CLIPBOARD::S_FILE:
-      case KIO_CLIPBOARD::S_DIR:
+      case KIO_CLIPBOARD::NodeWrapper::S_FILE:
+      case KIO_CLIPBOARD::NodeWrapper::S_DIR:
         _target = KUrl(_entry->path() );
         kDebug() << "redirecting to:" << _target.prettyUrl ( );
         redirection ( _target );
         finished ( );
         return;
-      case KIO_CLIPBOARD::S_URL:
+      case KIO_CLIPBOARD::NodeWrapper::S_URL:
         _target = KUrl(_entry->url() );
         kDebug() << "redirecting to:" << _target.prettyUrl ( );
         redirection ( _target );
@@ -369,19 +365,19 @@ void KIOKlipperProtocol::stat( const KUrl& url )
       const NodeWrapper* _entry = m_clipboard->findNodeByUrl ( url );
       switch ( _entry->semantics() )
       {
-        case KIO_CLIPBOARD::S_EMPTY:
-        case KIO_CLIPBOARD::S_TEXT:
-        case KIO_CLIPBOARD::S_CODE:
+        case KIO_CLIPBOARD::NodeWrapper::S_EMPTY:
+        case KIO_CLIPBOARD::NodeWrapper::S_TEXT:
+        case KIO_CLIPBOARD::NodeWrapper::S_CODE:
           statEntry ( _entry->toUDSEntry() );
           finished ( );
           return;
-        case KIO_CLIPBOARD::S_FILE:
-        case KIO_CLIPBOARD::S_DIR:
+        case KIO_CLIPBOARD::NodeWrapper::S_FILE:
+        case KIO_CLIPBOARD::NodeWrapper::S_DIR:
           kDebug() << "redirecting to:" << KUrl(_entry->path()).prettyUrl ( );
           redirection ( KUrl(_entry->path()) );
           finished ( );
           return;
-        case KIO_CLIPBOARD::S_URL:
+        case KIO_CLIPBOARD::NodeWrapper::S_URL:
           kDebug() << "redirecting to:" << _entry->prettyUrl ( );
           redirection ( _entry->url() );
           finished ( );

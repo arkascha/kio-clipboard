@@ -37,6 +37,7 @@ namespace KIO_CLIPBOARD
       inline const QString       protocol ( ) const { return QString::fromLatin1("klipper"); };
       inline const int           limit    ( ) const { return 32*1024; }; // TODO: 32kB: this _seems_ to be a hard limit, is there a configuration for this somewhere ?
       QString     getClipboardEntry   ( );
+      QString     getClipboardEntry   ( int index );
       QStringList getClipboardEntries ( );
       void pushEntry ( const QString& entry );
       void delEntry  ( const KUrl& url );

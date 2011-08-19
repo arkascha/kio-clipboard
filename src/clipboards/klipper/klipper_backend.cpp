@@ -17,7 +17,10 @@
 using namespace KIO;
 using namespace KIO_CLIPBOARD;
 
-
+/**
+ * Constructs the backend part of the clipboard wrapper
+ * DBusclient is the abstract communication client used in background
+ */
 KlipperBackend::KlipperBackend ( QObject* parent )
   : ClipboardBackend ( parent )
   , DBusClient ( "org.kde.klipper", "/klipper", "org.kde.klipper.klipper" )
@@ -25,23 +28,35 @@ KlipperBackend::KlipperBackend ( QObject* parent )
   kDebug() << "constructing specialized DBus client of type 'klipper'";
 } // KlipperBackend::KlipperBackend
 
+/**
+ * Constructs the backend part of the clipboard wrapper
+ */
 KlipperBackend::~KlipperBackend ()
 {
   kDebug() << "destructing specialized DBus client of type 'klipper'";
 } // KlipperBackend::~KlipperBackend
 
+/**
+ * Clears the currently active clipboard content
+ */
 void KlipperBackend::clearClipboardContents ()
 {
   kDebug();
   m_interface->call ( "clearClipboardContents" );
 } // KlipperBackend::clearClipboardContents
 
+/**
+ * Removes all entries from the clipboard
+ */
 void KlipperBackend::clearClipboardHistory ()
 {
   kDebug();
   m_interface->call ( "clearClipboardHistory" );
 } // KlipperBackend::clearClipboardHistory
 
+/**
+ * Retrieves the currently active clipboard content
+ */
 QString KlipperBackend::getClipboardContents ()
 {
   kDebug();
@@ -53,6 +68,9 @@ QString KlipperBackend::getClipboardContents ()
   return _entry;
 } // KlipperBackend::getClipboardContents
 
+/**
+ * Retrieves all entries available in the clipboard
+ */
 QStringList KlipperBackend::getClipboardHistoryMenu ()
 {
   kDebug();
@@ -62,10 +80,13 @@ QStringList KlipperBackend::getClipboardHistoryMenu ()
   return _entries;
 } // KlipperBackend::getClipboardHistoryMenu
 
+/**
+ * Retrieves a specific entry from the clipboard, indentified by its numeric index
+ */
 QString KlipperBackend::getClipboardHistoryItem ( int index )
 {
-  kDebug() << index;
-  call ( "getClipboardHistoryMenuItem", index );
+  kDebug() << index << "/" << index-1; // the dbus service counts from 0, not from 1
+  call ( "getClipboardHistoryItem", index-1 );
   if ( 1 != m_result.size() )
     throw CRI::Exception ( Error(ERR_INTERNAL), i18n("DBus call did not return a single entry as expected.") );
   QString _entry = convertReturnValue(m_result.first(),QVariant::String).toString();
@@ -73,12 +94,18 @@ QString KlipperBackend::getClipboardHistoryItem ( int index )
   return _entry;
 } // KlipperBackend::getClipboardHistoryItem
 
+/**
+ * Sets the content of the currently active clipboard entry
+ */
 void KlipperBackend::setClipboardContents ( const QString& entry )
 {
   kDebug() << entry;
   call ( "setClipboardContents", entry );
 } // KlipperBackend::setClipboardContents
 
+/**
+ * Replaces all clipboard entries by a list of new ones
+ */
 void KlipperBackend::setClipboardHistory ( const QStringList& entries )
 {
   // strategy: remove all entries and re-add everything in the correct order

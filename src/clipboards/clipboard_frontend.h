@@ -18,6 +18,9 @@
 #include "christian-reiner.info/regex.h"
 #include "clipboards/klipper/klipper_backend.h"
 #include "node/node_wrapper.h"
+#include "node/node_list.h"
+
+class KSharedDataCache;
 
 using namespace KIO;
 namespace KIO_CLIPBOARD
@@ -52,8 +55,8 @@ namespace KIO_CLIPBOARD
       const int         m_mappingNameLength;
       const QString&    m_mappingNamePattern;
       ClipboardBackend* m_backend;
-    public:
-      QMap<QString,const NodeWrapper*> m_nodes;
+      KSharedDataCache* m_cache;
+      NodeList*         m_nodes;
     public:
       ClipboardFrontend ( const KUrl& url, const QString& name );
       ~ClipboardFrontend ( );
@@ -65,10 +68,12 @@ namespace KIO_CLIPBOARD
       inline const int      mappingNameCardinality ( ) const { return m_mappingNameCardinality; };
       inline const int      mappingNameLength      ( ) const { return m_mappingNameLength; };
       inline const QString& mappingNamePattern     ( ) const { return m_mappingNamePattern; };
-      const NodeWrapper* findNodeByUrl  ( const KUrl& url );
+      inline int countNodes ( ) { return m_nodes->size(); };
+      const NodeWrapper*    findNodeByUrl  ( const KUrl& url );
       const UDSEntry        toUDSEntry     ( ) const;
       const UDSEntryList    toUDSEntryList ( ) const;
       virtual QString       getClipboardEntry   ( ) = 0;
+      virtual QString       getClipboardEntry   ( int index ) = 0;
       virtual QStringList   getClipboardEntries ( ) = 0;
       virtual void          pushEntry ( const QString& entry ) = 0;
       virtual void          delEntry  ( const KUrl& url      ) = 0;

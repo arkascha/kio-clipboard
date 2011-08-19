@@ -10,9 +10,9 @@
 #include <kurl.h>
 #include <kmimetype.h>
 #include <kio/netaccess.h>
+#include <kshareddatacache.h>
 #include "christian-reiner.info/exception.h"
 #include "kio_clipboard_protocol.h"
-#include "node/node_wrapper.h"
 #include "clipboards/clipboard_frontend.h"
 #include "clipboards/klipper/klipper_frontend.h"
 
@@ -50,6 +50,9 @@ ClipboardFrontend::ClipboardFrontend ( const KUrl& url, const QString& name )
   , m_mappingNamePattern     ( KIO_CLIPBOARD::C_mappingNamePattern )
 {
   kDebug();
+  m_cache = new KSharedDataCache ( QString("kio-clipboard-%1").arg(m_name), 100*1024*1024, 256 );
+  m_cache->setEvictionPolicy ( KSharedDataCache::EvictOldest );
+  m_nodes = new NodeList;
 } // ClipboardFrontend::ClipboardFrontend
 
 /**
@@ -59,6 +62,8 @@ ClipboardFrontend::~ClipboardFrontend()
 {
   kDebug();
   clearNodes();
+  delete m_cache;
+  delete m_nodes;
 } // ClipboardFrontend::~ClipboardFrontend
 
 /**
@@ -82,7 +87,7 @@ const UDSEntry ClipboardFrontend::toUDSEntry ( ) const
 const UDSEntryList ClipboardFrontend::toUDSEntryList ( ) const
 {
   UDSEntryList _entries;
-  foreach ( const NodeWrapper* _entry, m_nodes )
+  foreach ( const NodeWrapper* _entry, m_nodes->toMap() )
     _entries << _entry->toUDSEntry();
   kDebug() << "listing" << _entries.count() << "entries";
   return _entries;
@@ -95,21 +100,24 @@ const UDSEntryList ClipboardFrontend::toUDSEntryList ( ) const
 void ClipboardFrontend::refreshNodes ()
 {
   kDebug();
-  // strategy: clear the nodes before (re-) populating it
-  m_nodes.clear();
   // ask the specialised client for the entries
-  QStringList _entries = getClipboardEntries ();
+  QStringList _entries = getClipboardEntries ( );
   // update global name cardinality, important to construct names with correct cardinality of their name prefix indexes
   m_mappingNameCardinality = QString("%1").arg(_entries.count()).size();
   kDebug() << QString("set mapping cardinality to %1 (length of numeric index)").arg(C_mappingNameCardinality);
+  // strategy: clear the nodes before (re-) populating it
+  m_nodes->clear();
   // now populate the nodes, one entry after another
   int _index = 0;
   foreach ( const QString& _entry, _entries )
   {
     NodeWrapper* _node = new NodeWrapper ( this, ++_index, _entry );
-    m_nodes.insert ( _node->name(), _node );
+    m_nodes->insert ( _node->name(), _node );
   }
-  kDebug() << QString("populated fresh set of nodes with %1 entries").arg(m_nodes.size());
+  kDebug() << "populated fresh set of nodes with" << m_nodes->size ( ) << "entries";
+  // store refreshed list into shared cache
+  m_cache->clear ( );
+  m_cache->insert ( "nodes", m_nodes->toJSON() );
 } // ClipboardFrontend::refreshNodes
 
 /**
@@ -119,7 +127,7 @@ void ClipboardFrontend::refreshNodes ()
 void ClipboardFrontend::clearNodes ( )
 {
   kDebug();
-  foreach ( const NodeWrapper* const& _entry, m_nodes.values() )
+  foreach ( const NodeWrapper* const& _entry, m_nodes->values() )
     delete _entry;
 } // ClipboardFrontend::clearNodes
 
@@ -133,13 +141,12 @@ const NodeWrapper* ClipboardFrontend::findNodeByUrl ( const KUrl& url )
   kDebug() << url.prettyUrl();
   // note: we might have a fresh process...
   // TODO: find some way of really caching thing between different processes (KDED ? )
-  if ( m_nodes.isEmpty() )
+  if ( m_nodes->isEmpty() )
     refreshNodes ( );
   // look for the matching entry
   QString _name = url.fileName();
-  if ( m_nodes.contains(_name) )
-    return m_nodes[_name];
+  if ( m_nodes->contains ( _name ) )
+    return m_nodes->value ( _name );
   // no matching element found ?!?
   throw CRI::Exception ( Error(ERR_DOES_NOT_EXIST), url.prettyUrl() );
 } // ClipboardFrontend::findNodeByUrl
-

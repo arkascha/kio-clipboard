@@ -9,8 +9,8 @@
 #include <unistd.h>
 #include <KUrl>
 #include <KMimeType>
-#include <kdeversion.h>
 #include <kdebug.h>
+#include <kdeversion.h>
 #include "christian-reiner.info/exception.h"
 #include "kio_clipboard_protocol.h"
 #include "clipboards/clipboard_frontend.h"

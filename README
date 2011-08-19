@@ -6,12 +6,39 @@ Email: kio-clipboard@christian-reiner.info
 Web: -/-
 
 Overview:
-kio-clipboard implements kio-slaves, protocols for KDEs io system. It makes the
-content of clipboards available inside file management. That means you can
+kio-clipboard implements kio-slaves, protocols for KDEs I/O system. It makes 
+the content of clipboards available inside file management. That means you can
 access the clipboards entries using standard file dialogs like 'File open' or
 'Save File', you even can use a file browser and access entries. In general
 you can use the slaves wherever you can use an url inside KDE to get access to
 the clipboards content. There are no temporary file generated.
+
+Motivation:
+Now we all agree that this appears more like a proof of concept. At first
+glance, a real value in daily use seems hard to spot. After all why not
+simply use ctrl-c & ctrl-v ? Or even just left and middle click with
+something mouse like, when working under linux and alike ? Actually this
+project is just an experiment for myself to learn a little about kde
+programming, Qt features and to get back into c++ basics after a long period
+of using other environments.
+However on second glance one might spot situations where this could
+become interesting:
+- Imagine surfing the web, you copy the urls of say 10 images to your
+clipboard. Now instead of downloading them all in advance or opening one by
+one using "file open">paste url>open you could fire dolphin, select
+klipper amongst the predefined 'places' in the left panel, select the 10 urls
+at once and chose "open with KolourPaint".
+- This is just a first glimpse that implements support for only one
+single clipboard application: klipper. Preparations are done and it would be
+fun to support additional clipboards. Things get interesting when we talk
+about remote clipboards, online services or even the clipboard on your
+colleagues system who works on the same project with you. This would make
+data exchange really easy...
+- Following this thought it turns out that this could easily act as a simple
+and general API to several clipboards (paste bins). Sharing information
+from within an application ? Just "Save to clipboard", select one and that's 
+it! Not API to implement, nothing.
+- Who spots the next situation where this might come in handy ?
 
 Warranty: 
 This software comes with no warranties. Use it at own risk.

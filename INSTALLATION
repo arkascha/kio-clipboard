@@ -6,13 +6,17 @@ interface. If it changes, you are screwed, but this
 should not happen, as it is official and other programs
 will rely on it as well.
 
+REQUIREMENTS
+KDE>=4.5
+Qt4
+QJson
+
 INSTALLATION FROM BINARY PACKAGE
 If you have a precompiled package matching your system
 (architecture and distribution) installation is handled
 by the standard tool that comes with the distribution.
 
 BUILD AND INSTALL INSTRUCTIONS
-
 # in the source directory:
 mkdir build
 cd build
