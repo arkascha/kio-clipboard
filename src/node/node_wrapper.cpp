@@ -15,6 +15,8 @@
 #include <kurl.h>
 #include <kio/netaccess.h>
 #include <klocalizedstring.h>
+#include <klocale.h>
+#include <kdatetime.h>
 #include "christian-reiner.info/exception.h"
 #include "kio_clipboard_protocol.h"
 #include "node/node_wrapper.h"
@@ -39,6 +41,11 @@ NodeWrapper::NodeWrapper ( ClipboardFrontend* const clipboard,  int index, const
   QString _trimmed = payload.trimmed ( );
   m_index = index;
   m_size  = payload.size();
+  // we do NOT request any datetime from files or URLs, so we can just set it plain here
+  // reason is that usually we read the value from a history, except when we first access the object
+  m_datetime = KDateTime::currentLocalDateTime();
+  // fixed access rights currently, entries of local clipboards should only be accessible from inside the session itself
+  m_access = 0400;
   // construct a valid file name, even for a payload that is a path or url
   m_name  = payload2name ( payload );
   // mark first entry in the list as the newest by using an overlay
@@ -253,6 +260,16 @@ QString NodeWrapper::prettyUrl ( ) const
   return _pretty;
 } // NodeWrapper::prettyUrl
 
+/**
+ * printable form of datetime
+ */
+QString NodeWrapper::prettyDatetime ( ) const
+{
+  QString _pretty = KGlobal::locale()->formatDateTime ( m_datetime, KLocale::LongDate );
+  kDebug() << _pretty;
+  return _pretty;
+} // NodeWrapper::prettyDatetime
+
 //==========
 
 /**
@@ -290,8 +307,8 @@ UDSEntry NodeWrapper::toUDSEntry ( ) const
   _entry.insert( UDSEntry::UDS_MIME_TYPE,          m_mimetype->name() );
   _entry.insert( UDSEntry::UDS_DISPLAY_TYPE,       m_mimetype->comment() );
   _entry.insert( UDSEntry::UDS_SIZE,               m_size );
-  _entry.insert( UDSEntry::UDS_ACCESS,             S_IRUSR | S_IRGRP | S_IROTH );
-//  _entry.insert( UDSEntry::UDS_MODIFICATION_TIME,  utime(path, &myutimbuf);
+  _entry.insert( UDSEntry::UDS_ACCESS,             m_access );
+  _entry.insert( UDSEntry::UDS_MODIFICATION_TIME,  m_datetime.toTime_t() );
   if ( !m_path.isEmpty() )
     _entry.insert( UDSEntry::UDS_LOCAL_PATH,         m_path );
   if ( ! m_url.isEmpty() )
@@ -302,6 +319,7 @@ UDSEntry NodeWrapper::toUDSEntry ( ) const
     _entry.insert( UDSEntry::UDS_ICON_NAME,          m_icon );
   if ( ! m_overlays.isEmpty() )
     _entry.insert( UDSEntry::UDS_ICON_OVERLAY_NAMES, m_overlays.join(",") );
+
   // some intense debugging output...
   QList<uint> _tags = _entry.listFields ( );
   kDebug() << "list of defined UDS entry tags for entry" << prettyIndex() << ":";

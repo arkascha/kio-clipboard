@@ -11,6 +11,7 @@
 #include <kmimetype.h>
 #include <kio/netaccess.h>
 #include <kshareddatacache.h>
+#include <kdatetime.h>
 #include "christian-reiner.info/exception.h"
 #include "kio_clipboard_protocol.h"
 #include "clipboards/clipboard_frontend.h"
@@ -73,11 +74,15 @@ const UDSEntry ClipboardFrontend::toUDSEntry ( ) const
 {
   kDebug();
   UDSEntry _entry;
-  _entry.insert( UDSEntry::UDS_NAME,         m_name );
-  _entry.insert( UDSEntry::UDS_MIME_TYPE,    "inode/directory" );
-  _entry.insert( UDSEntry::UDS_URL,          m_url.url() );
-  _entry.insert( UDSEntry::UDS_ACCESS,       S_IRUSR | S_IRGRP | S_IROTH );
-  _entry.insert( UDSEntry::UDS_FILE_TYPE,    S_IFDIR );
+  _entry.insert( UDSEntry::UDS_NAME,              m_name );
+  _entry.insert( UDSEntry::UDS_MIME_TYPE,         "inode/directory" );
+  _entry.insert( UDSEntry::UDS_URL,               m_url.url() );
+//  _entry.insert( UDSEntry::UDS_ACCESS,            S_IRUSR | S_IRGRP | S_IROTH );
+  _entry.insert( UDSEntry::UDS_ACCESS,            0700 );
+  _entry.insert( UDSEntry::UDS_FILE_TYPE,         S_IFDIR );
+//  _entry.insert( UDSEntry::UDS_CREATION_TIME,     KDateTime::currentLocalDateTime().toTime_t() );
+  _entry.insert( UDSEntry::UDS_MODIFICATION_TIME, KDateTime::currentLocalDateTime().toTime_t() );
+  _entry.insert( UDSEntry::UDS_ACCESS_TIME,       KDateTime::currentLocalDateTime().toTime_t() );
   return _entry;
 } // KIOClipboardProtocol::registerClipboard
 

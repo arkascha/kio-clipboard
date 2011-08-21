@@ -75,10 +75,11 @@ const UDSEntry KIOKlipperProtocol::toUDSEntry ()
   kDebug() << m_clipboard->type();
   UDSEntry _entry;
   _entry.clear();
-  _entry.insert( UDSEntry::UDS_NAME,      m_clipboard->protocol() );
-  _entry.insert( UDSEntry::UDS_FILE_TYPE, S_IFDIR );
-  _entry.insert( UDSEntry::UDS_ACCESS,    0744 );
-  _entry.insert( UDSEntry::UDS_MIME_TYPE, QString::fromLatin1("inode/directory") );
+  _entry.insert( UDSEntry::UDS_NAME,              m_clipboard->protocol() );
+  _entry.insert( UDSEntry::UDS_FILE_TYPE,         S_IFDIR );
+  _entry.insert( UDSEntry::UDS_ACCESS,            0700 );
+  _entry.insert( UDSEntry::UDS_MIME_TYPE,         QString::fromLatin1("inode/directory") );
+  _entry.insert( UDSEntry::UDS_MODIFICATION_TIME, KDateTime::currentLocalDateTime().toTime_t() );
   return _entry;
 } // KIOKlipperProtocol::toUDSEntry
 

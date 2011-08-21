@@ -10,7 +10,7 @@ kio-clipboard implements kio-slaves, protocols for KDEs I/O system. It makes
 the content of clipboards available inside file management. That means you can
 access the clipboards entries using standard file dialogs like 'File open' or
 'Save File', you even can use a file browser and access entries. In general
-you can use the slaves wherever you can use an url inside KDE to get access to
+you can use the slaves wherever you can use an URL inside KDE to get access to
 the clipboards content. There are no temporary file generated.
 
 Motivation:
@@ -23,10 +23,10 @@ programming, Qt features and to get back into c++ basics after a long period
 of using other environments.
 However on second glance one might spot situations where this could
 become interesting:
-- Imagine surfing the web, you copy the urls of say 10 images to your
+- Imagine surfing the web, you copy the URLs of say 10 images to your
 clipboard. Now instead of downloading them all in advance or opening one by
-one using "file open">paste url>open you could fire dolphin, select
-klipper amongst the predefined 'places' in the left panel, select the 10 urls
+one using "file open">paste URL>open you could fire dolphin, select
+klipper amongst the predefined 'places' in the left panel, select the 10 URLs
 at once and chose "open with KolourPaint".
 - This is just a first glimpse that implements support for only one
 single clipboard application: klipper. Preparations are done and it would be
@@ -60,7 +60,7 @@ Usage:
 Just enter "clipboard:/" or "klipper:/" in the location bar of for example dolphin or a "File open" dialog.
 * "klipper:/":
 This slave implements access to the standard clipboard utility under KDE4,
-called 'klipper'. Communication with klipper is done via its dbus interface,
+called 'klipper'. Communication with klipper is done via its DBus interface,
 this makes it (relatively) future safe.
 * "clipboard:/":
 This protocol offers something like a "meta slave". It shows a kind of virtual

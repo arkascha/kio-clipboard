@@ -8,7 +8,7 @@
 #define ABOUT_APP_NAME                    "kio_clipboard"
 #define ABOUT_CATALOG_NAME                "kio_clipboard"
 #define ABOUT_PROGRAM_NAME                "KIO protocol 'clipboard:/'"
-#define ABOUT_VERSION                     "0.2.4"
+#define ABOUT_VERSION                     "0.2.5"
 #define ABOUT_DESCRIPTION                 "File based access to clipboard entries"
 #define ABOUT_LICENCE_TYPE                KAboutData::License_LGPL
 #define ABOUT_COPYRIGHT                   "(C) 2011 Christian Reiner, Hamburg, Germany"
