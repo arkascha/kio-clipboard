@@ -39,7 +39,7 @@ KIOClipboardProtocol::KIOClipboardProtocol( const QByteArray &_pool, const QByte
   kDebug();
   try
   {
-    QList<const ClipboardFrontend*> _clipboards = detectClipboards();
+    QList<const ClipboardFrontend*> _clipboards = ClipboardFrontend::detectClipboards ( );
     // register each detected clipboard
     foreach ( const ClipboardFrontend* _entry, _clipboards )
     {
@@ -103,34 +103,6 @@ const KIO_CLIPBOARD::ClipboardFrontend* KIOClipboardProtocol::findClipboardByUrl
     return m_nodes[url];
   throw CRI::Exception ( Error(ERR_DOES_NOT_EXIST), url.prettyUrl() );
 } // KIOClipboardProtocol::findClipboardByUrl
-
-/**
- * autodetection of available clipboards for thise cases where this is possiblet
- * - local clipboard applications: 
- * - - 'klipper': detect its presence on DBus
- * - remote clipboard services:
- * - - ??
- */
-const QList<const ClipboardFrontend*> KIOClipboardProtocol::detectClipboards ( )
-{
-  kDebug();
-  QList<const ClipboardFrontend*> _clipboards;
-  // strategy: for clipboards available on DBus we ask org.freedesktop.DBus for such a service
-  DBusClient dbus ( "org.freedesktop.DBus", "/org/freedesktop/DBus", "" );
-  dbus.call ( "ListNames" );
-  const QStringList _names = dbus.convertReturnValue(dbus.result().first(),QVariant::StringList).toStringList();
-  // now add entries one by one
-  foreach (const QString& _name, _names )
-  {
-    if ( "org.kde.klipper"==_name )
-    {
-      kDebug() << "detected available clipboard of type 'KLIPPER' with url 'klipper:/'";
-      _clipboards << new KlipperFrontend ( KUrl("klipper:/"), "klipper" );
-    }
-  }
-  kDebug() << "detected" << _clipboards.count() << "available clipboards";
-  return _clipboards;
-} // KIOClipboardProtocol::detectClipboards
 
 //======================
 

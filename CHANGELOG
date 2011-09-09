@@ -1,3 +1,5 @@
+* Sat Sep 10 2011 Christian Reiner: version 0.2.6
+- reorganization of clipboard detection towards a distributed principle
 * Sat Aug 20 2011 Christian Reiner: version 0.2.5
 - explicit specification of (virtual) file access rights and datetimes in nodes and clipboard folders
 - - that does not really control or restrict anything, it is (at least for local clipboards) an optical aspect only

@@ -15,6 +15,27 @@ using namespace KIO;
 using namespace KIO_CLIPBOARD;
 
 /**
+ * detection of availability of klipper clipboard (in local session)
+ */
+QList<const ClipboardFrontend*> KlipperFrontend::detectClipboards ( DBusClient& dbus )
+{
+  QList<const ClipboardFrontend*> _clipboards;
+  dbus.call ( "ListNames" );
+  const QStringList _names = dbus.convertReturnValue(dbus.result().first(),QVariant::StringList).toStringList();
+  // now add entries one by one
+  foreach (const QString& _name, _names )
+  {
+    if ( "org.kde.klipper"==_name )
+    {
+      kDebug() << "detected available clipboard of type 'KLIPPER' with url 'klipper:/'";
+      _clipboards << new KlipperFrontend ( KUrl("klipper:/"), "klipper" );
+    }
+  }
+  kDebug() << "detected" << _clipboards.count() << "available clipboards of type 'KLIPPER'";
+  return _clipboards;
+} // KlipperFrontend::detectClipboards
+
+/**
  * All setup required is a DBus client we use as a proxy
  */
 KlipperFrontend::KlipperFrontend ( const KUrl& url, const QString& name )

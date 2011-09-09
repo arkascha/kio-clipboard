@@ -41,6 +41,24 @@ const QStringList KIO_CLIPBOARD::tokenizeUrl ( const KUrl& url )
 //==========
 
 /**
+ * autodetection of available clipboards for thise cases where this is possiblet
+ * - local clipboard applications:
+ * - - 'klipper': detect its presence on DBus
+ * - remote clipboard services:
+ * - - ??
+ */
+QList<const ClipboardFrontend*> ClipboardFrontend::detectClipboards ( )
+{
+  kDebug();
+  QList<const ClipboardFrontend*> _clipboards;
+  // strategy: for clipboards available on DBus we ask org.freedesktop.DBus for such a service
+  DBusClient dbus ( "org.freedesktop.DBus", "/org/freedesktop/DBus", "" );
+  _clipboards << KlipperFrontend::detectClipboards ( dbus );
+  kDebug() << "detected" << _clipboards.count() << "available clipboards";
+  return _clipboards;
+} // ClipboardFrontend::detectClipboards
+
+/**
  * Each representation of a clipboard is identified by its name and an URL to access it. 
  */
 ClipboardFrontend::ClipboardFrontend ( const KUrl& url, const QString& name )

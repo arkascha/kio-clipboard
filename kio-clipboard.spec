@@ -12,7 +12,7 @@ Name:           kio-clipboard
 License:        GPLv2+
 Group:          Utilities/Desktop
 Summary:        KDE IO Slave for file based access of clipboard entries
-Version:        0.2.5
+Version:        0.2.6
 Release:        1
 Source:         %name-%version.tar.bz2
 Url:            http://kde-apps.org/content/show.php/kio-clipboard?content=143976
@@ -63,6 +63,8 @@ rm -rf $RPM_BUILD_ROOT
 %_kde_share_dir/services/klipper.protocol
 
 %changelog
+* Sat Sep 10 2011 Christian Reiner: version 0.2.6
+- reorganization of clipboard detection towards a distributed principle
 * Sat Aug 20 2011 Christian Reiner: version 0.2.5
 - explicit specification of (virtual) file access rights and datetimes in nodes and clipboard folders
 - - that does not really control or restrict anything, it is (at least for local clipboards) an optical aspect only

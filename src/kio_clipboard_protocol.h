@@ -37,7 +37,6 @@ namespace KIO_CLIPBOARD
       const UDSEntry     toUDSEntry ();
       const UDSEntryList toUDSEntryList ();
       const ClipboardFrontend* findClipboardByUrl ( const KUrl& url );
-      const QList<const ClipboardFrontend*> detectClipboards ( );
     public:
       KIOClipboardProtocol ( const QByteArray &pool, const QByteArray &app );
       virtual ~KIOClipboardProtocol();

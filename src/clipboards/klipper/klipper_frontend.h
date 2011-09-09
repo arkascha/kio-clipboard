@@ -31,6 +31,7 @@ namespace KIO_CLIPBOARD
     protected:
       ClipboardBackend* m_backend;
     public:
+      static QList<const ClipboardFrontend*> detectClipboards ( DBusClient& dbus );
       KlipperFrontend ( const KUrl& url, const QString& name );
       ~KlipperFrontend ( );
       inline const ClipboardType type     ( ) const { return ClipboardType(KLIPPER); };

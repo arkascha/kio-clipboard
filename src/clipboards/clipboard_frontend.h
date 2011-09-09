@@ -58,6 +58,7 @@ namespace KIO_CLIPBOARD
       KSharedDataCache* m_cache;
       NodeList*         m_nodes;
     public:
+      static QList<const ClipboardFrontend*> detectClipboards ( );
       ClipboardFrontend ( const KUrl& url, const QString& name );
       ~ClipboardFrontend ( );
       virtual const ClipboardType type     ( ) const = 0;
