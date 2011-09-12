@@ -19,8 +19,8 @@
 #include <kio/jobclasses.h>
 #include <kio/job.h>
 #include <klocalizedstring.h>
-#include "clients/dbus/dbus_client.h"
-#include "christian-reiner.info/exception.h"
+#include "client/dbus/dbus_client.h"
+#include "utility/exception.h"
 
 using namespace KIO;
 using namespace KIO_CLIPBOARD;
@@ -41,9 +41,9 @@ DBusClient::DBusClient ( const QString& service, const QString& path, const QStr
   this->m_interface = new QDBusInterface ( service, path, interface, _bus );
   if ( ! this->m_interface->isValid() )
     if  ( ! this->m_interface->lastError().isValid() )
-      throw CRI::Exception ( Error(ERR_INTERNAL) );
+      throw Exception ( Error(ERR_INTERNAL) );
     else
-      throw CRI::Exception ( Error(ERR_INTERNAL), this->m_interface->lastError().message() );
+      throw Exception ( Error(ERR_INTERNAL), this->m_interface->lastError().message() );
   kDebug() << "connection to DBus successful.";
 }
 
@@ -89,12 +89,12 @@ QVariant& DBusClient::convertReturnValue ( QVariant &variant, QVariant::Type _t 
   if ( ! variant.canConvert(_t) )
   {
     kDebug() << QString("trying to interpret variant of type '%1' as '%2' !?!").arg(variant.typeName()).arg(QVariant::typeToName(_t));
-    throw CRI::Exception ( Error(ERR_INTERNAL), QVariant::typeToName(_t) );
+    throw Exception ( Error(ERR_INTERNAL), QVariant::typeToName(_t) );
   }
   if ( ! variant.convert(_t) )
   {
     kDebug() << QString("conversion of variant to type '%1' failed !").arg(QVariant::typeToName(_t));
-    throw CRI::Exception ( Error(ERR_SLAVE_DEFINED), QVariant::typeToName(_t) );
+    throw Exception ( Error(ERR_SLAVE_DEFINED), QVariant::typeToName(_t) );
   }
   return variant;
 } // DBusClient::readReturnValue
@@ -117,9 +117,9 @@ void DBusClient::call ( const QString method, const QVariant & arg1,
   QDBusMessage _msg = m_interface->call ( method, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 );
   // error checking
   if ( QDBusMessage::ErrorMessage==_msg.type() )
-    throw CRI::Exception ( Error(ERR_SLAVE_DEFINED), _msg.errorMessage() );
+    throw Exception ( Error(ERR_SLAVE_DEFINED), _msg.errorMessage() );
   if ( QDBusMessage::ReplyMessage!=_msg.type() )
-    throw CRI::Exception ( Error(ERR_SLAVE_DEFINED), i18n("DBus call did not result in a reply message.") );
+    throw Exception ( Error(ERR_SLAVE_DEFINED), i18n("DBus call did not result in a reply message.") );
   m_result = _msg.arguments();
   kDebug() << QString("read a result holding of %1 entries.").arg(m_result.size());
 } // DBusClient::call

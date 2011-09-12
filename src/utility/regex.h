@@ -5,8 +5,8 @@
  * $Revision$
  * $Date$
  */
-#ifndef CRI_REGEX_H
-#define CRI_REGEX_H
+#ifndef UTILITY_REGEX_H
+#define UTILITY_REGEX_H
 
 #include <QMap>
 #include <QString>
@@ -17,7 +17,7 @@
  * In additional it holds a collection of regular expressions that are required in day-to-day use to check syntactical patterns
  */
 
-namespace CRI
+namespace KIO_CLIPBOARD
 {
   class regExPool
   {
@@ -88,4 +88,4 @@ namespace CRI
   inline QDataStream & operator>> ( QDataStream & in,        regExPool & map ) { in  >> map.p; }
 } // namespace
 
-#endif
+#endif // UTILITY_REGEX_H

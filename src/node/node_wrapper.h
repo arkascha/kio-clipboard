@@ -12,7 +12,7 @@
 #include <kio/udsentry.h>
 #include <kmimetype.h>
 #include <kdatetime.h>
-#include "christian-reiner.info/regex.h"
+#include "utility/regex.h"
 
 using namespace KIO;
 namespace KIO_CLIPBOARD
@@ -59,25 +59,25 @@ namespace KIO_CLIPBOARD
     Q_PROPERTY ( int            m_mappingNameLength      READ getNameLength      WRITE setNameLength      )
     Q_PROPERTY ( const QString& m_mappingNamePattern     READ getNamePattern     WRITE setNamePattern     )
     private:
-      int            m_index;
-      QString        m_title;
-      int            m_size;
-      KDateTime      m_datetime;
-      KMimeType::Ptr m_mimetype;
-      int            m_access;
-      Semantics      m_semantics;
-      QString        m_name;
-      KUrl           m_url;
-      KUrl           m_link;
-      QString        m_path;
-      int            m_type;
-      QString        m_icon;
-      QStringList    m_overlays;
+      int             m_index;
+      QString         m_title;
+      int             m_size;
+      KDateTime       m_datetime;
+      KMimeType::Ptr  m_mimetype;
+      int             m_access;
+      Semantics       m_semantics;
+      QString         m_name;
+      KUrl            m_url;
+      KUrl            m_link;
+      QString         m_path;
+      int             m_type;
+      QString         m_icon;
+      QStringList     m_overlays;
     protected:
-      int            m_mappingNameCardinality;
-      int            m_mappingNameLength;
-      QString        m_mappingNamePattern;
-      const CRI::regExPool m_regEx;
+      int             m_mappingNameCardinality;
+      int             m_mappingNameLength;
+      QString         m_mappingNamePattern;
+      const regExPool m_regEx;
     protected:
       // member serialization interface
       inline int              getIndex           ( ) { return m_index;                  };

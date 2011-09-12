@@ -11,8 +11,8 @@
 #include <kio/global.h>
 #include <kdebug.h>
 #include <klocalizedstring.h>
-#include "clipboards/klipper/klipper_backend.h"
-#include "christian-reiner.info/exception.h"
+#include "clipboard/klipper/klipper_backend.h"
+#include "utility/exception.h"
 
 using namespace KIO;
 using namespace KIO_CLIPBOARD;
@@ -62,7 +62,7 @@ QString KlipperBackend::getClipboardContents ()
   kDebug();
   call ( "getClipboardContents" );
   if ( 1 != m_result.size() )
-    throw CRI::Exception ( Error(ERR_INTERNAL), i18n("DBus call did not return a single entry as expected.") );
+    throw Exception ( Error(ERR_INTERNAL), i18n("DBus call did not return a single entry as expected.") );
   QString _entry = convertReturnValue(m_result.first(),QVariant::String).toString();
   kDebug() << QString("read clipboard content '%1%2'").arg(_entry.left(25)).arg((25>_entry.size())?"[...]":"");
   return _entry;
@@ -88,7 +88,7 @@ QString KlipperBackend::getClipboardHistoryItem ( int index )
   kDebug() << index << "/" << index-1; // the dbus service counts from 0, not from 1
   call ( "getClipboardHistoryItem", index-1 );
   if ( 1 != m_result.size() )
-    throw CRI::Exception ( Error(ERR_INTERNAL), i18n("DBus call did not return a single entry as expected.") );
+    throw Exception ( Error(ERR_INTERNAL), i18n("DBus call did not return a single entry as expected.") );
   QString _entry = convertReturnValue(m_result.first(),QVariant::String).toString();
   kDebug() << QString("read clipboard history item #%1: '%2%3'").arg(index).arg(_entry.left(25)).arg((25>_entry.size())?"[...]":"");
   return _entry;
@@ -116,4 +116,4 @@ void KlipperBackend::setClipboardHistory ( const QStringList& entries )
   kDebug() << QString("populated clipboard history with %1 entries").arg(entries.size());
 } // KlipperBackend::setClipboardHistory
 
-#include "clipboards/klipper/klipper_backend.moc"
+#include "clipboard/klipper/klipper_backend.moc"

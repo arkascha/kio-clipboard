@@ -8,8 +8,8 @@
 #ifndef KLIPPER_BACKEND_H
 #define KLIPPER_BACKEND_H
 
-#include "clients/dbus/dbus_client.h"
-#include "clipboards/clipboard_backend.h"
+#include "client/dbus/dbus_client.h"
+#include "clipboard/clipboard_backend.h"
 
 class QDBusInterface;
 

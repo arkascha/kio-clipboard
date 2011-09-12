@@ -11,9 +11,9 @@
 #include <KMimeType>
 #include <kdebug.h>
 #include <kdeversion.h>
-#include "christian-reiner.info/exception.h"
+#include "utility/exception.h"
 #include "kio_clipboard_protocol.h"
-#include "clipboards/clipboard_frontend.h"
+#include "clipboard/clipboard_frontend.h"
 
 // Kdebug::Block is only defined from KDE-4.6.0 on
 // we wrap it cause this appears to be the only requirement for KDE-4.6
@@ -48,7 +48,7 @@ KIOClipboardProtocol::KIOClipboardProtocol( const QByteArray &_pool, const QByte
       m_nodes.insert ( _url, _entry );
     }
   }
-  catch ( CRI::Exception &e ) { error ( e.getCode(), e.getText() ); }
+  catch ( Exception &e ) { error ( e.getCode(), e.getText() ); }
 }
 
 /**
@@ -61,7 +61,7 @@ KIOClipboardProtocol::~KIOClipboardProtocol()
   try
   {
   }
-  catch ( CRI::Exception &e ) { error ( e.getCode(), e.getText() ); }
+  catch ( Exception &e ) { error ( e.getCode(), e.getText() ); }
 }
 
 /**
@@ -101,7 +101,7 @@ const KIO_CLIPBOARD::ClipboardFrontend* KIOClipboardProtocol::findClipboardByUrl
   kDebug() << url.prettyUrl();
   if ( m_nodes.contains(url) )
     return m_nodes[url];
-  throw CRI::Exception ( Error(ERR_DOES_NOT_EXIST), url.prettyUrl() );
+  throw Exception ( Error(ERR_DOES_NOT_EXIST), url.prettyUrl() );
 } // KIOClipboardProtocol::findClipboardByUrl
 
 //======================
@@ -125,7 +125,7 @@ bool KIOClipboardProtocol::rewriteUrl ( const KUrl& oldUrl, KUrl& newUrl )
       case 1: // just a plain clipboard:/ was requested
         // we should not come here...
         kDebug() << "rewriting attempt of url pointing to this object";
-        throw CRI::Exception ( Error(ERR_UNSUPPORTED_ACTION), oldUrl.prettyUrl() );
+        throw Exception ( Error(ERR_UNSUPPORTED_ACTION), oldUrl.prettyUrl() );
         break;
       case 2: // something like clipboard:/klipper was requested
         newUrl = findClipboardByUrl(oldUrl)->url();
@@ -137,12 +137,12 @@ bool KIOClipboardProtocol::rewriteUrl ( const KUrl& oldUrl, KUrl& newUrl )
         break;
       default:
         kDebug() << "rewriting attempt produced more than the expected 3 url tokens";
-        throw CRI::Exception ( Error(ERR_MALFORMED_URL), oldUrl.url() );
+        throw Exception ( Error(ERR_MALFORMED_URL), oldUrl.url() );
     }
     kDebug() << "rewriting to:" << newUrl.url();
     return TRUE;
   }
-  catch ( CRI::Exception &e ) { error ( e.getCode(), e.getText() ); }
+  catch ( Exception &e ) { error ( e.getCode(), e.getText() ); }
 } // KIOClipboardProtocol::rewriteUrl
 
 //==========
@@ -159,14 +159,14 @@ void KIOClipboardProtocol::del (const KUrl &url, bool isfile )
     if ( QLatin1String("/")==url.path() || url.path().isEmpty() )
     {
       // del() on the root entry ?!?
-      throw CRI::Exception ( Error(ERR_SERVICE_NOT_AVAILABLE), url.prettyUrl() );
+      throw Exception ( Error(ERR_SERVICE_NOT_AVAILABLE), url.prettyUrl() );
     }
     else
     {
       ForwardingSlaveBase::del ( url, isfile );
     }
   }
-  catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
+  catch ( Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOClipboardProtocol::del
 
 /**
@@ -181,14 +181,14 @@ void KIOClipboardProtocol::get ( const KUrl &url )
     if ( QLatin1String("/")==url.path() || url.path().isEmpty() )
     {
       // get() on the root entry ?!?
-      throw CRI::Exception ( Error(ERR_SERVICE_NOT_AVAILABLE), url.prettyUrl() );
+      throw Exception ( Error(ERR_SERVICE_NOT_AVAILABLE), url.prettyUrl() );
     }
     else
     {
       ForwardingSlaveBase::get ( url );
     }
   }
-  catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
+  catch ( Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOClipboardProtocol::get
 
 /**
@@ -211,7 +211,7 @@ void KIOClipboardProtocol::listDir ( const KUrl& url )
       ForwardingSlaveBase::listDir ( url );
     }
   }
-  catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
+  catch ( Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOClipboardProtocol::listDir
 
 /**
@@ -235,7 +235,7 @@ void KIOClipboardProtocol::mimetype ( const KUrl& url )
       ForwardingSlaveBase::mimetype ( url );
     }
   }
-  catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
+  catch ( Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOClipboardProtocol::listDir
 
 /**
@@ -252,14 +252,14 @@ void KIOClipboardProtocol::mkdir (const KUrl &url, int permissions )
     if ( QLatin1String("/")==url.path() || url.path().isEmpty() )
     {
       // mkdir() on the root entry ?!?
-      throw CRI::Exception ( Error(ERR_SERVICE_NOT_AVAILABLE), url.prettyUrl() );
+      throw Exception ( Error(ERR_SERVICE_NOT_AVAILABLE), url.prettyUrl() );
     }
     else
     {
       ForwardingSlaveBase::mkdir ( url, permissions );
     }
   }
-  catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
+  catch ( Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOClipboardProtocol::put
 
 /**
@@ -275,14 +275,14 @@ void KIOClipboardProtocol::put (const KUrl &url, int permissions, JobFlags flags
     if ( QLatin1String("/")==url.path() || url.path().isEmpty() )
     {
       // put() on the root entry ?!?
-      throw CRI::Exception ( Error(ERR_SERVICE_NOT_AVAILABLE), url.prettyUrl() );
+      throw Exception ( Error(ERR_SERVICE_NOT_AVAILABLE), url.prettyUrl() );
     }
     else
     {
       ForwardingSlaveBase::put ( url, permissions, flags );
     }
   }
-  catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
+  catch ( Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOClipboardProtocol::put
 
 /**
@@ -305,7 +305,7 @@ void KIOClipboardProtocol::stat (const KUrl &url)
       ForwardingSlaveBase::stat ( url );
     }
   }
-  catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
+  catch ( Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOClipboardProtocol::stat
 
 /**
@@ -321,12 +321,12 @@ void KIOClipboardProtocol::symlink ( const QString& target, const KUrl& dest, Jo
     if ( QLatin1String("/")==dest.path() || dest.path().isEmpty() )
     {
       // symlink() on the root entry ?!?
-      throw CRI::Exception ( Error(ERR_SERVICE_NOT_AVAILABLE), dest.prettyUrl() );
+      throw Exception ( Error(ERR_SERVICE_NOT_AVAILABLE), dest.prettyUrl() );
     }
     else
     {
       ForwardingSlaveBase::symlink ( target, dest, flags );
     }
   }
-  catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
+  catch ( Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOClipboardProtocol::stat

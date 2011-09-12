@@ -17,7 +17,7 @@
 #include <klocalizedstring.h>
 #include <klocale.h>
 #include <kdatetime.h>
-#include "christian-reiner.info/exception.h"
+#include "utility/exception.h"
 #include "kio_clipboard_protocol.h"
 #include "node/node_wrapper.h"
 
@@ -363,7 +363,7 @@ NodeWrapper& NodeWrapper::fromJSON ( const QByteArray& json )
   bool ok;
   QVariant _properties = parser.parse ( json, &ok ).toMap();
   if ( ! ok )
-    throw CRI::Exception ( Error(ERR_INTERNAL), "Failed to deserialize json notation of node" );
+    throw Exception ( Error(ERR_INTERNAL), "Failed to deserialize json notation of node" );
   QJson::QObjectHelper::qvariant2qobject ( _properties.toMap(), this );
 //  setSemantics(1);
   return *this;

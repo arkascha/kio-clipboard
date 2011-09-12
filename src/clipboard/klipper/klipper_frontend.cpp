@@ -7,9 +7,9 @@
  */
 #include <kdebug.h>
 #include <klocalizedstring.h>
-#include "christian-reiner.info/exception.h"
-#include "clipboards/klipper/klipper_frontend.h"
-#include "clipboards/klipper/klipper_backend.h"
+#include "utility/exception.h"
+#include "clipboard/klipper/klipper_frontend.h"
+#include "clipboard/klipper/klipper_backend.h"
 
 using namespace KIO;
 using namespace KIO_CLIPBOARD;
@@ -108,5 +108,5 @@ void KlipperFrontend::pushEntry ( const QString& entry )
 void KlipperFrontend::delEntry ( const KUrl& url )
 {
   kDebug() << url;
-  throw CRI::Exception ( Error(ERR_UNSUPPORTED_ACTION), url.prettyUrl() );
+  throw Exception ( Error(ERR_UNSUPPORTED_ACTION), url.prettyUrl() );
 } // KlipperFrontend::delEntry

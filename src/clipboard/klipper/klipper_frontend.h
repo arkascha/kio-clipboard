@@ -8,9 +8,9 @@
 #ifndef KLIPPER_FRONTEND_H
 #define KLIPPER_FRONTEND_H
 
-#include "clipboards/klipper/klipper_backend.h"
-#include "clipboards/clipboard_frontend.h"
-#include "clipboards/clipboard_backend.h"
+#include "clipboard/klipper/klipper_backend.h"
+#include "clipboard/clipboard_frontend.h"
+#include "clipboard/clipboard_backend.h"
 
 using namespace KIO;
 namespace KIO_CLIPBOARD

@@ -17,8 +17,8 @@
 #include <kdebug.h>
 #include <kdeversion.h>
 #include "kio_klipper_protocol.h"
-#include "clipboards/clipboard_frontend.h"
-#include "christian-reiner.info/exception.h"
+#include "clipboard/clipboard_frontend.h"
+#include "utility/exception.h"
 
 // Kdebug::Block is only defined from KDE-4.6.0 on
 // we wrap it cause this appears to be the only requirement for KDE-4.6
@@ -46,7 +46,7 @@ KIOKlipperProtocol::KIOKlipperProtocol( const QByteArray &pool, const QByteArray
     // initialize the wrappers nodes
     m_clipboard->refreshNodes ( );
   }
-  catch ( CRI::Exception &e ) { error ( e.getCode(), e.getText() ); }
+  catch ( Exception &e ) { error ( e.getCode(), e.getText() ); }
 }
 
 /**
@@ -59,7 +59,7 @@ KIOKlipperProtocol::~KIOKlipperProtocol()
   {
     delete m_clipboard;
   }
-  catch ( CRI::Exception &e )
+  catch ( Exception &e )
   {
     error ( e.getCode(), e.getText() );
   }
@@ -113,7 +113,7 @@ void KIOKlipperProtocol::copy ( const KUrl& src, const KUrl& dest, int permissio
     {
       // klipper:/... >> klipper:/...
       kDebug() << "trivial internal copy request, whyever, aborting";
-      throw CRI::Exception ( Error(ERR_SLAVE_DEFINED), "Names of clipboard entries are generated in a generic manner, you have no control over that. \nTherefore this action does not make sense" );
+      throw Exception ( Error(ERR_SLAVE_DEFINED), "Names of clipboard entries are generated in a generic manner, you have no control over that. \nTherefore this action does not make sense" );
     }
     if ( src.scheme()=="file" && dest.scheme()==m_clipboard->protocol() )
     {
@@ -127,11 +127,11 @@ void KIOKlipperProtocol::copy ( const KUrl& src, const KUrl& dest, int permissio
     {
       // klipper:/... >> file:/...
       kDebug() << "handling destiny file managament indirectly via get() & put()";
-      throw CRI::Exception ( Error(ERR_UNSUPPORTED_ACTION), dest.prettyUrl() );
+      throw Exception ( Error(ERR_UNSUPPORTED_ACTION), dest.prettyUrl() );
       return;
     }
   }
-  catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
+  catch ( Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::copy
 
 /**
@@ -150,7 +150,7 @@ void KIOKlipperProtocol::del ( const KUrl& url, bool isfile )
     m_clipboard->delEntry ( url );
     finished();
   }
-  catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
+  catch ( Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::del
 
 /**
@@ -194,10 +194,10 @@ void KIOKlipperProtocol::get ( const KUrl& url )
         finished ( );
         return;
       default:
-        throw CRI::Exception ( Error(ERR_INTERNAL_SERVER), url.prettyUrl() );
+        throw Exception ( Error(ERR_INTERNAL_SERVER), url.prettyUrl() );
     }
   }
-  catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
+  catch ( Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::get
 
 /**
@@ -222,7 +222,7 @@ void KIOKlipperProtocol::listDir ( const KUrl& url )
     listEntries ( toUDSEntryList() );
     finished ( );
   }
-  catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
+  catch ( Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::listDir
 
 /**
@@ -263,10 +263,10 @@ void KIOKlipperProtocol::mimetype ( const KUrl& url )
         finished ( );
         return;
       default:
-        throw CRI::Exception ( Error(ERR_INTERNAL_SERVER), url.prettyUrl() );
+        throw Exception ( Error(ERR_INTERNAL_SERVER), url.prettyUrl() );
     } // switch
   }
-  catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
+  catch ( Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::mimetype
 
 /**
@@ -292,11 +292,11 @@ void KIOKlipperProtocol::mkdir ( const KUrl& url, int permissions )
     if ( KMimeType::findByPath(url.path())->is("inode/directory") )
     {
       kDebug() << "silently terminating recursive copying of a directory after linking it";
-      throw CRI::Exception ( Error(ERR_UNSUPPORTED_ACTION), url.prettyUrl() );
+      throw Exception ( Error(ERR_UNSUPPORTED_ACTION), url.prettyUrl() );
     }
     finished();
   }
-  catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
+  catch ( Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::mkdir
 
 /**
@@ -322,13 +322,13 @@ void KIOKlipperProtocol::put ( const KUrl& url, int permissions, KIO::JobFlags f
       dataReq();
       int _ret_val = readData ( _buffer );
       if  ( _ret_val<0 )
-        throw CRI::Exception ( Error(ERR_COULD_NOT_READ), url.prettyUrl() ); // FIXME: show source file instead of target file
+        throw Exception ( Error(ERR_COULD_NOT_READ), url.prettyUrl() ); // FIXME: show source file instead of target file
       _payload += _buffer;
     } while ( _ret_val!=0 && m_clipboard->limit()>_payload.size() ); // a return value of 0 (zero) means: no more data
     m_clipboard->pushEntry ( QString(_payload) );
     finished ( );
   }
-  catch ( CRI::Exception &e ) { error ( e.getCode(), e.getText() ); }
+  catch ( Exception &e ) { error ( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::put
 
 /**
@@ -384,11 +384,11 @@ void KIOKlipperProtocol::stat( const KUrl& url )
           finished ( );
           return;
         default:
-          throw CRI::Exception ( Error(ERR_INTERNAL_SERVER), url.prettyUrl() );
+          throw Exception ( Error(ERR_INTERNAL_SERVER), url.prettyUrl() );
       } // switch
     }
   }
-  catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
+  catch ( Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::stat
 
 /**
@@ -409,7 +409,7 @@ void KIOKlipperProtocol::symlink ( const QString& target, const KUrl& dest, KIO:
 //      pushEntry ( _url.prettyUrl() );
     finished();
   }
-  catch ( CRI::Exception &e ) { error( e.getCode(), e.getText() ); }
+  catch ( Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::symlink
 
 #include "kio_klipper_protocol.moc"

@@ -14,8 +14,8 @@
 #include <kio/global.h>
 #include <kio/udsentry.h>
 #include "kio_protocol.h"
-#include "clipboards/clipboard_frontend.h"
-#include "clipboards/klipper/klipper_frontend.h"
+#include "clipboard/clipboard_frontend.h"
+#include "clipboard/klipper/klipper_frontend.h"
 
 using namespace KIO;
 namespace KIO_CLIPBOARD

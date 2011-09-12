@@ -3,14 +3,14 @@ include(KDE4Defaults)
 include_directories(${KDE4_INCLUDES} ${QT_INCLUDES})
 add_definitions(${QT_DEFINITIONS} ${KDE4_DEFINITIONS})
 
-set(klipper_SRCS       clipboards/klipper/klipper_frontend.cpp
-                       clipboards/klipper/klipper_backend.cpp)
+set(klipper_SRCS       clipboard/klipper/klipper_frontend.cpp
+                       clipboard/klipper/klipper_backend.cpp)
 set(shared_SRCS        kio_protocol.cpp
-                       clipboards/clipboard_frontend.cpp
-                       clipboards/clipboard_backend.cpp
+                       clipboard/clipboard_frontend.cpp
+                       clipboard/clipboard_backend.cpp
                        node/node_wrapper.cpp
                        node/node_list.cpp
-                       clients/dbus/dbus_client.cpp)
+                       client/dbus/dbus_client.cpp)
 set(kio_klipper_SRCS   kio_klipper.cpp
                        kio_klipper_protocol.cpp)
 set(kio_clipboard_SRCS kio_clipboard.cpp
@@ -29,7 +29,7 @@ install(TARGETS kio_klipper DESTINATION   ${PLUGIN_INSTALL_DIR})
 install(FILES clipboard.protocol DESTINATION ${SERVICES_INSTALL_DIR})
 install(FILES klipper.protocol DESTINATION   ${SERVICES_INSTALL_DIR})
 
-add_subdirectory(christian-reiner.info)
+add_subdirectory(utility)
 add_subdirectory(node)
-add_subdirectory(clients)
-add_subdirectory(clipboards)
+add_subdirectory(client)
+add_subdirectory(clipboard)

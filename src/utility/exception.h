@@ -5,15 +5,15 @@
  * $Revision$
  * $Date$
  */
-#ifndef CRI_EXCEPTION_H
-#define CRI_EXCEPTION_H
+#ifndef UTILITY_EXCEPTION_H
+#define UTILITY_EXCEPTION_H
 
 #include <QtCore>
 #include <kio/global.h>
 #include <kio/job.h>
 
 using namespace KIO;
-namespace CRI
+namespace KIO_CLIPBOARD
 {
 
   /**
@@ -45,4 +45,4 @@ namespace CRI
 
 }; // namespace CRE
 
-#endif // CRI_EXCEPTION_H
+#endif // UTILITY_EXCEPTION_H

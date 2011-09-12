@@ -12,10 +12,10 @@
 #include <kio/netaccess.h>
 #include <kshareddatacache.h>
 #include <kdatetime.h>
-#include "christian-reiner.info/exception.h"
+#include "utility/exception.h"
 #include "kio_clipboard_protocol.h"
-#include "clipboards/clipboard_frontend.h"
-#include "clipboards/klipper/klipper_frontend.h"
+#include "clipboard/clipboard_frontend.h"
+#include "clipboard/klipper/klipper_frontend.h"
 
 using namespace KIO;
 using namespace KIO_CLIPBOARD;
@@ -35,7 +35,7 @@ const QStringList KIO_CLIPBOARD::tokenizeUrl ( const KUrl& url )
     kDebug() << tokens.size() << tokens;
     return tokens;
   }
-  throw CRI::Exception ( Error(ERR_MALFORMED_URL), url.url() );
+  throw Exception ( Error(ERR_MALFORMED_URL), url.url() );
 } // ClipboardFrontend::tokenizeUrl
 
 //==========
@@ -171,5 +171,5 @@ const NodeWrapper* ClipboardFrontend::findNodeByUrl ( const KUrl& url )
   if ( m_nodes->contains ( _name ) )
     return m_nodes->value ( _name );
   // no matching element found ?!?
-  throw CRI::Exception ( Error(ERR_DOES_NOT_EXIST), url.prettyUrl() );
+  throw Exception ( Error(ERR_DOES_NOT_EXIST), url.prettyUrl() );
 } // ClipboardFrontend::findNodeByUrl

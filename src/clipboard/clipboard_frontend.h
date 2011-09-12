@@ -15,8 +15,8 @@
 #include <kio/global.h>
 #include <kio/jobclasses.h>
 #include <kio/udsentry.h>
-#include "christian-reiner.info/regex.h"
-#include "clipboards/klipper/klipper_backend.h"
+#include "utility/regex.h"
+#include "clipboard/klipper/klipper_backend.h"
 #include "node/node_wrapper.h"
 #include "node/node_list.h"
 

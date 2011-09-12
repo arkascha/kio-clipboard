@@ -7,8 +7,8 @@
  */
 #include <kio/global.h>
 #include <kdebug.h>
-#include "clipboards/clipboard_backend.h"
-#include "christian-reiner.info/exception.h"
+#include "clipboard/clipboard_backend.h"
+#include "utility/exception.h"
 
 using namespace KIO;
 using namespace KIO_CLIPBOARD;

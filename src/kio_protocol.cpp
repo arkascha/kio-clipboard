@@ -9,8 +9,8 @@
 #include <kmimetype.h>
 #include <kio/netaccess.h>
 #include <kdebug.h>
-#include "christian-reiner.info/exception.h"
-#include "clipboards/klipper/klipper_frontend.h"
+#include "utility/exception.h"
+#include "clipboard/klipper/klipper_frontend.h"
 #include "kio_protocol.h"
 
 using namespace KIO;
@@ -75,7 +75,7 @@ void KIOProtocol::copyFile ( const KUrl& url )
       copyToFile_Content ( src, _new_dest );
       return;
     default:
-      throw CRI::Exception ( Error(ERR_INTERNAL_SERVER), src->url().prettyUrl() );
+      throw Exception ( Error(ERR_INTERNAL_SERVER), src->url().prettyUrl() );
   }
 } // KIOProtocol::copyToFile
 */
@@ -96,8 +96,8 @@ void KIOProtocol::copyFromFile ( const KUrl& src,  const KUrl& dest )
                            i18n("&No") );
     switch ( _choice )
     {
-      case 0:  throw CRI::Exception ( Error(ERR_SLAVE_DEFINED), "Failed to request confirmation from user." );
-      case 2:  throw CRI::Exception ( Error(ERR_USER_CANCELED), src.prettyUrl() );
+      case 0:  throw Exception ( Error(ERR_SLAVE_DEFINED), "Failed to request confirmation from user." );
+      case 2:  throw Exception ( Error(ERR_USER_CANCELED), src.prettyUrl() );
       default: kDebug() << "creating file reference instead upon user request";
     }
     copyFromFile_Reference ( src );
@@ -113,8 +113,8 @@ void KIOProtocol::copyFromFile ( const KUrl& src,  const KUrl& dest )
                            i18n("&No") );
     switch ( _choice )
     {
-      case 0:  throw CRI::Exception ( Error(ERR_SLAVE_DEFINED), "Failed to request confirmation from user." );
-      case 2:  throw CRI::Exception ( Error(ERR_USER_CANCELED), src.prettyUrl() );
+      case 0:  throw Exception ( Error(ERR_SLAVE_DEFINED), "Failed to request confirmation from user." );
+      case 2:  throw Exception ( Error(ERR_USER_CANCELED), src.prettyUrl() );
       default: kDebug() << "creating link to directory instead upon user request";
     }
     copyFromFile_Reference ( src );
@@ -141,10 +141,10 @@ void KIOProtocol::copyFromFile ( const KUrl& src,  const KUrl& dest )
       {
         case 0:
           kDebug() << "communication error whilst asking user for confirmation";
-          throw CRI::Exception ( Error(ERR_SLAVE_DEFINED), "Failed to request confirmation from user." );
+          throw Exception ( Error(ERR_SLAVE_DEFINED), "Failed to request confirmation from user." );
         case 2:
           kDebug() << "user cancelled alternate reference action upon request";
-          throw CRI::Exception ( Error(ERR_USER_CANCELED), src.prettyUrl() );
+          throw Exception ( Error(ERR_USER_CANCELED), src.prettyUrl() );
       }
       kDebug() << "creating reference to file since the size exceeds the clipboards limit";
       copyFromFile_Reference ( src.path() ); // file MUST be a local file if <copy> is requested by the calling applciation
@@ -161,7 +161,7 @@ void KIOProtocol::copyToFile_Reference ( const NodeWrapper* src, const KUrl& des
 {
   kDebug() << src->prettyName() << dest.prettyUrl();
   if ( FALSE==NetAccess::dircopy(src->url(),dest,NULL) )
-    throw CRI::Exception ( NetAccess::lastError(), NetAccess::lastErrorString() );
+    throw Exception ( NetAccess::lastError(), NetAccess::lastErrorString() );
 } // KIOProtocol::copyToFile_Reference
 
 void KIOProtocol::copyToFile_Content ( const NodeWrapper* src, const KUrl& dest )
@@ -169,12 +169,12 @@ void KIOProtocol::copyToFile_Content ( const NodeWrapper* src, const KUrl& dest 
   kDebug() << src->prettyName() << dest.prettyUrl();
   QFile _file ( dest.path() );
   if ( ! _file.open(QIODevice::WriteOnly) )
-    throw CRI::Exception ( Error(ERR_CANNOT_OPEN_FOR_WRITING), dest.prettyUrl() );
+    throw Exception ( Error(ERR_CANNOT_OPEN_FOR_WRITING), dest.prettyUrl() );
   // write payload into file
   int _result = _file.write ( src->payload().toUtf8() );
   _file.close();
   if ( -1==_result )
-    throw CRI::Exception ( Error(ERR_COULD_NOT_WRITE), dest.prettyUrl() );
+    throw Exception ( Error(ERR_COULD_NOT_WRITE), dest.prettyUrl() );
 } // KIOProtocol::copyToFile_Content
 */
 
@@ -207,7 +207,7 @@ void KIOProtocol::copyFromFile_Content ( const KUrl& url )
   QByteArray _payload, _buffer;
   QFile _file ( url.path() );
   if ( ! _file.open(QIODevice::ReadOnly) )
-    throw CRI::Exception ( Error(ERR_COULD_NOT_READ), url.prettyUrl() );
+    throw Exception ( Error(ERR_COULD_NOT_READ), url.prettyUrl() );
   // read content into buffer, push buffer onto clipboard
   do
   {

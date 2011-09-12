@@ -9,7 +9,7 @@
 #include <qjson/parser.h>
 #include <qjson/serializer.h>
 #include <kdebug.h>
-#include "christian-reiner.info/exception.h"
+#include "utility/exception.h"
 #include "node/node_wrapper.h"
 #include "node/node_list.h"
 
@@ -44,7 +44,7 @@ NodeList& NodeList::fromJSON ( const QByteArray& json )
   bool ok;
   QVariantMap _nodes = parser.parse ( json, &ok ).toMap();
   if ( ! ok )
-    throw CRI::Exception ( Error(ERR_INTERNAL), "Failed to deserialize json notation of node list" );
+    throw Exception ( Error(ERR_INTERNAL), "Failed to deserialize json notation of node list" );
   // create nodes one by one and push them into the cleared list
   m_nodes.clear ( );
   QVariantMap::iterator _iterator;

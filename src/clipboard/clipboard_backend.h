@@ -9,7 +9,7 @@
 #define CLIPBOARD_BACKEND_H
 
 #include <QObject>
-#include "clients/dbus/dbus_client.h"
+#include "client/dbus/dbus_client.h"
 
 class QDBusInterface;
 
