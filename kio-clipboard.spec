@@ -17,7 +17,7 @@ Release:        1
 Source:         %name-%version.tar.bz2
 Url:            http://kde-apps.org/content/show.php/kio-clipboard?content=143976
 Requires:       libkde4 >= 4.5
-Requires:       libqjson
+Requires:       libqjson0
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildRequires:  cmake libqt4-devel libqjson-devel
 BuildRequires:  libkde4-devel >= 4.5
