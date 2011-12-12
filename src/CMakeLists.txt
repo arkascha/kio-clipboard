@@ -5,16 +5,16 @@ add_definitions(${QT_DEFINITIONS} ${KDE4_DEFINITIONS})
 
 set(klipper_SRCS       clipboard/klipper/klipper_frontend.cpp
                        clipboard/klipper/klipper_backend.cpp)
-set(shared_SRCS        kio_protocol.cpp
+set(shared_SRCS        protocol/kio_protocol.cpp
                        clipboard/clipboard_frontend.cpp
                        clipboard/clipboard_backend.cpp
                        node/node_wrapper.cpp
                        node/node_list.cpp
                        client/dbus/dbus_client.cpp)
 set(kio_klipper_SRCS   kio_klipper.cpp
-                       kio_klipper_protocol.cpp)
+                       protocol/kio_klipper_protocol.cpp)
 set(kio_clipboard_SRCS kio_clipboard.cpp
-                       kio_clipboard_protocol.cpp)
+                       protocol/kio_clipboard_protocol.cpp)
 
 set(CMAKE_CXX_FLAGS "-fexceptions")
 
@@ -33,3 +33,4 @@ add_subdirectory(utility)
 add_subdirectory(node)
 add_subdirectory(client)
 add_subdirectory(clipboard)
+add_subdirectory(protocol)

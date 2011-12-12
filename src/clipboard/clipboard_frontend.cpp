@@ -13,7 +13,7 @@
 #include <kshareddatacache.h>
 #include <kdatetime.h>
 #include "utility/exception.h"
-#include "kio_clipboard_protocol.h"
+#include "protocol/kio_clipboard_protocol.h"
 #include "clipboard/clipboard_frontend.h"
 #include "clipboard/klipper/klipper_frontend.h"
 

@@ -18,7 +18,7 @@
 #include <klocale.h>
 #include <kdatetime.h>
 #include "utility/exception.h"
-#include "kio_clipboard_protocol.h"
+#include "protocol/kio_clipboard_protocol.h"
 #include "node/node_wrapper.h"
 
 using namespace KIO;

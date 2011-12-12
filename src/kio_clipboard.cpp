@@ -12,7 +12,7 @@
 #include <kcomponentdata.h>
 #include <kaboutdata.h>
 #include <kdebug.h>
-#include "kio_clipboard_protocol.h"
+#include "protocol/kio_clipboard_protocol.h"
 #include "about_clipboard.data"
 
 extern "C" { int KDE_EXPORT kdemain(int argc, char **argv); }
