@@ -5,6 +5,13 @@
  * $Revision$
  * $Date$
  */
+
+/*!
+ * @file Implementation of class NodeWrapper
+ * @see NodeWrapper
+ * @author Christian Reiner
+ */
+
 #include <QObject>
 #include <QCryptographicHash>
 #include <QVariant>
@@ -24,12 +31,19 @@
 using namespace KIO;
 using namespace KIO_CLIPBOARD;
 
-/**
+/*!
+ * NodeWrapper::NodeWrapper
+ * @brief Standard constructor of class NodeWrapper
+ * @param clipboard pointer to the containing clipboard
+ * @param index numerical index of the item
+ * @param payload content of the item
+ * @param parent parent oject
  * This constructs a node object that describes exactly one single entry on a clipboard in a passive and constant way.
  * No manipulations are offered, the purpose is to offer convenient methods to access data about such an entry.
  * - few synthactical configuration settings are defined first
  * - all basic data is collected and stored in private members
  * - primitive rules are used decide upon a few basic interpretations of the type of content in an entry
+ * @author Christian Reiner
  */
 NodeWrapper::NodeWrapper ( ClipboardFrontend* const clipboard,  int index, const QString& payload, QObject* parent )
   : QObject ( parent )
@@ -131,8 +145,13 @@ NodeWrapper::NodeWrapper ( ClipboardFrontend* const clipboard,  int index, const
   }
 } // NodeWrapper::NodeWrapper
 
-/**
+/*!
+ * NodeWrapper::NodeWrapper
+ * @brief JSON constructor of class NodeWrapper
+ * @param json JSON serialized data holding the objects attribute values
+ * @param parent parent object
  * Converts a nodes JSON notation into a fresh NodeWrapper object
+ * @author Christian Reiner
  */
 NodeWrapper::NodeWrapper ( const QByteArray& json, QObject* parent )
   : QObject ( parent )
@@ -141,8 +160,13 @@ NodeWrapper::NodeWrapper ( const QByteArray& json, QObject* parent )
   fromJSON ( json );
 } // NodeWrapper::toJSON
 
-/**
+/*!
+ * NodeWrapper::NodeWrapper
+ * @brief Copy constructor of class NodeWrapper
+ * @param node node to be copied
+ * @param parent parent object
  * Copy constructor, required for the Q_META_OBJECT system
+ * @author Christian Reiner
  */
 NodeWrapper::NodeWrapper ( const NodeWrapper& node, QObject* parent )
   : QObject ( parent )
@@ -166,7 +190,11 @@ NodeWrapper::NodeWrapper ( const NodeWrapper& node, QObject* parent )
 } // NodeWrapper::NodeWrapper
 
 /**
+ * NodeWrapper::NodeWrapper
+ * @brief Contructor of class NodeWrapper
+ * @param parent parent object
  * Copy constructor, required for the Q_META_OBJECT system
+ * @author Christian Reiner
  */
 NodeWrapper::NodeWrapper ( QObject* parent )
   : QObject ( parent )
@@ -174,21 +202,27 @@ NodeWrapper::NodeWrapper ( QObject* parent )
   kDebug();
 } // NodeWrapper::NodeWrapper
 
-/**
+/*!
+ * NodeWrapper::~NodeWrapper
+ * @brief Destructor of class NodeWrapper
  * Currently no cleanup to be done, since all such nodes have a passive character
+ * @author Christian Reiner
  */
-NodeWrapper::~NodeWrapper()
+NodeWrapper::~NodeWrapper ( )
 {
   kDebug();
 } // NodeWrapper::~NodeWrapper
 
 //==========
 
-/**
- * we define a numerical index for every clipboard entry
- * this index names the entries position in the clipboard, since all clipboards work as a fifo
- * however when using this numerical index as part of names we have to take care of alphabetic sorting
- * therefore we construct a prettyIndex that is prepended with leading zeros so that all entries have a prettyIndex of same length
+/*!
+ * NodeWrapper::prettyIndex
+ * @brief We define a numerical index for every clipboard entry.
+ * @return string holding the pretty index
+ * This index names the entries position in the clipboard, since all clipboards work as a fifo. 
+ * However when using this numerical index as part of names we have to take care of alphabetic sorting. 
+ * Therefore we construct a prettyIndex that is prepended with leading zeros so that all entries have a prettyIndex of same length. 
+ * @author Christian Reiner
  */
 QString NodeWrapper::prettyIndex ( ) const
 {
@@ -197,8 +231,11 @@ QString NodeWrapper::prettyIndex ( ) const
   return _pretty;
 } // NodeWrapper::prettyIndex
 
-/**
- * returns the human readable description of a mimetype
+/*!
+ * NodeWrapper::prettyMimetype
+ * @brief Returns the human readable description of a mimetype.
+ * @return string holding the pretty version of the mimetype name
+ * @author Christian Reiner
  */
 QString NodeWrapper::prettyMimetype ( ) const
 {
@@ -206,10 +243,13 @@ QString NodeWrapper::prettyMimetype ( ) const
   return m_mimetype->comment();
 } // NodeWrapper::prettyMimetype
 
-/**
- * since the internal 'semantics', the meaning of an entries content is very important
- * for how to handle such an entry we want to share this information with the user
- * for this purpose we translate a (numeric) semantics marker into a human readable string
+/*!
+ * NodeWrapper::prettySemantics
+ * @brief Since the internal 'semantics', the meaning of an entries content is very important
+ * @return string holding the pretty semantics of the item
+ * For how to handle such an entry we want to share this information with the user
+ * For this purpose we translate a (numeric) semantics marker into a human readable string
+ * @author Christian Reiner
  */
 QString NodeWrapper::prettySemantics ( ) const
 {
@@ -229,12 +269,15 @@ QString NodeWrapper::prettySemantics ( ) const
   return _pretty;
 } // NodeWrapper::prettySemantics
 
-/**
- * each node must be represented by a name when offering it to the user
- * however entries usually do not have ordinary file names on a clipboard
- * they are identified either by a simple index, a (temporary) position or maybe something like a title
- * for our purpose we require a simple file name, therefore we generate one
- * the name is based on the passive data collected about a node and turned into something 'pretty'
+/*!
+ * NodeWrapper::prettyName
+ * @brief Each node must be represented by a name when offering it to the user.
+ * @return string holding the pretty name
+ * However entries usually do not have ordinary file names on a clipboard. 
+ * They are identified either by a simple index, a (temporary) position or maybe something like a title. 
+ * For our purpose we require a simple file name, therefore we generate one. 
+ * The name is based on the passive data collected about a node and turned into something 'pretty'. 
+ * @author Christian Reiner
  */
 QString NodeWrapper::prettyName ( ) const
 {
@@ -250,8 +293,11 @@ QString NodeWrapper::prettyName ( ) const
   return _pretty;
 } // NodeWrapper::prettyName
 
-/**
- * just a wrapper to present a URL an entry might point to in a human-readable form
+/*!
+ * NodeWrapper::prettyUrl
+ * @brief Just a wrapper to present a URL an entry might point to in a human-readable form.
+ * @return string holding the pretty version of the url
+ * @author Christian Reiner
  */
 QString NodeWrapper::prettyUrl ( ) const
 {
@@ -260,8 +306,11 @@ QString NodeWrapper::prettyUrl ( ) const
   return _pretty;
 } // NodeWrapper::prettyUrl
 
-/**
- * printable form of datetime
+/*!
+ * NodeWrapper::prettyDatetime
+ * @brief Printable form of datetime.
+ * @return string holding the pretty date time
+ * @author Christian Reiner
  */
 QString NodeWrapper::prettyDatetime ( ) const
 {
@@ -272,11 +321,15 @@ QString NodeWrapper::prettyDatetime ( ) const
 
 //==========
 
-/**
- * we dont store the while payload (that might be huge, whole files)
- * for a node we are usually just interesting in something 'close' to the payload, something recognizable
- * for example we use the payload as part of an entries 'name' at a few places to make the entry recognizable
- * for those situations we have to crop the payload since names shoulds not get too long
+/*!
+ * NodeWrapper::payload2title
+ * @brief We dont store the whole payload (that might be huge, whole files).
+ * @param payload payload of the item
+ * @return string holding the shortened payload
+ * For a node we are usually just interesting in something 'close' to the payload, something recognizable
+ * For example we use the payload as part of an entries 'name' at a few places to make the entry recognizable
+ * For those situations we have to crop the payload since names shoulds not get too long
+ * @author Christian Reiner
  */
 QString NodeWrapper::payload2title ( const QString& payload )
 {
@@ -287,15 +340,25 @@ QString NodeWrapper::payload2title ( const QString& payload )
   return _title;
 } // NodeWrapper::payload2title
 
+/*!
+ * NodeWrapper::payload2name
+ * @brief Creates a unique identifier of the item
+ * This is required, since the position of the entry changes inside a clipboard.
+ * This leads to outdated urls if we would use a descriptive string like in UDSEntry::DisplayName
+ * @author Christian Reiner
+ */
 QString NodeWrapper::payload2name ( const QString& payload )
 {
   return QString ( QCryptographicHash::hash(payload.toUtf8(), QCryptographicHash::Md5).toHex() );
 } // NodeWrapper::payload2name
 
-/**
- * keeping each node in a self defined and convenient object is fine for internal handling
- * however we have to translate such an object to present the entry to the outside world
- * this is done by translating an object to a constant UDSEntry as understood by the underlying KIO system
+/*!
+ * UDSEntry NodeWrapper::toUDSEntry
+ * @brief Keeping each node in a self defined and convenient object is fine for internal handling.
+ * @return UDSEntry describing the node item
+ * However we have to translate such an object to present the entry to the outside world.
+ * This is done by translating an object to a constant UDSEntry as understood by the underlying KIO system.
+ * @author Christian Reiner
  */
 UDSEntry NodeWrapper::toUDSEntry ( ) const
 {
@@ -345,8 +408,12 @@ UDSEntry NodeWrapper::toUDSEntry ( ) const
   return _entry;
 } // NodeWrapper::toUDSEntry
 
-/**
- * Converts a node into JSON notation, complemented by the constructor NodeWrapper::NodeWrapper(JSON)
+/*!
+ * NodeWrapper::toJSON
+ * @brief Converts a node into JSON notation, complemented by the constructor NodeWrapper::NodeWrapper(JSON)
+ * @return QByteArray holding the serialized JSON data
+ * @see NodeWrapper::NodeWrapper(JSON)
+ * @author Christian Reiner
  */
 QByteArray NodeWrapper::toJSON ( ) const
 {
@@ -356,6 +423,13 @@ QByteArray NodeWrapper::toJSON ( ) const
   return _serializer.serialize ( _object );
 } // NodeWrapper::toJSON
 
+/*!
+ * NodeWrapper::fromJSON
+ * @brief Creates a node from JSON notation
+ * @param json JSON encoded data
+ * @return NodeWrapper reference
+ * @author Christian Reiner
+ */
 NodeWrapper& NodeWrapper::fromJSON ( const QByteArray& json )
 {
   kDebug();

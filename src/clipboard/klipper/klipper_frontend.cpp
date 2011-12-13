@@ -5,6 +5,14 @@
  * $Revision$
  * $Date$
  */
+
+/*!
+ * @file
+ * Implements class KlipperFrontend.
+ * @see KlipperFrontend
+ * @author Christian Reiner
+ */
+
 #include <kdebug.h>
 #include <klocalizedstring.h>
 #include "utility/exception.h"
@@ -14,8 +22,12 @@
 using namespace KIO;
 using namespace KIO_CLIPBOARD;
 
-/**
- * detection of availability of klipper clipboard (in local session)
+/*!
+ * KlipperFrontend::detectClipboards
+ * @brief Detection of availability of klipper clipboard (in local session).
+ * @param dbus dbus object used for communication
+ * @return list of created ClipboardFrontend objects
+ * @author Christian Reiner
  */
 QList<const ClipboardFrontend*> KlipperFrontend::detectClipboards ( DBusClient& dbus )
 {
@@ -35,8 +47,13 @@ QList<const ClipboardFrontend*> KlipperFrontend::detectClipboards ( DBusClient& 
   return _clipboards;
 } // KlipperFrontend::detectClipboards
 
-/**
- * All setup required is a DBus client we use as a proxy
+/*!
+ * KlipperFrontend::KlipperFrontend
+ * @brief Constructor of class KlipperFrontend
+ * All setup required is a DBus client we use as a proxy.
+ * @param url url of the clipboard node
+ * @param name visible name of the clipboard node
+ * @author Christian Reiner
  */
 KlipperFrontend::KlipperFrontend ( const KUrl& url, const QString& name )
   : ClipboardFrontend ( url, name )
@@ -45,18 +62,23 @@ KlipperFrontend::KlipperFrontend ( const KUrl& url, const QString& name )
   m_backend = new KlipperBackend ();
 } // constructor
 
-/**
+/*!
+ * KlipperFrontend::~KlipperFrontend
+ * @brief Destructor of class KlipperFrontend
  * All cleanup required is to destroy the DBus client
+ * @author Christian Reiner
  */
-KlipperFrontend::~KlipperFrontend ()
+KlipperFrontend::~KlipperFrontend ( )
 {
   kDebug() << "destructing specialized clipboard wrapper of type 'klipper'";
   delete m_backend;
 } // destructor
 
-/**
- * reads current clipboard entry (the content)
- * note that this is always a string, be it human-readable or not
+/*!
+ * KlipperFrontend::getClipboardEntry
+ * @brief Reads current clipboard entry (the content). 
+ * note that this is always a string, be it human-readable or not. 
+ * @author Christian Reiner
  */
 QString KlipperFrontend::getClipboardEntry ( )
 {
@@ -64,9 +86,13 @@ QString KlipperFrontend::getClipboardEntry ( )
   return m_backend->getClipboardContents ( );
 } // KlipperFrontend::getClipboardEntry
 
-/**
- * reads single clipboard entry (the content) at a specified position
- * note that this is always a string, be it human-readable or not
+/*!
+ * KlipperFrontend::getClipboardEntry
+ * @brief Reads single clipboard entry (the content) at a specified position.
+ * @param index numerical index of the requested clipboard entry
+ * @return string holding the requested clipboard entry
+ * Note that this is always a string, be it human-readable or not. 
+ * @author Christian Reiner
  */
 QString KlipperFrontend::getClipboardEntry ( int index )
 {
@@ -74,9 +100,12 @@ QString KlipperFrontend::getClipboardEntry ( int index )
   return m_backend->getClipboardHistoryItem ( index );
 } // KlipperFrontend::getClipboardEntry
 
-/**
- * conveniently get all clipboard entries in a single call
- * this makes sense for refreshing and initializing
+/*!
+ * KlipperFrontend::getClipboardEntries
+ * @brief Conveniently get all clipboard entries in a single call.
+ * @return string list holding all entries available in the clipboard
+ * This makes sense for refreshing and initializing. 
+ * @author Christian Reiner
  */
 QStringList KlipperFrontend::getClipboardEntries ( )
 {
@@ -88,9 +117,12 @@ QStringList KlipperFrontend::getClipboardEntries ( )
   return entries;
 } // KlipperFrontend::getClipboardEntries
 
-/**
- * push a new entry onto the clipboard
- * since clipboards act as fifos this entry is typically pushed onto the front of the stack
+/*!
+ * KlipperFrontend::pushEntry
+ * @brief Push a new entry onto the clipboard.
+ * @oaram entry string to be added to the clipboard as a new entry
+ * Since clipboards act as fifos this entry is typically pushed onto the front of the stack. 
+ * @author Christian Reiner
  */
 void KlipperFrontend::pushEntry ( const QString& entry )
 {
@@ -99,11 +131,14 @@ void KlipperFrontend::pushEntry ( const QString& entry )
   refreshNodes ( );
 } // KlipperFrontend::pushEntry
 
-/**
- * removes an entry from the clipboard
- * note that this works random-access, a feature that is not actually offered by a clipboard
- * we kind of emulate this feature instead by removing all entries and repopulating the clipboard
- * with all entries except that one to be removed
+/*!
+ * KlipperFrontend::delEntry
+ * @brief Removes an entry from the clipboard.
+ * @param url url of the entry to be removed
+ * Note that this works random-access, a feature that is not actually offered by a clipboard. 
+ * We kind of emulate this feature instead by removing all entries and repopulating the clipboard
+ * with all entries except that one to be removed. 
+ * @author Christian Reiner
  */
 void KlipperFrontend::delEntry ( const KUrl& url )
 {

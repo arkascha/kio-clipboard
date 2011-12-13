@@ -5,6 +5,14 @@
  * $Revision$
  * $Date$
  */
+
+/*!
+ * @file Implementation of class KIOKlipperProtocol
+ * @see KIOKlipperProtocol
+ * @see KIOProtocol
+ * @author Christian Reiner
+ */
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <KUrl>
@@ -31,12 +39,14 @@
 using namespace KIO;
 using namespace KIO_CLIPBOARD;
 
-/**
- * The standard constructor, nothing special here.
+/*!
+ * KIOKlipperProtocol::KIOKlipperProtocol
+ * @brief Standard constructor, nothing special here.
  * A fresh object is handled to the generic interface class this class derives from.
  * That object is initialized by refreshing it's nodes collection and destroyed again locally in the destructor. 
+ * @author Christian Reiner
  */
-KIOKlipperProtocol::KIOKlipperProtocol( const QByteArray &pool, const QByteArray &app, QObject* parent )
+KIOKlipperProtocol::KIOKlipperProtocol ( const QByteArray &pool, const QByteArray &app, QObject* parent )
   : QObject ( parent )
   , KIOProtocol ( pool, app, new KlipperFrontend(KUrl("klipper:/"),"klipper") )
 {
@@ -49,10 +59,13 @@ KIOKlipperProtocol::KIOKlipperProtocol( const QByteArray &pool, const QByteArray
   catch ( Exception &e ) { error ( e.getCode(), e.getText() ); }
 }
 
-/**
- * The destructor cleans up the specialized clipboard wrapper object instantiated in the constructor. 
+/*!
+ * KIOKlipperProtocol::~KIOKlipperProtocol
+ * @brief Destructor of class KIOKlipperProtocol
+ * Cleans up the specialized clipboard wrapper object instantiated in the constructor.
+ * @author Christian Reiner
  */
-KIOKlipperProtocol::~KIOKlipperProtocol()
+KIOKlipperProtocol::~KIOKlipperProtocol ( )
 {
   MY_KDEBUG_BLOCK ( "<slave shutdown>" );
   try
@@ -67,10 +80,13 @@ KIOKlipperProtocol::~KIOKlipperProtocol()
 
 //==========
 
-/**
- * Generates a plain UDSEntry object that describes this protocol itself, that is its base folder. 
+/*!
+ * KIOKlipperProtocol::toUDSEntry
+ * @brief Generates a plain UDSEntry object that describes this protocol itself, that is its base folder.
+ * @return UDSEntry describing this clipboard node itself
+ * @author Christian Reiner
  */
-const UDSEntry KIOKlipperProtocol::toUDSEntry ()
+const UDSEntry KIOKlipperProtocol::toUDSEntry ( )
 {
   kDebug() << m_clipboard->type();
   UDSEntry _entry;
@@ -83,10 +99,13 @@ const UDSEntry KIOKlipperProtocol::toUDSEntry ()
   return _entry;
 } // KIOKlipperProtocol::toUDSEntry
 
-/**
- * Generates a list of UDSEntries that describe all nodes (clipboard entries) as present in the clipboard wrapper
+/*!
+ * KIOKlipperProtocol::toUDSEntryList
+ * @brief Generates a list of UDSEntries that describe all nodes (clipboard entries) as present in the clipboard wrapper
+ * @return List of UDSEntries describing all entries in this clipboard
+ * @author Christian Reiner
  */
-const UDSEntryList KIOKlipperProtocol::toUDSEntryList ()
+const UDSEntryList KIOKlipperProtocol::toUDSEntryList ( )
 {
   kDebug() << "listing" << m_clipboard->countNodes() << "entries";
   return m_clipboard->toUDSEntryList ( );
@@ -94,12 +113,18 @@ const UDSEntryList KIOKlipperProtocol::toUDSEntryList ()
 
 //======================
 
-/**
- * This implements the direct and fast copy actions that bypass the get()&put() combination if defined.
+/*!
+ * KIOKlipperProtocol::copy
+ * @brief This implements the direct and fast copy actions that bypass the get()&put() combination if defined.
+ * @param src item source url
+ * @param dest item destiny url
+ * @param permissions file permissions
+ * @param flags job specific flags
  * There are actually 3 cases of copy requests that differ:
  * 1.) 'klipper:/...' => 'klipper:/...', we deny this, since the names of clipboard entries cannot be influenced anyway
  * 2.) 'file:/...' => 'klipper:/...': we grant the request and create a new entry
  * 3.) 'klipper:/...' => 'file:/...': we deny the request, the calling interface will use get()&put() instead which works better
+ * @author Christian Reiner
  */
 void KIOKlipperProtocol::copy ( const KUrl& src, const KUrl& dest, int permissions, JobFlags flags )
 {
@@ -134,9 +159,13 @@ void KIOKlipperProtocol::copy ( const KUrl& src, const KUrl& dest, int permissio
   catch ( Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::copy
 
-/**
- * Request to remove an entry from the clipboad.
+/*!
+ * KIOKlipperProtocol::del
+ * @brief Request to remove an entry from the clipboad.
+ * @param url url of item to be deleted
+ * @param isfile flag indication of the item is a file (and not a folder)
  * We let the clipboard wrapper handle the real work. 
+ * @author Christian Reiner
  */
 void KIOKlipperProtocol::del ( const KUrl& url, bool isfile )
 {
@@ -153,13 +182,16 @@ void KIOKlipperProtocol::del ( const KUrl& url, bool isfile )
   catch ( Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::del
 
-/**
- * Request to get an entry from the clipboad.
+/*!
+ * KIOKlipperProtocol::get
+ * @brief Request to get an entry from the clipboad.
+ * @param url url of item to be fetched
  * We differ 3 cases of what we actually deliver:
  * 1.) in case of human readable entries we deliver the content of the entry as payload
  * 2.) in case of references to files we redirect the interface to the file itself
  * 3.) in case if urls we redirect to interface to the url itself
  * This saves us from handling all sorts of file and url handling which is implemented in specialized protocols anyway
+ * @author Christian Reiner
  */
 void KIOKlipperProtocol::get ( const KUrl& url )
 {
@@ -200,8 +232,11 @@ void KIOKlipperProtocol::get ( const KUrl& url )
   catch ( Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::get
 
-/**
- * Lists all clipboard entries as present in the clipboard wrapper. 
+/*!
+ * KIOKlipperProtocol::listDir
+ * @brief Lists all clipboard entries as present in the clipboard wrapper.
+ * @param url url of folder to be listed
+ * @author Christian Reiner
  */
 void KIOKlipperProtocol::listDir ( const KUrl& url )
 {
@@ -225,12 +260,15 @@ void KIOKlipperProtocol::listDir ( const KUrl& url )
   catch ( Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::listDir
 
-/**
- * Delivers the mimetype of a clipboard entry.
+/*!
+ * KIOKlipperProtocol::mimetype
+ * @brief Delivers the mimetype of a clipboard entry.
+ * @param url url of item whos mimetype is requested
  * Again, as in get() we differ 3 cases:
  * 1.) for human readable entries we deliver the mimetype is predetected by the clipboard wrapper
  * 2.) for entries holding refrences to files we redirect the interface to consider that file directly
  * 3.) for urls we redirect to those urls, since the specialized protocol implementations are certainly better in handling this
+ * @author Christian Reiner
  */
 void KIOKlipperProtocol::mimetype ( const KUrl& url )
 {
@@ -269,9 +307,13 @@ void KIOKlipperProtocol::mimetype ( const KUrl& url )
   catch ( Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::mimetype
 
-/**
- * creation of directories on a clipboard do not make sense: clipboards are no hierarchical file systems.
- * therefore we deny the request as a not supported action
+/*!
+ * KIOKlipperProtocol::mkdir
+ * @brief Creation of directories on a clipboard do not make sense: clipboards are no hierarchical file systems.
+ * @param url url of directory to be created
+ * @param permissions file permissions
+ * We deny the request as a not supported action. 
+ * @author Christian Reiner
  */
 void KIOKlipperProtocol::mkdir ( const KUrl& url, int permissions )
 {
@@ -299,11 +341,16 @@ void KIOKlipperProtocol::mkdir ( const KUrl& url, int permissions )
   catch ( Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::mkdir
 
-/**
- * request to push some entry onto the clipboard
- * unlike copy() this does not get any source url but the content as data instead
- * in case of human readable content we have no problems and simply copy the content to the clipboard
- * in other cases we want to create a reference to the source instead
+/*!
+ * KIOKlipperProtocol::put
+ * @brief Request to push some entry onto the clipboard.
+ * @param url url of item to put
+ * @param permissions file permissions
+ * @param flags job specific flags
+ * Unlike copy() this does not get any source url but the content as data instead. 
+ * In case of human readable content we have no problems and simply copy the content to the clipboard. 
+ * In other cases we want to create a reference to the source instead. 
+ * @author Christian Reiner
  */
 void KIOKlipperProtocol::put ( const KUrl& url, int permissions, KIO::JobFlags flags )
 {
@@ -331,13 +378,16 @@ void KIOKlipperProtocol::put ( const KUrl& url, int permissions, KIO::JobFlags f
   catch ( Exception &e ) { error ( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::put
 
-/**
- * request for the description of a single entry in the clipboard
- * we rely on the node description as collected by the specialized clipboard wrapper
- * for human readably entries we simple pass that information turned into an UDSEntry
- * for other cases, file and url references we redirect the interface to those instead
+/*!
+ * KIOKlipperProtocol::stat
+ * @brief Request for the description of a single entry in the clipboard.
+ * @param url url of item to be described
+ * We rely on the node description as collected by the specialized clipboard wrapper. 
+ * For human readably entries we simple pass that information turned into an UDSEntry. 
+ * For other cases, file and url references we redirect the interface to those instead. 
+ * @author Christian Reiner
  */
-void KIOKlipperProtocol::stat( const KUrl& url )
+void KIOKlipperProtocol::stat ( const KUrl& url )
 {
   MY_KDEBUG_BLOCK ( "<stat>" );
   kDebug() << url.prettyUrl ( );
@@ -391,9 +441,14 @@ void KIOKlipperProtocol::stat( const KUrl& url )
   catch ( Exception &e ) { error( e.getCode(), e.getText() ); }
 } // KIOKlipperProtocol::stat
 
-/**
- * (sorry, not really a clue how this works currently)
+/*!
+ * KIOKlipperProtocol::symlink
+ * @brief (sorry, not really a clue how this works currently)
+ * @param target target name of the symlink to be created
+ * @param dest destiny url the symlink shall point to
+ * @param flags job specific flags
  * TODO FIXME do-something!
+ * @author Christian Reiner
  */
 void KIOKlipperProtocol::symlink ( const QString& target, const KUrl& dest, KIO::JobFlags flags )
 {

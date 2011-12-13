@@ -5,6 +5,14 @@
  * $Revision$
  * $Date$
  */
+
+/*!
+ * @file
+ * Implements class KlipperBackend.
+ * @see KlipperBackend
+ * @author Christian Reiner
+ */
+
 #include <QDBusInterface>
 #include <QDBusReply>
 #include <QStringList>
@@ -17,9 +25,12 @@
 using namespace KIO;
 using namespace KIO_CLIPBOARD;
 
-/**
- * Constructs the backend part of the clipboard wrapper
+/*!
+ * KlipperBackend::KlipperBackend
+ * @brief Constructor of the backend part of the clipboard wrapper.
+ * @param parent
  * DBusclient is the abstract communication client used in background
+ * @author Christian Reiner
  */
 KlipperBackend::KlipperBackend ( QObject* parent )
   : ClipboardBackend ( parent )
@@ -28,36 +39,45 @@ KlipperBackend::KlipperBackend ( QObject* parent )
   kDebug() << "constructing specialized DBus client of type 'klipper'";
 } // KlipperBackend::KlipperBackend
 
-/**
- * Constructs the backend part of the clipboard wrapper
+/*!
+ * KlipperBackend::~KlipperBackend
+ * @brief Destructor of the backend part of the clipboard wrapper
+ * @author Christian Reiner
  */
-KlipperBackend::~KlipperBackend ()
+KlipperBackend::~KlipperBackend ( )
 {
   kDebug() << "destructing specialized DBus client of type 'klipper'";
 } // KlipperBackend::~KlipperBackend
 
-/**
- * Clears the currently active clipboard content
+/*!
+ * KlipperBackend::clearClipboardContents
+ * @brief Clears the currently active clipboard content. 
+ * @author Christian Reiner
  */
-void KlipperBackend::clearClipboardContents ()
+void KlipperBackend::clearClipboardContents ( )
 {
   kDebug();
   m_interface->call ( "clearClipboardContents" );
 } // KlipperBackend::clearClipboardContents
 
-/**
- * Removes all entries from the clipboard
+/*!
+ * KlipperBackend::clearClipboardHistory
+ * @brief Removes all entries from the clipboard. 
+ * @author Christian Reiner
  */
-void KlipperBackend::clearClipboardHistory ()
+void KlipperBackend::clearClipboardHistory ( )
 {
   kDebug();
   m_interface->call ( "clearClipboardHistory" );
 } // KlipperBackend::clearClipboardHistory
 
-/**
- * Retrieves the currently active clipboard content
+/*!
+ * KlipperBackend::getClipboardContents
+ * @brief Retrieves the currently active clipboard content.
+ * @return string holding the current clipboard content
+ * @author Christian Reiner
  */
-QString KlipperBackend::getClipboardContents ()
+QString KlipperBackend::getClipboardContents ( )
 {
   kDebug();
   call ( "getClipboardContents" );
@@ -68,10 +88,13 @@ QString KlipperBackend::getClipboardContents ()
   return _entry;
 } // KlipperBackend::getClipboardContents
 
-/**
- * Retrieves all entries available in the clipboard
+/*!
+ * KlipperBackend::getClipboardHistoryMenu
+ * @brief Retrieves all entries available in the clipboard.
+ * @return list of string holding the clipboard history
+ * @author Christian Reiner
  */
-QStringList KlipperBackend::getClipboardHistoryMenu ()
+QStringList KlipperBackend::getClipboardHistoryMenu ( )
 {
   kDebug();
   call ( "getClipboardHistoryMenu" );
@@ -80,8 +103,12 @@ QStringList KlipperBackend::getClipboardHistoryMenu ()
   return _entries;
 } // KlipperBackend::getClipboardHistoryMenu
 
-/**
- * Retrieves a specific entry from the clipboard, indentified by its numeric index
+/*!
+ * KlipperBackend::getClipboardHistoryItem
+ * @brief Retrieves a specific entry from the clipboard, indentified by its numeric index.
+ * @param index numeric index if the entry to be retrieved.
+ * @return string holding the content of the requested clipboard entry. 
+ * @author Christian Reiner
  */
 QString KlipperBackend::getClipboardHistoryItem ( int index )
 {
@@ -94,8 +121,11 @@ QString KlipperBackend::getClipboardHistoryItem ( int index )
   return _entry;
 } // KlipperBackend::getClipboardHistoryItem
 
-/**
- * Sets the content of the currently active clipboard entry
+/*!
+ * KlipperBackend::setClipboardContents
+ * @brief Sets the content of the currently active clipboard entry.
+ * @param entry string to be set as the new clipboard content. 
+ * @author Christian Reiner
  */
 void KlipperBackend::setClipboardContents ( const QString& entry )
 {
@@ -103,8 +133,11 @@ void KlipperBackend::setClipboardContents ( const QString& entry )
   call ( "setClipboardContents", entry );
 } // KlipperBackend::setClipboardContents
 
-/**
- * Replaces all clipboard entries by a list of new ones
+/*!
+ * KlipperBackend::setClipboardHistory
+ * @brief Replaces all clipboard entries by a list of new ones.
+ * @param entries string list of new entries to be set in the clipboard
+ * @author Christian Reiner
  */
 void KlipperBackend::setClipboardHistory ( const QStringList& entries )
 {

@@ -5,6 +5,13 @@
  * $Revision$
  * $Date$
  */
+
+/*!
+ * @file Declaration of class NodeList
+ * @see NodeList
+ * @author Christian Reiner
+ */
+
 #ifndef NODE_LIST_H
 #define NODE_LIST_H
 
@@ -16,6 +23,11 @@ using namespace KIO;
 namespace KIO_CLIPBOARD
 {
   class NodeWrapper;
+  /*!
+   * class NodeList
+   * @brief Container class holding a list of node objects (clipboard items)
+   * @author Christian Reiner
+   */
   class NodeList
   {
     public:

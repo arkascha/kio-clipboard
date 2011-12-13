@@ -5,6 +5,14 @@
  * $Revision$
  * $Date$
  */
+
+/*!
+ * @file
+ * Declares the generic class ClipboardFrontend.
+ * @see ClipboardFrontend
+ * @author Christian Reiner
+ */
+
 #ifndef CLIPBOARD_FRONTEND_H
 #define CLIPBOARD_FRONTEND_H
 
@@ -25,25 +33,32 @@ class KSharedDataCache;
 using namespace KIO;
 namespace KIO_CLIPBOARD
 {
-  /**
-   * A simple convenience function that breaks a given URL into three tokens:
+  /*!
+   * tokenizeUrl
+   * @brief Simple convenience function that breaks a given URL into three tokens
+   * @author: Christian Reiner
    */
   const QStringList tokenizeUrl ( const KUrl& url);
 
-  /**
-   * an enumeration of clipboard types as known, handled and implemented
-   * each type of clipboard has it's own specific ways of how to be handled
-   * therefore it is very important to clearly identify that type upon usage
+  /*!
+   * ClipboardType
+   * @brief Technical type of a clipboard
+   * An enumeration of clipboard types as known, handled and implemented. 
+   * Each type of clipboard has it's own specific ways of how to be handled. 
+   * Therefore it is very important to clearly identify that type upon usage. 
    * - KLIPPER: local clipboard application used as a standard in KDE4 desktops
+   * @author: Christian Reiner
    */
   enum ClipboardType  { KLIPPER };
 
-  /**
-   * This class acts as a proxy layer between frontend and backend
+  /*!
+   * class ClipboardFrontend
+   * @brief This class acts as a proxy layer between frontend and backend.
    * - frontend: the slave/protocol offering the backend inside the KIO system
    * - backend: the clipboard itself as accessible by some interface
-   * The access to the clipboard strictly depends on the interface that is used to access features and content
-   * This class acts as a wrapper to make the clipboard accessible in a generic way, so it is some kind of application proxy
+   * The access to the clipboard strictly depends on the interface that is used to access features and content. 
+   * This class acts as a wrapper to make the clipboard accessible in a generic way, so it is some kind of application proxy. 
+   * @author: Christian Reiner
    */
   class ClipboardFrontend
   {

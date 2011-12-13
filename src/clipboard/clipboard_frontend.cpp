@@ -5,6 +5,14 @@
  * $Revision$
  * $Date$
  */
+
+/*!
+ * @file
+ * Implements the methods of the generic class ClipboardFrontend.
+ * @see ClipboardFrontend
+ * @author Christian Reiner
+ */
+
 #include <math.h>
 #include <kdebug.h>
 #include <kurl.h>
@@ -20,8 +28,12 @@
 using namespace KIO;
 using namespace KIO_CLIPBOARD;
 
-/**
- * A simple convenience function that breaks a given URL in tokens
+/*!
+ * KIO_CLIPBOARD::tokenizeUrl
+ * @brief A simple convenience function that breaks a given URL in tokens
+ * @param url url to be tokenized
+ * @return list of string tokens
+ * @author Christian Reiner
  */
 const QStringList KIO_CLIPBOARD::tokenizeUrl ( const KUrl& url )
 {
@@ -40,12 +52,15 @@ const QStringList KIO_CLIPBOARD::tokenizeUrl ( const KUrl& url )
 
 //==========
 
-/**
- * autodetection of available clipboards for thise cases where this is possiblet
+/*!
+ * ClipboardFrontend::detectClipboards
+ * @brief Autodetection of available clipboards for cases where this is possible
+ * @return list of pointers to created ClipboardFrontend objects
  * - local clipboard applications:
- * - - 'klipper': detect its presence on DBus
+ * - - 'klipper': detects presence on DBus
  * - remote clipboard services:
- * - - ??
+ * - - 'pastebin': test connection to the server
+ * @author Christian Reiner
  */
 QList<const ClipboardFrontend*> ClipboardFrontend::detectClipboards ( )
 {
@@ -58,8 +73,12 @@ QList<const ClipboardFrontend*> ClipboardFrontend::detectClipboards ( )
   return _clipboards;
 } // ClipboardFrontend::detectClipboards
 
-/**
- * Each representation of a clipboard is identified by its name and an URL to access it. 
+/*!
+ * ClipboardFrontend::ClipboardFrontend
+ * @brief Constructor of generic class ClipboardFrontend
+ * @param url base url of the clipboard node
+ * @param name visible name of the clipboard node
+ * @author Christian Reiner
  */
 ClipboardFrontend::ClipboardFrontend ( const KUrl& url, const QString& name )
   : m_url  ( url )
@@ -74,10 +93,12 @@ ClipboardFrontend::ClipboardFrontend ( const KUrl& url, const QString& name )
   m_nodes = new NodeList;
 } // ClipboardFrontend::ClipboardFrontend
 
-/**
- * Any ceanups required go here. 
+/*!
+ * ClipboardFrontend::~ClipboardFrontend
+ * @brief Destructor of the generic class ClipboardFrontend
+ * @author Christian Reiner
  */
-ClipboardFrontend::~ClipboardFrontend()
+ClipboardFrontend::~ClipboardFrontend ( )
 {
   kDebug();
   clearNodes();
@@ -85,8 +106,11 @@ ClipboardFrontend::~ClipboardFrontend()
   delete m_nodes;
 } // ClipboardFrontend::~ClipboardFrontend
 
-/**
- * A clipboard itself as presented to the outside worlds (the KIO system)
+/*!
+ * ClipboardFrontend::toUDSEntry
+ * @brief A clipboard itself as presented to the outside worlds (the KIO system).
+ * @return UDSEntry object describing the clipboard node itself
+ * @author: Christian Reiner
  */
 const UDSEntry ClipboardFrontend::toUDSEntry ( ) const
 {
@@ -104,8 +128,11 @@ const UDSEntry ClipboardFrontend::toUDSEntry ( ) const
   return _entry;
 } // KIOClipboardProtocol::registerClipboard
 
-/**
- * A list of all nodes (clipboard entries) as present in this wrapper. 
+/*!
+ * ClipboardFrontend::toUDSEntryList
+ * @brief Lists all nodes (clipboard entries) as present in this wrapper.
+ * @return UDSEntryList describing the clipboards entries
+ * @author: Christian Reiner
  */
 const UDSEntryList ClipboardFrontend::toUDSEntryList ( ) const
 {
@@ -116,11 +143,14 @@ const UDSEntryList ClipboardFrontend::toUDSEntryList ( ) const
   return _entries;
 } // ClipboardFrontend::toUDSEntryList
 
-/**
- * Since we buffer the clipboards entries in a map of objects we have to refresh that map from time to time
- * Since changes in clipboards often can only be detected by polling this has to be done quite frequent
+/*!
+ * ClipboardFrontend::refreshNodes
+ * @brief Refreshes all entries contained in the clipboard. 
+ * Since we buffer the clipboards entries in a map of objects we have to refresh that map from time to time. 
+ * Since changes in clipboards often can only be detected by polling this has to be done quite frequent. 
+ * @author: Christian Reiner
  */
-void ClipboardFrontend::refreshNodes ()
+void ClipboardFrontend::refreshNodes ( )
 {
   kDebug();
   // ask the specialised client for the entries
@@ -143,9 +173,12 @@ void ClipboardFrontend::refreshNodes ()
   m_cache->insert ( "nodes", m_nodes->toJSON() );
 } // ClipboardFrontend::refreshNodes
 
-/**
+/*!
+ * ClipboardFrontend::clearNodes
+ * @brief: Clears all entries contained in the clipboard. 
  * Removes all nodes that act as representations for clipboard entries.
  * Typically called upon cleanup of right before re-populating by reading all available entries again. 
+ * @author: Christian Reiner
  */
 void ClipboardFrontend::clearNodes ( )
 {
@@ -154,10 +187,13 @@ void ClipboardFrontend::clearNodes ( )
     delete _entry;
 } // ClipboardFrontend::clearNodes
 
-/**
- * Since clipboard entries do not have clear and simple file names we require a failure proof identification of each entry
- * (Note that the index of an entry can easily change when the clipboars content is changed...)
- * So we define a unique URL for each node and match all requests lateer against this url
+/*!
+ * ClipboardFrontend::findNodeByUrl
+ * @brief Identification of a clipboards entry by its url
+ * Since clipboard entries do not have clear and simple file names we require a failure proof identification of each entry. 
+ * (Note that the index of an entry can easily change when the clipboards content is changed...)
+ * So we define a unique URL for each node and match all requests lateer against this url. 
+ * @author: Christian Reiner
  */
 const NodeWrapper* ClipboardFrontend::findNodeByUrl ( const KUrl& url )
 {

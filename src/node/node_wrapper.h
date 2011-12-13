@@ -5,6 +5,13 @@
  * $Revision$
  * $Date$
  */
+
+/*!
+ * @file Declaration of class NodeWrapper
+ * @see NodeWrapper
+ * @author Christian Reiner
+ */
+
 #ifndef NODE_WRAPPER_H
 #define NODE_WRAPPER_H
 
@@ -19,7 +26,8 @@ namespace KIO_CLIPBOARD
 {
   class ClipboardFrontend;
 
-  /**
+  /*!
+   * class NodeWrapper
    * This class describes all aspects of a 'node', this is an entry in a clipboard.
    * The protocol implementations use objects of this class to keep track of entries on clipboards:
    * By defining such an own description of an entry it is easier to handle an entry from sifferent places out since we can offer convenient methods.
@@ -29,6 +37,7 @@ namespace KIO_CLIPBOARD
    * - all private members are published via direct access methods (read only)
    * - in addition a number of convenience constructions are offered as methods as well
    *   these are generated based only on the constant settings stored in the members mentioned above
+   * @author Christian Reiner
    */
   class NodeWrapper
     : public QObject

@@ -5,6 +5,13 @@
  * $Revision$
  * $Date$
  */
+
+/*!
+ * @file Implementation of generic class KIOProtocol
+ * @see KIOProtocol
+ * @author Christian Reiner
+ */
+
 #include <QFile>
 #include <kmimetype.h>
 #include <kio/netaccess.h>
@@ -18,10 +25,15 @@ using namespace KIO_CLIPBOARD;
 
 //==========
 
-/**
- * The standard constructor as called by the main loop setup at slace setup.
+/*!
+ * KIOProtocol::KIOProtocol
+ * @brief Standard constructor of class KIOProtocol.
+ * @param pool standard pool argument required by all kio slaves
+ * @param app standard app argument required by all kio slaves
+ * @param clipboard pointer to a ClipboardFrontend object wrapper a running 'klipper' instance
  * Besides the typical arguments required for a slave it requires a pointer to a clipboard object.
  * That object is used as the implementation of the specialized, that is specific routines required to communicate with an existing clipboard application. 
+ * @author Christian Reiner
  */
 KIOProtocol::KIOProtocol ( const QByteArray& pool, const QByteArray& app, ClipboardFrontend* const clipboard )
   : SlaveBase ( clipboard->protocol().toUtf8(), pool, app )
@@ -30,13 +42,21 @@ KIOProtocol::KIOProtocol ( const QByteArray& pool, const QByteArray& app, Clipbo
   kDebug() << "constructing protocol" << clipboard->protocol();
 } // KIOProtocol::KIOProtocol
 
+/*!
+ * KIOProtocol::KIOProtocol
+ * @brief Standard destructor of class KIOProtocol.
+ * @author Christian Reiner
+ */
 KIOProtocol::~KIOProtocol ( )
 {
   kDebug() << "destructing protocol";
 } // KIOProtocol::~KIOProtocol
 
-/**
- * This is the work horse that takes over when the generic code in copy() has devided wether to deny or grant this action to be undertaken.
+/*!
+ * KIOProtocol::copyFromFile
+ * @brief This is the work horse that takes over when the generic code in copy() has devided wether to deny or grant this action to be undertaken.
+ * @param src source url of item to be copied
+ * @param dest destiny url of item to be copied
  * copy() will only call this for the copyFromFile feature for slaves / protocols. 
  * There are two central ways to copy a file:
  * 1.) push the files content onto the clipboard, this makes sense for human readable texts, typically for programming and text processing
@@ -45,6 +65,7 @@ KIOProtocol::~KIOProtocol ( )
  * a) the size of the files content is compared to the maximum entry size as defined by the clipboard wrapper object
  * b) the type of content by looking closely at the detected mimetype
  * When a reference appears to make more sense then a copy the user is prompted to acknowledge or deny that switch. 
+ * @author Christian Reiner
  */
 /*
 void KIOProtocol::copyFile ( const KUrl& url )
@@ -154,7 +175,10 @@ void KIOProtocol::copyFromFile ( const KUrl& src,  const KUrl& dest )
 } // KIOProtocol::copyFromFile
 
 /**
- * Pushes a reference to a file onto the clipboard.
+ * KIOProtocol::copyFromFile_Reference
+ * @brief Pushes a reference to a file onto the clipboard.
+ * @param url url of the item
+ * @author Christian Reiner
  */
 /*
 void KIOProtocol::copyToFile_Reference ( const NodeWrapper* src, const KUrl& dest )
@@ -189,6 +213,7 @@ void KIOProtocol::copyFromFile_Reference ( const KUrl& url )
 
 /**
  * Pushes a reference to a file onto the clipboard.
+ * @author Christian Reiner
  */
 void KIOProtocol::copyFromFile_Reference ( const QString& path )
 {
@@ -196,9 +221,11 @@ void KIOProtocol::copyFromFile_Reference ( const QString& path )
   m_clipboard->pushEntry ( path );
 } // KIOProtocol::copyFromFile_Reference
 
-/**
- * Pushes the content of a file onto the clipboard.
+/*!
+ * KIOProtocol::copyFromFile_Content
+ * @brief Pushes the content of a file onto the clipboard.
  * There is no check for filesize, this has already been dealt with in the calling copyFile()
+ * @author Christian Reiner
  */
 void KIOProtocol::copyFromFile_Content ( const KUrl& url )
 {

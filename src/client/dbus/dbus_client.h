@@ -5,6 +5,13 @@
  * $Revision$
  * $Date$
  */
+
+/*!
+ * @file
+ * Declares class DBusClient. 
+ * @author Christian Reiner
+ */
+
 #ifndef DBUS_CLIENT_H
 #define DBUS_CLIENT_H
 
@@ -17,8 +24,8 @@
 using namespace KIO;
 namespace KIO_CLIPBOARD
 {
-
-  /**
+  /*!
+   * @class DBusClient
    * A generic DBus client
    * This class acts as a simple bridge between the separate object representations inside DBus and c++
    * Basic error handling is provided and a few convenience methods

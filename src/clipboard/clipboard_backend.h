@@ -5,6 +5,14 @@
  * $Revision: 81 $
  * $Date: 2011-08-13 13:08:50 +0200 (Sat, 13 Aug 2011) $
  */
+
+/*!
+ * @file
+ * Declares the generic class ClipboardBackend.
+ * @see ClipboardBackend
+ * @author Christian Reiner
+ */
+
 #ifndef CLIPBOARD_BACKEND_H
 #define CLIPBOARD_BACKEND_H
 
@@ -16,7 +24,11 @@ class QDBusInterface;
 using namespace KIO;
 namespace KIO_CLIPBOARD
 {
-
+  /*!
+   * class ClipboardBackend
+   * @brief Generic backend wrapper
+   * @author Christian Reiner
+   */
   class ClipboardBackend
     : public QObject
   {

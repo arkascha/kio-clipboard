@@ -5,6 +5,13 @@
  * $Revision$
  * $Date$
  */
+
+/*!
+ * @file Declaration of generic class KIOProtocol
+ * @see KIOProtocol
+ * @author Christian Reiner
+ */
+
 #ifndef KIO_PROTOCOL_H
 #define KIO_PROTOCOL_H
 
@@ -19,10 +26,12 @@ namespace KIO_CLIPBOARD
 {
   class ClipboardFrontend;
 
-  /**
-   * This is an abstract base common to all specialized kio-clipboard protocols.
+  /*!
+   * class KIOProtocol
+   * @brief This is an abstract base common to all specialized kio-clipboard protocols.
    * It defines generic methods that this way are kept equal throuhout all specialists, therefore it acts as an interface definition.
    * The hook to the non-generic world of specific clipboards is the pointer to a clipboard object handed over to the constructor. 
+   * @author Christian Reiner
    */
   class KIOProtocol
     : public SlaveBase

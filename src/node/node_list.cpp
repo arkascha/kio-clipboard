@@ -5,6 +5,13 @@
  * $Revision$
  * $Date$
  */
+
+/*!
+ * @file Implementation of class NodeList
+ * @see NodeList
+ * @author Christian Reiner
+ */
+
 #include <QVariant>
 #include <qjson/parser.h>
 #include <qjson/serializer.h>
@@ -16,6 +23,12 @@
 using namespace KIO;
 using namespace KIO_CLIPBOARD;
 
+/*!
+ * NodeList::toUDSEntryList
+ * @brief Creates a UDSEntryList to describe all nodes contained in the list.
+ * @return UDSEntryList
+ * @author Christian Reiner
+ */
 UDSEntryList NodeList::toUDSEntryList ( ) const
 {
   UDSEntryList _entries;
@@ -25,6 +38,12 @@ UDSEntryList NodeList::toUDSEntryList ( ) const
   return _entries;
 } // NodeList::toUDSEntry
 
+/*!
+ * NodeList::toJSON
+ * @brief Serializes a list of nodes to JSON data
+ * @return QByteArray holding the JSON serialized data
+ * @author Christian Reiner
+ */
 QByteArray NodeList::toJSON ( ) const
 {
   kDebug() << "creating JSON notation of node list holding" << m_nodes.size() << "entries";
@@ -37,6 +56,13 @@ QByteArray NodeList::toJSON ( ) const
   return _serializer.serialize ( _nodes );
 } // NodeList::toJSON
 
+/*!
+ * NodeList::fromJSON
+ * @brief Constructs a list of nodes as described by the JSON data
+ * @param json JSON serialized node data
+ * @return list of node objects
+ * @author Christian Reiner
+ */
 NodeList& NodeList::fromJSON ( const QByteArray& json )
 {
   kDebug();

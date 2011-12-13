@@ -5,6 +5,14 @@
  * $Revision$
  * $Date$
  */
+
+/*!
+ * @file Declaratin of class Exception
+ * This is a header-only library, no additional implementation file exists, thus no linking is required.
+ * @see Exception
+ * @author Christian Reiner
+ */
+
 #ifndef UTILITY_EXCEPTION_H
 #define UTILITY_EXCEPTION_H
 
@@ -15,10 +23,11 @@
 using namespace KIO;
 namespace KIO_CLIPBOARD
 {
-
-  /**
-   * Convenience wrapper for standard exception
-   * this class serves as a header-only library (no object file to be linked)
+  /*!
+   * class Exception
+   * @brief Convenience wrapper for standard exception
+   * This class serves as a header-only library (no object file to be linked). 
+   * @author Christian Reiner
    */
   class Exception
     : public QtConcurrent::Exception

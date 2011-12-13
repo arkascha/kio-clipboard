@@ -5,6 +5,13 @@
  * $Revision$
  * $Date$
  */
+
+/*!
+ * @file
+ * Implements the methods of class DBusClient. 
+ * @author Christian Reiner
+ */
+
 #include <QtDBus/QDBusConnection>
 #include <QtDBus/QDBusReply>
 #include <QDBusInterface>
@@ -28,9 +35,14 @@ using namespace KIO_CLIPBOARD;
 const int timeout = 5000;
 const int repeat = 6;
 
-/**
- * Constructor
+/*!
+ * DBusClient::DBusClient
+ * @brief Constructor of class DBusClient
+ * @param service dbus specific service namespace
+ * @param path dbus specific component path
+ * @param interface dbus interface
  * nothing special to setup since this is a generic proxy
+ * @author Christian Reiner
  */
 DBusClient::DBusClient ( const QString& service, const QString& path, const QString& interface )
 {
@@ -47,9 +59,10 @@ DBusClient::DBusClient ( const QString& service, const QString& path, const QStr
   kDebug() << "connection to DBus successful.";
 }
 
-/**
- * Destructor
- * nothing to cleanup
+/*!
+ * DBusClient::~DBusClient
+ * @brief Destructor of class DBusClient
+ * @author Christian Reiner
  */
 DBusClient::~DBusClient ( )
 {
@@ -57,31 +70,44 @@ DBusClient::~DBusClient ( )
   delete this->m_interface;
 }
 
-/**
+/*!
+ * DBusClient::resultSize
+ * @brief read-only access to the result a request produced
+ * @return list of QVariants holding the requests result
  * read-only access to the result a request produced
  * used by deriving classes, might be extended by error handling
+ * @author Christian Reiner
  */
 QList<QVariant> DBusClient::result ( )
 {
   return m_result;
 } // DBusClient::result
 
-/**
+/*!
+ * DBusClient::resultSize
+ * @brief size of the requests result
+ * @return size of request result
  * the actual size of the result a request produced
  * used by deriving classes, might be extended by error handling
+ * @author Christian Reiner
  */
 int DBusClient::resultSize ( )
 {
   return m_result.size();
 } // DBusClient::resultSize
 
-/**
+/*!
+ * DBusClient::convertReturnValue
+ * @brief Convert return value to a specified type
+ * @param variant the variant to covert
+ * @param _t the type to convert the variant to
+ * @return the converted variant
  * converts the representation of data in a result into a more convenient c++ format
  * since the structure of a result depends on the request called and might actually
  * differ from situation to situation we use QVariants to holds the data
- *
  * this method is used by the calling scope as a service to convert a data held in a result into an expected format
  * error handling is done as far as possible (syntactically and type-specific)
+ * @author Christian Reiner
  */
 QVariant& DBusClient::convertReturnValue ( QVariant &variant, QVariant::Type _t )
 {
@@ -99,10 +125,20 @@ QVariant& DBusClient::convertReturnValue ( QVariant &variant, QVariant::Type _t 
   return variant;
 } // DBusClient::readReturnValue
 
-/**
- * generic wrapper of an actual request (call) to DBus
+/*!
+ * DBusClient::called
+ * @param arg1 first dbus argument
+ * @param arg2 second dbus argument
+ * @param arg3 third dbus argument
+ * @param arg4 fourth dbus argument
+ * @param arg5 fifth dbus argument
+ * @param arg6 sixth dbus argument
+ * @param arg7 seventh dbus argument
+ * @param arg8 eigth dbus argument
+ * @brief generic wrapper of an actual request (call) to DBus
  * basic error handling considers protocol and transport problems,
  * but there is no way to deal with the content received as a result
+ * @author Christian Reiner
  */
 void DBusClient::call ( const QString method, const QVariant & arg1,
                                               const QVariant & arg2,

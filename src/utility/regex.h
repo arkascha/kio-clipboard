@@ -5,6 +5,14 @@
  * $Revision$
  * $Date$
  */
+
+/*!
+ * @file Declares class regExPool, a QMap-like RegEx catalog
+ * This is a header-only library, no additional implementation file exists, thus no linking is required.
+ * @see regExPool
+ * @author Christian Reiner
+ */
+
 #ifndef UTILITY_REGEX_H
 #define UTILITY_REGEX_H
 
@@ -12,13 +20,15 @@
 #include <QString>
 #include <QDataStream>
 
-/**
- * This class acts exactly as a plain QMap (QMap<QString,QRegExp>)
- * In additional it holds a collection of regular expressions that are required in day-to-day use to check syntactical patterns
- */
-
 namespace KIO_CLIPBOARD
 {
+  /*!
+  * class regExPool
+  * @brief QMap-like container class enhanced by an integrated RegEx catalog
+  * This class acts exactly as a plain QMap (QMap<QString,QRegExp>). 
+  * In additional it holds a collection of regular expressions that are required in day-to-day use to check syntactical patterns.
+  * @author Christian Reiner
+  */
   class regExPool
   {
     public:

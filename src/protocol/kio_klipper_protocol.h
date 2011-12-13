@@ -5,6 +5,14 @@
  * $Revision$
  * $Date$
  */
+
+/*!
+ * @file Declaration of class KIOKlipperProtocol
+ * @see KIOKlipperProtocol
+ * @see KIOProtocol
+ * @author Christian Reiner
+ */
+
 #ifndef KIO_KLIPPER_PROTOCOL_H
 #define KIO_KLIPPER_PROTOCOL_H
 
@@ -20,8 +28,11 @@
 using namespace KIO;
 namespace KIO_CLIPBOARD
 {
-  /**
-   * The central definition of a clipboard protocol that can communicate with the clipboard application 'klipper' as used in KDE4 desktops. 
+  /*!
+   * class KIOKlipperProtocol
+   * @brief The central definition of a clipboard protocol that can communicate with the clipboard application 'klipper' as used in KDE4 desktops. 
+   * @see KIOProtocol
+   * @author Christian Reiner
    */
   class KIOKlipperProtocol
     : public QObject
