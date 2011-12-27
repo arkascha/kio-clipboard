@@ -35,14 +35,14 @@ namespace KIO_CLIPBOARD
 {
   /*!
    * tokenizeUrl
-   * @brief Simple convenience function that breaks a given URL into three tokens
+   * @brief Simple convenience function that breaks a given URL into three tokens. 
    * @author: Christian Reiner
    */
   const QStringList tokenizeUrl ( const KUrl& url);
 
   /*!
    * ClipboardType
-   * @brief Technical type of a clipboard
+   * @brief Technical type of a clipboard. 
    * An enumeration of clipboard types as known, handled and implemented. 
    * Each type of clipboard has it's own specific ways of how to be handled. 
    * Therefore it is very important to clearly identify that type upon usage. 

@@ -8,8 +8,9 @@
 
 /*!
  * @file
- * Implements class KlipperBackend.
+ * Implements the specialized class KlipperBackend.
  * @see KlipperBackend
+ * @see ClipboardBackend
  * @author Christian Reiner
  */
 
@@ -27,9 +28,9 @@ using namespace KIO_CLIPBOARD;
 
 /*!
  * KlipperBackend::KlipperBackend
- * @brief Constructor of the backend part of the clipboard wrapper.
+ * @brief Constructor of the backend part of the specialized clipboard wrapper.
  * @param parent
- * DBusclient is the abstract communication client used in background
+ * DBusClient is the abstract communication client used in background. 
  * @author Christian Reiner
  */
 KlipperBackend::KlipperBackend ( QObject* parent )
@@ -41,7 +42,7 @@ KlipperBackend::KlipperBackend ( QObject* parent )
 
 /*!
  * KlipperBackend::~KlipperBackend
- * @brief Destructor of the backend part of the clipboard wrapper
+ * @brief Destructor of the backend part of the clipboard wrapper.
  * @author Christian Reiner
  */
 KlipperBackend::~KlipperBackend ( )

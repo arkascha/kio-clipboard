@@ -26,7 +26,7 @@ namespace KIO_CLIPBOARD
 {
   /*!
    * class ClipboardBackend
-   * @brief Generic backend wrapper
+   * @brief Generic clipboard backend wrapper. 
    * @author Christian Reiner
    */
   class ClipboardBackend

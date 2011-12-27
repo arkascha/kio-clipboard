@@ -8,7 +8,7 @@
 
 /*!
  * @file
- * Declares class KlipperBackend.
+ * Declares the specialized class KlipperBackend.
  * @see KlipperBackend
  * @see ClipboardBackend
  * @author Christian Reiner
@@ -31,6 +31,7 @@ namespace KIO_CLIPBOARD
    * @brief The part of the wrapper that implements the specific routines required to use the clipboard. 
    * Communication is done via a separate, abstract client, in this case a DBus client. 
    * So this class maps specific routines onto the abstract client methods. 
+   * @see ClipboardBackend
    * @author Christian Reiner
    */
   class KlipperBackend

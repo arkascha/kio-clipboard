@@ -28,11 +28,12 @@ namespace KIO_CLIPBOARD
   /*!
    * class KlipperFrontend
    * @brief This class implements a wrapper around the 'klipper' clipboard application.
-   * 'klipper' is the standard clipboard application as used inside KDE4 desktop sessions
-   * Communication is done via klippers DBus interface which appears to be pretty stable
-   * So all required actions are mapped onto DBus calls, the replies are represented as internal structures again
-   * This interface is not really 'random-access', but good enough for our purpose
-   * The actual communication via DBus is handled by a DBus client defined externally
+   * 'klipper' is the standard clipboard application as used inside KDE3 and KDE4 desktop sessions. 
+   * Communication is done via klippers DBus interface which appears to be pretty stable. 
+   * So all required actions are mapped onto DBus calls, the replies are represented as internal structures again. 
+   * This interface is not really 'random-access', but good enough for our purpose. 
+   * The actual communication via DBus is handled by a DBus client defined outside this class. 
+   * @see ClipboardFrontend
    * @author Christian Reiner
    */
   class KlipperFrontend

@@ -23,7 +23,7 @@ using namespace KIO_CLIPBOARD;
 
 /*!
  * ClipboardBackend::ClipboardBackend
- * @brief Constructor of generic class ClipboardBackend
+ * @brief Constructor of generic class ClipboardBackend.
  * @param parent parent object
  * @author Christian Reiner
  */
@@ -35,7 +35,7 @@ ClipboardBackend::ClipboardBackend ( QObject* parent )
 
 /*!
  * ClipboardBackend::~ClipboardBackend
- * @brief Destructor of generic class ClipboardBackend
+ * @brief Destructor of generic class ClipboardBackend.
  * @author Christian Reiner
  */
 ClipboardBackend::~ClipboardBackend ()

@@ -24,7 +24,8 @@ using namespace KIO_CLIPBOARD;
 
 /*!
  * KlipperFrontend::detectClipboards
- * @brief Detection of availability of klipper clipboard (in local session).
+ * @brief Detection of availability of a clipboard of type 'klipper' (in local session).
+ * The availability is detected by the presence of a dbus service 'org.kde.klipper'. 
  * @param dbus dbus object used for communication
  * @return list of created ClipboardFrontend objects
  * @author Christian Reiner
@@ -39,7 +40,7 @@ QList<const ClipboardFrontend*> KlipperFrontend::detectClipboards ( DBusClient& 
   {
     if ( "org.kde.klipper"==_name )
     {
-      kDebug() << "detected available clipboard of type 'KLIPPER' with url 'klipper:/'";
+      kDebug() << "detected available clipboard of type 'KLIPPER', chosing url 'klipper:/'";
       _clipboards << new KlipperFrontend ( KUrl("klipper:/"), "klipper" );
     }
   }
@@ -49,8 +50,9 @@ QList<const ClipboardFrontend*> KlipperFrontend::detectClipboards ( DBusClient& 
 
 /*!
  * KlipperFrontend::KlipperFrontend
- * @brief Constructor of class KlipperFrontend
- * All setup required is a DBus client we use as a proxy.
+ * @brief Constructor of class KlipperFrontend. 
+ * Nearly all setup required is done by the generic frontend class this class is derived from.
+ * Only thing left is to setup a type specific backend object. 
  * @param url url of the clipboard node
  * @param name visible name of the clipboard node
  * @author Christian Reiner
@@ -65,7 +67,7 @@ KlipperFrontend::KlipperFrontend ( const KUrl& url, const QString& name )
 /*!
  * KlipperFrontend::~KlipperFrontend
  * @brief Destructor of class KlipperFrontend
- * All cleanup required is to destroy the DBus client
+ * All cleanup required is to destroy the private backend object.
  * @author Christian Reiner
  */
 KlipperFrontend::~KlipperFrontend ( )
@@ -77,7 +79,7 @@ KlipperFrontend::~KlipperFrontend ( )
 /*!
  * KlipperFrontend::getClipboardEntry
  * @brief Reads current clipboard entry (the content). 
- * note that this is always a string, be it human-readable or not. 
+ * Note that this is always of type string, be it human-readable or not.
  * @author Christian Reiner
  */
 QString KlipperFrontend::getClipboardEntry ( )
@@ -104,7 +106,7 @@ QString KlipperFrontend::getClipboardEntry ( int index )
  * KlipperFrontend::getClipboardEntries
  * @brief Conveniently get all clipboard entries in a single call.
  * @return string list holding all entries available in the clipboard
- * This makes sense for refreshing and initializing. 
+ * This makes sense for a complete refresh or initialization.
  * @author Christian Reiner
  */
 QStringList KlipperFrontend::getClipboardEntries ( )
@@ -120,8 +122,8 @@ QStringList KlipperFrontend::getClipboardEntries ( )
 /*!
  * KlipperFrontend::pushEntry
  * @brief Push a new entry onto the clipboard.
- * @oaram entry string to be added to the clipboard as a new entry
- * Since clipboards act as fifos this entry is typically pushed onto the front of the stack. 
+ * @param entry string to be added to the clipboard as a new entry
+ * Since clipboard histories act as FIFOs this entry is typically pushed onto the front of the queue.
  * @author Christian Reiner
  */
 void KlipperFrontend::pushEntry ( const QString& entry )
@@ -135,9 +137,8 @@ void KlipperFrontend::pushEntry ( const QString& entry )
  * KlipperFrontend::delEntry
  * @brief Removes an entry from the clipboard.
  * @param url url of the entry to be removed
- * Note that this works random-access, a feature that is not actually offered by a clipboard. 
- * We kind of emulate this feature instead by removing all entries and repopulating the clipboard
- * with all entries except that one to be removed. 
+ * Note that this works random-access, a feature that is not actually offered by the klipper application.
+ * We kind of emulate this feature instead by removing all entries and repopulating the clipboard with all entries except that one to be removed.
  * @author Christian Reiner
  */
 void KlipperFrontend::delEntry ( const KUrl& url )
