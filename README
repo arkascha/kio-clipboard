@@ -47,7 +47,9 @@ kio-clipboard was developed and tested under KDE-4.6 running on a GNU/Linux
 environments.
 
 State:
-This is an early and definitely buggy release. Especially There are some issues with actions offered in file managers, "link here" does not work and I cannot suppress it.
+This is an early and definitely buggy release. Especially There are some issues 
+with actions offered in file managers, "link here" does not work and I cannot 
+suppress it.
 There are currently no clipboards supported besides 'klipper' :-(
 Since this is my very first KDE implementation please don't rip me to pieces :-)
 
@@ -57,7 +59,8 @@ Future versions might also be able to access remote (non-local) clipboards, the
 current version is limited to the local (current) desktop session.
 
 Usage:
-Just enter "clipboard:/" or "klipper:/" in the location bar of for example dolphin or a "File open" dialog.
+Just enter "clipboard:/" or "klipper:/" in the location bar of for example 
+dolphin or a "File open" dialog.
 * "klipper:/":
 This slave implements access to the standard clipboard utility under KDE4,
 called 'klipper'. Communication with klipper is done via its DBus interface,
